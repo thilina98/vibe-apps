@@ -1,9 +1,9 @@
 import { Link } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AppListing } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Star } from "lucide-react";
 import { getToolColor } from "../lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -12,6 +12,9 @@ interface AppCardProps {
 }
 
 export function AppCard({ app }: AppCardProps) {
+  const { data: ratingData } = useQuery<{ averageRating: number | null }>({
+    queryKey: ["/api/apps", app.id, "rating"],
+  });
   const launchMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", `/api/apps/${app.id}/launch`, {});
@@ -68,9 +71,29 @@ export function AppCard({ app }: AppCardProps) {
         </div>
 
         <div className="p-5">
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4" data-testid={`text-description-${app.id}`}>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3" data-testid={`text-description-${app.id}`}>
             {app.shortDescription}
           </p>
+
+          {ratingData?.averageRating !== null && ratingData?.averageRating !== undefined && (
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-3.5 w-3.5 ${
+                      star <= Math.round(ratingData.averageRating!)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-muted-foreground" data-testid={`text-rating-${app.id}`}>
+                {ratingData.averageRating.toFixed(1)}
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>

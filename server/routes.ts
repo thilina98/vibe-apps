@@ -1,12 +1,29 @@
 // Referenced from javascript_object_storage blueprint (public file uploading)
+// Referenced from javascript_log_in_with_replit blueprint
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertAppListingSchema } from "@shared/schema";
+import { insertAppListingSchema, insertReviewSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication (from javascript_log_in_with_replit blueprint)
+  await setupAuth(app);
+
   const objectStorageService = new ObjectStorageService();
+
+  // Auth routes (from javascript_log_in_with_replit blueprint)
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
 
   // Get all app listings with optional filters
   app.get("/api/apps", async (req, res) => {
@@ -42,8 +59,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new app listing
-  app.post("/api/apps", async (req, res) => {
+  // Create new app listing (protected - requires authentication)
+  app.post("/api/apps", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertAppListingSchema.parse(req.body);
       const app = await storage.createAppListing(validatedData);
@@ -65,6 +82,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error incrementing launch count:", error);
       res.status(500).json({ error: "Failed to increment launch count" });
+    }
+  });
+
+  // Review endpoints
+  
+  // Get reviews for an app
+  app.get("/api/apps/:id/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getReviewsByApp(req.params.id);
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  // Get average rating for an app
+  app.get("/api/apps/:id/rating", async (req, res) => {
+    try {
+      const avgRating = await storage.getAverageRating(req.params.id);
+      res.json({ averageRating: avgRating });
+    } catch (error) {
+      console.error("Error fetching rating:", error);
+      res.status(500).json({ error: "Failed to fetch rating" });
+    }
+  });
+
+  // Create a review (protected - requires authentication)
+  app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Check if user already reviewed this app
+      const existingReview = await storage.getUserReviewForApp(req.body.appId, userId);
+      if (existingReview) {
+        return res.status(400).json({ error: "You have already reviewed this app" });
+      }
+
+      const validatedData = insertReviewSchema.parse({
+        ...req.body,
+        userId,
+      });
+      
+      const review = await storage.createReview(validatedData);
+      res.status(201).json(review);
+    } catch (error: any) {
+      console.error("Error creating review:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Validation failed", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create review" });
     }
   });
 

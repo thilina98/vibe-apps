@@ -10,6 +10,7 @@ import { getToolColor } from "../lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { ReviewSection } from "@/components/ReviewSection";
 
 export default function AppDetailPage() {
   const [, params] = useRoute("/app/:id");
@@ -220,6 +221,11 @@ export default function AppDetailPage() {
               </Card>
             )}
           </aside>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <ReviewSection appId={app.id} />
         </div>
       </div>
     </div>
