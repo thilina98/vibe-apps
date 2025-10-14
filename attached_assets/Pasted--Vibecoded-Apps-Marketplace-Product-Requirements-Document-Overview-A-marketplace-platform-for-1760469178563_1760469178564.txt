@@ -1,0 +1,161 @@
+# Vibecoded Apps Marketplace - Product Requirements Document
+
+## Overview
+A marketplace platform for discovering and sharing apps built with AI-powered coding tools (vibecoding). The platform enables creators to showcase their AI-built applications and allows users to easily discover and launch them.
+
+## Core Features
+
+### 1. App Listing System
+**Requirements:**
+- Creators can submit new app listings through a simple form
+- Each listing must capture:
+  - **App Name** (required, max 100 characters)
+  - **Short Description** (required, max 200 characters)
+  - **Full Description** (required, max 2000 characters, markdown supported)
+  - **Launch URL** (required, must be valid URL)
+  - **Vibecoding Tool(s) Used** (required, multi-select from predefined list + "Other" option)
+    - Suggested tools: Replit Agent, Bolt.new, v0, Cursor, Claude, ChatGPT, Lovable, Windsurf
+  - **App Category** (required, single select)
+    - Suggested categories: Productivity, Education, Entertainment, Business, Developer Tools, Design, Other
+  - **Creator Name/Handle** (required, max 50 characters)
+  - **Creator Contact** (optional, email or social link)
+  - **Screenshot/Preview Image** (required, single image upload, max 5MB)
+  - **App Tags** (optional, up to 5 custom tags)
+  - **Key Learnings** (optional, max 1500 characters, markdown supported)
+    - Creator's insights and lessons learned while vibecoding the app
+    - Challenges faced, surprises, tips for other builders
+  - **Date Created** (auto-generated on submission)
+  - **Submission Date** (auto-generated)
+
+### 2. Browse & Discovery
+**Requirements:**
+- Homepage displays all approved listings in a grid layout
+- Each listing card shows:
+  - App name
+  - Preview image (thumbnail)
+  - Short description
+  - Vibecoding tool(s) badge/icon
+  - Category badge
+  - Prominent "Launch App" button
+- Filter options:
+  - By vibecoding tool
+  - By category
+  - By date (newest first, oldest first)
+- Search functionality:
+  - Search by app name, description, creator name, or tags
+  - Real-time search results
+- Pagination or infinite scroll for browsing
+
+### 3. App Detail Page
+**Requirements:**
+- Full app information display:
+  - Large preview image
+  - App name and full description
+  - Creator information with contact link (if provided)
+  - Vibecoding tool(s) used with prominent display
+  - Category and tags
+  - **Key Learnings section** (if provided by creator)
+    - Display in a dedicated, visually distinct card/section
+    - Formatted with markdown support
+    - Helps other builders learn from the creator's experience
+  - Launch URL with clear CTA button
+  - Date created and submission date
+- Primary action: **"Launch App"** button that opens the app's URL in a new tab
+- Optional: "Report" button for flagging inappropriate content
+
+### 4. Launch Functionality
+**Requirements:**
+- "Launch App" button appears on both listing cards and detail pages
+- Clicking launches the app in a new browser tab/window
+- Track launch count per app (display on detail page)
+- No authentication required to launch apps
+
+## Technical Requirements
+
+### Frontend
+- Responsive design (mobile, tablet, desktop)
+- Modern, clean UI with emphasis on visual appeal
+- Fast page load times
+- Image optimization for preview images
+- Form validation on submission
+
+### Backend
+- Database to store app listings
+- Image upload and storage system
+- Basic content moderation queue (optional: auto-approve vs manual review)
+- RESTful API for CRUD operations on listings
+
+### Data Storage
+**App Listing Schema:**
+```
+{
+  id: string (UUID),
+  name: string,
+  shortDescription: string,
+  fullDescription: string,
+  launchUrl: string,
+  vibecodingTools: array[string],
+  category: string,
+  creatorName: string,
+  creatorContact: string (optional),
+  previewImage: string (URL),
+  tags: array[string],
+  keyLearnings: string (optional),
+  launchCount: number,
+  createdDate: timestamp,
+  submissionDate: timestamp,
+  status: enum (pending, approved, rejected)
+}
+```
+
+## User Flows
+
+### Creator Flow
+1. Navigate to "Submit App" page
+2. Fill out listing form with all required fields
+3. Upload preview image
+4. Submit for review (or auto-publish)
+5. Receive confirmation
+
+### Visitor Flow
+1. Land on homepage with featured/recent apps
+2. Browse listings or use search/filters
+3. Click on app card to view details
+4. Click "Launch App" to open in new tab
+5. Return to marketplace to discover more apps
+
+## MVP Scope (Phase 1)
+- App submission form
+- Browse/grid view of listings
+- Search functionality
+- Filter by tool and category
+- App detail pages
+- Launch functionality
+- Basic responsive design
+
+## Future Enhancements (Phase 2+)
+- User accounts and authentication
+- Creator profiles and portfolios
+- Upvote/like system
+- Comments and reviews
+- Featured/trending sections
+- Analytics dashboard for creators
+- Email notifications for submissions
+- Advanced moderation tools
+- API for third-party integrations
+
+## Design Guidelines
+- Clean, modern aesthetic
+- Emphasize visual hierarchy (preview images prominent)
+- Use tool-specific colors/branding for vibecoding tool badges
+- Clear, accessible typography
+- Consistent spacing and layout
+- Mobile-first approach
+
+## Success Metrics
+- Number of listed apps
+- Number of app launches
+- Search usage rate
+- Time on site
+- Submission completion rate
+- Return visitor rate
