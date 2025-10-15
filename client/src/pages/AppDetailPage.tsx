@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { ReviewSection } from "@/components/ReviewSection";
+import { CommentsSection } from "@/components/CommentsSection";
 
 export default function AppDetailPage() {
   const [, params] = useRoute("/app/:id");
@@ -226,6 +227,11 @@ export default function AppDetailPage() {
         {/* Reviews Section */}
         <div className="mt-12">
           <ReviewSection appId={app.id} />
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-8">
+          <CommentsSection appId={app.id} />
         </div>
       </div>
     </div>
