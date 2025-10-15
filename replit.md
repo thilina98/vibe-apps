@@ -8,6 +8,15 @@ The Vibecoded Apps Marketplace is a platform for discovering and sharing applica
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 15, 2025)
+
+**Migration from Replit Auth to Firebase Authentication:**
+- Replaced Replit OIDC authentication with Firebase Authentication using Google sign-in provider
+- Users no longer need a Replit account to log in - they can use any Google account
+- Removed server-side session management and Passport.js
+- Implemented client-side Firebase auth with token-based backend verification
+- Updated all UI components to use Firebase `signInWithPopup` and `signOut` methods
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -29,27 +38,30 @@ Preferred communication style: Simple, everyday language.
 - React Query for API data caching and synchronization
 - React Hook Form with Zod validation for form state
 - Local component state for UI interactions (filters, search, pagination)
+- Firebase authentication state managed via `onAuthStateChanged` listener
 
 ### Backend Architecture
 
 **Server Framework:**
 - Express.js as the HTTP server
 - TypeScript with ES modules for type-safe backend code
-- Session-based authentication with PostgreSQL session store
+- Token-based authentication (Firebase ID tokens)
 
 **API Design:**
 - RESTful API endpoints under `/api` prefix
-- Authentication routes: `/api/auth/user`, `/api/login`, `/api/callback`
+- Authentication route: `/api/auth/user` (verifies Firebase token, upserts user)
 - App routes: `/api/apps` (list with filters), `/api/apps/:id` (details), `/api/apps/:id/launch` (increment counter)
-- Review routes: `/api/apps/:id/reviews` (create/list), `/api/apps/:id/rating` (average rating)
-- File upload: `/api/upload/start` for signed upload URLs
+- Review routes: `/api/apps/:id/reviews` (create/list), `/api/apps/:id/rating` (average rating), `/api/reviews` (create)
+- Object storage routes: `/objects/:objectPath`, `/api/objects/upload`, `/api/apps/image`
 
 **Authentication & Authorization:**
-- OpenID Connect (OIDC) authentication via Replit
-- Passport.js with custom OIDC strategy
-- Session management with connect-pg-simple for PostgreSQL storage
-- Page-level and API-level auth guards (isAuthenticated middleware)
-- Unauthenticated requests return 401, handled by frontend to redirect to login
+- Firebase Authentication with Google sign-in provider
+- Firebase ID tokens sent in Authorization header as Bearer tokens
+- Backend verification via Firebase REST API (`accounts:lookup` endpoint)
+- `isAuthenticated` middleware in `server/firebaseAdmin.ts` validates tokens
+- User data extracted from verified Firebase tokens and upserted to database
+- Page-level and API-level auth guards
+- Unauthenticated requests return 401, handled by frontend to trigger sign-in
 
 ### Data Storage Solutions
 
@@ -60,9 +72,9 @@ Preferred communication style: Simple, everyday language.
 
 **Database Schema:**
 - `app_listings`: Core app data (name, descriptions, URLs, tools, category, creator info, preview image, tags, learnings, launch count, timestamps, status)
-- `users`: User profiles from Replit auth (id, username, full name, profile image, bio, timestamps)
-- `reviews`: User reviews with ratings (app_id, user_id, rating 1-5, comment, timestamps)
-- `sessions`: Express session storage for authentication state
+- `users`: User profiles from Firebase auth (id = Firebase UID, email, firstName, lastName, profileImageUrl, createdAt, updatedAt)
+- `reviews`: User reviews with ratings (app_id, user_id, rating 1-5, reviewText, createdAt) with unique constraint on (appId, userId)
+- `sessions`: No longer used (removed with Replit Auth migration)
 
 **File Storage:**
 - Google Cloud Storage for image uploads
@@ -77,11 +89,12 @@ Preferred communication style: Simple, everyday language.
 - Sorting by newest, oldest, or popular (launch count)
 - Average rating calculation via SQL aggregation
 - Launch count increment with optimistic UI updates
+- User upsert on authentication (Firebase UID as primary key)
 
 ### External Dependencies
 
 **Third-Party Services:**
-- Replit Authentication (OIDC): User login and identity management
+- Firebase Authentication: Google OAuth login (no Replit account required)
 - Google Cloud Storage: Image hosting and delivery
 - Neon PostgreSQL: Serverless database hosting
 
@@ -89,7 +102,7 @@ Preferred communication style: Simple, everyday language.
 - @neondatabase/serverless: PostgreSQL database client
 - @google-cloud/storage: GCS SDK for file operations
 - drizzle-orm: Type-safe SQL query builder
-- openid-client: OIDC authentication
+- firebase: Firebase Authentication SDK for client-side auth
 - @uppy/core, @uppy/aws-s3, @uppy/dashboard: File upload UI and logic
 - react-hook-form + @hookform/resolvers + zod: Form validation
 - react-markdown + remark-gfm: Markdown rendering for descriptions
@@ -100,3 +113,26 @@ Preferred communication style: Simple, everyday language.
 - @replit/vite-plugin-cartographer: Development tooling
 - tsx: TypeScript execution for development
 - esbuild: Production build bundling
+
+### Authentication Flow
+
+**Client-Side:**
+1. Firebase SDK initialized with project credentials (client/src/lib/firebase.ts)
+2. `useAuth` hook manages authentication state via `onAuthStateChanged`
+3. User clicks "Login with Google" → `signInWithPopup(auth, googleProvider)` opens Google OAuth popup
+4. On successful login, Firebase returns user object with ID token
+5. ID token stored in sessionStorage for API requests
+6. User data (UID, email, display name, photo) extracted and stored in React state
+
+**Backend:**
+1. Protected API endpoints require `Authorization: Bearer <idToken>` header
+2. `isAuthenticated` middleware intercepts requests
+3. Extracts token from Authorization header
+4. Verifies token via Firebase REST API (identitytoolkit.googleapis.com/v1/accounts:lookup)
+5. On successful verification, extracts user data and attaches to `req.user`
+6. First request triggers user upsert to PostgreSQL (Firebase UID as primary key)
+
+**Logout:**
+1. User clicks "Logout" → `signOut(auth)` clears Firebase session
+2. sessionStorage cleared
+3. React state reset to null
