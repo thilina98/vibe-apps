@@ -272,6 +272,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       
+      // Get the app to check if user is the creator
+      const app = await storage.getApp(req.body.appId, userId);
+      if (!app) {
+        return res.status(404).json({ error: "App not found" });
+      }
+      
+      // Prevent creators from rating their own apps
+      if (app.creatorId === userId) {
+        return res.status(403).json({ error: "You cannot rate your own app" });
+      }
+      
       // Check if user already reviewed this app
       const existingReview = await storage.getUserReviewForApp(req.body.appId, userId);
       if (existingReview) {
