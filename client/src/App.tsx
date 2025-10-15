@@ -49,7 +49,7 @@ function Header() {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm text-secondary-foreground hidden sm:inline" data-testid="text-username">
-                  {user?.firstName || user?.email || "User"}
+                  {user?.name?.split(" ")[0] || user?.email || "User"}
                 </span>
               </div>
               <Button variant="outline" size="sm" data-testid="button-logout" onClick={signOut}>
