@@ -226,7 +226,7 @@ export default function AppDetailPage() {
 
         {/* Reviews Section */}
         <div className="mt-12">
-          <ReviewSection appId={app.id} />
+          <ReviewSection appId={app.id} creatorId={app.creatorId} />
         </div>
 
         {/* Comments Section */}
