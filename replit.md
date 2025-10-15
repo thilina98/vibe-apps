@@ -10,7 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 15, 2025)
 
-**Latest Updates - Clean Database Migration Completed:**
+**Latest Updates - Form Validation & Self-Rating Prevention:**
+- ✅ Fixed form validation errors to display on submit page (not toast notification)
+- ✅ All missing required fields listed with user-friendly names
+- ✅ Removed creatorId from validation (auto-populated from logged-in user)
+- ✅ Backend check prevents creators from rating their own apps (403 error)
+- ✅ Frontend hides rating form if user is the app creator
+- ✅ New collapsible rating UI: single star with "Rate" text that expands to 10 stars when clicked
+- ✅ Fixed field name mismatches (profilePictureUrl, name, body fields)
+
+**Clean Database Migration Completed:**
 - ✅ Dropped all old tables and recreated database with clean normalized schema (12 tables)
 - ✅ Implemented proper many-to-many relationships (app_tools, app_tags join tables)
 - ✅ Added foreign key relationships (apps → categories, apps → users)
@@ -21,8 +30,9 @@ Preferred communication style: Simple, everyday language.
 **10-Star Ratings & Comments System:**
 - Upgraded rating system from 5 stars to 10 stars for more granular feedback
 - Implemented comments section with nested replies support (one level deep)
-- ReviewSection component with 10-star submission
+- ReviewSection component with 10-star submission and collapsible UI
 - CommentsSection component with real-time posting and reply functionality
+- Self-rating prevention at both backend and frontend levels
 
 **Migration from Firebase to Direct Google OAuth:**
 - Removed Firebase dependency completely - now using direct Google OAuth with Passport.js
