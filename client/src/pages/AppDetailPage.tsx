@@ -101,7 +101,7 @@ export default function AppDetailPage() {
                   {app.name}
                 </h1>
                 <div className="flex flex-wrap gap-2">
-                  {app.vibecodingTools.map((tool: string) => (
+                  {app.vibecodingTools && app.vibecodingTools.map((tool: string) => (
                     <Badge 
                       key={tool}
                       className={getToolColor(tool)}
