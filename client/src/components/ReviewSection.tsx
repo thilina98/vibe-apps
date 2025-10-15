@@ -27,7 +27,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
 }) {
   return (
     <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((star) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
         <button
           key={star}
           type="button"
@@ -37,7 +37,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
           data-testid={`star-${star}`}
         >
           <Star
-            className={`h-5 w-5 ${
+            className={`h-4 w-4 ${
               star <= rating
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-muted-foreground"
@@ -52,7 +52,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
 export function ReviewSection({ appId }: ReviewSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(10);
   const [reviewText, setReviewText] = useState("");
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
@@ -77,7 +77,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
         title: "Review Submitted",
         description: "Thank you for your feedback!",
       });
-      setRating(5);
+      setRating(10);
       setReviewText("");
       queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "reviews"] });
       queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "rating"] });
@@ -115,7 +115,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
           <div className="flex items-center gap-4">
             <div>
               <div className="text-4xl font-bold" data-testid="text-average-rating">
-                {avgRating.toFixed(1)}
+                {avgRating.toFixed(1)}<span className="text-lg text-muted-foreground">/10</span>
               </div>
               <div className="text-sm text-muted-foreground">
                 {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
