@@ -1,0 +1,63 @@
+So what i want is the following things. The users can login to the app.
+
+
+
+- **App Name** (required, max 100 characters)
+
+- **Short Description** (required, max 200 characters)
+
+- **Full Description** (required, max 2000 characters, markdown supported)
+
+- **Launch URL** (required, must be valid URL)
+
+- **Vibecoding Tool(s) Used** (required, multi-select from predefined list + "Other" option)
+
+- Suggested tools: Replit, Bolt.new, v0, Claude, claude-code, ChatGPT, Lovable, Windsurf, admins should be able to add more tools. we need an 'other' tool as well. so that if the tool is not listed in the list, user can choose other.
+
+when a user choose other, he needs to be able to type in the tool he used. later, an admin can review the suggestion, and include the tool in the tools list. but the admin should be able to edit it before adding it to the list. when admin review and add the tool, the users application should also be referring to this added tool. (it should change from 'other' to the 'tool'),
+
+we also need to have other data about the tool in out app as well.
+
+- **App Category** (required, single select)
+
+- Suggested categories: Productivity, Education, Entertainment, Business, Developer Tools, Design, Other
+
+- **Creator
+
+- **Screenshot/Preview Image** (required, single image upload, max 5MB)
+
+- **App Tags** (optional, up to 5 custom tags)
+
+- **Key Learnings** (optional, max 1500 characters, markdown supported)
+
+- Creator's insights and lessons learned while vibecoding the app
+
+- Challenges faced, surprises, tips for other builders
+
+- **Submission Date** (auto-generated)
+
+and also a content has a category. Apart from the category, they include the platform they created their content with. The platform names could be changed over time.
+
+And obviously I want to save the created at and updated at.
+
+
+
+
+
+
+
+Logged-in users can comment on posts and comment can have one layer of replies.
+
+comment
+
+- reply
+
+- reply
+
+see both replies are at the same level, but there can be many.
+
+
+
+I would like to design a comprehensive database schema for this.
+
+before creating it, i want you to ask me of any clarification or additional data that you think is needed for this application. maybe some other data tables that require for this one.

@@ -1,0 +1,50 @@
+
+## 1. User Identity vs. Authentication
+
+This is the most important concept in the schema, designed for flexibility and a unified user experience.
+
+users Table: This is the central source of truth for a user's profile. It stores a single, unique identity with information like id, name, email, and bio. It represents the person, not how they log in.
+
+user_authentications Table: This table manages how a user proves their identity. It links external login providers (like Google or GitHub) to a single profile in the users table.
+
+The critical functionality this enables:
+
+A user can sign up with their Google account. This creates one entry in users and one in user_authentications. Later, they can choose to log in with their GitHub account. The system can recognize their email, find their existing profile in the users table, and simply add a new row to user_authentications linking their GitHub account to that same profile. This prevents duplicate accounts and ensures that all of a user's content and activity are tied to one central identity, regardless of which service they use to log in.
+
+## 2. Core Content and Performance
+
+apps Table: This is the main table for user-submitted projects. It holds all the descriptive data (name, descriptions, launch_url, etc.). It's linked directly to its author via the creator_id, which is a foreign key to the users.id.
+
+Performance Optimization: The apps table contains average_rating, rating_count, and view_count columns. This is a deliberate design choice known as denormalization. Instead of calculating these values with expensive queries every time a list of apps is displayed, the application updates these fields only when a relevant event occurs (e.g., a new review is submitted or a page is viewed). This dramatically improves performance and scalability.
+
+## 3. Content Organization (Taxonomy)
+
+The system uses three methods to classify apps, moving from broad to specific.
+
+categories Table: Provides a single, mandatory, high-level classification for each app (e.g., 'Productivity'). It's a simple one-to-many relationship managed by admins.
+
+tools and tags Tables: These allow for more detailed, multi-faceted classification. An app can be associated with multiple tools and multiple tags. This is achieved through join tables (app_tools and app_tags), which create a flexible many-to-many relationship.
+
+Curated Tool List (tool_suggestions): To prevent the official tools list from becoming messy with duplicates or typos, users cannot add directly to it. When a user selects "Other," their entry goes into the tool_suggestions table. An admin must then review it. If approved, the admin can edit the name for consistency and formally add it to the tools table, ensuring the data remains clean and curated.
+
+## 4. User Interaction: Reviews vs. Comments
+
+The schema intentionally separates formal evaluations from general discussion.
+
+reviews Table: This table is for structured feedback.
+
+It requires a rating (1-10).
+
+It has optional title and body fields. This is the mechanism that allows a user to submit a rating without being forced to write a full review.
+
+A unique constraint on (app_id, user_id) enforces that a user can only submit one rating/review per app, preventing spam.
+
+comments Table: This table is for open-ended community discussion. The parent_comment_id allows for one level of nested replies, creating simple conversation threads that are distinct from the formal reviews.
+
+## 5. Data Integrity and Lifecycle
+
+The schema uses specific rules to handle what happens when data is deleted, preserving the user experience.
+
+ON DELETE SET NULL: This is used for the creator_id in apps and the user_id in comments. If a user deletes their account, their submitted apps and comments are not deleted. Instead, they are anonymized by setting the user reference to NULL. This preserves the content and the flow of conversations for the rest of the community.
+
+ON DELETE CASCADE: This is used for data that is intrinsically tied to a parent record and has no value on its own. For example, if a user deletes their account, their linked logins in user_authentications are automatically deleted. If an app is deleted, all of its associated reviews, comments, tags, and tool links are also deleted to prevent orphaned data.
