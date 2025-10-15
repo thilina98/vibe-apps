@@ -10,12 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 15, 2025)
 
-**Migration from Replit Auth to Firebase Authentication:**
-- Replaced Replit OIDC authentication with Firebase Authentication using Google sign-in provider
-- Users no longer need a Replit account to log in - they can use any Google account
-- Removed server-side session management and Passport.js
-- Implemented client-side Firebase auth with token-based backend verification
-- Updated all UI components to use Firebase `signInWithPopup` and `signOut` methods
+**Migration from Firebase to Direct Google OAuth:**
+- Removed Firebase dependency completely - now using direct Google OAuth with Passport.js
+- Simplified authentication to use only Google Cloud Console credentials (no Firebase project needed)
+- Implemented session-based authentication with PostgreSQL session storage
+- Users log in with Google OAuth redirect flow (standard OAuth, not popup)
+- All authentication state managed server-side via sessions
 
 ## System Architecture
 
@@ -38,30 +38,31 @@ Preferred communication style: Simple, everyday language.
 - React Query for API data caching and synchronization
 - React Hook Form with Zod validation for form state
 - Local component state for UI interactions (filters, search, pagination)
-- Firebase authentication state managed via `onAuthStateChanged` listener
+- Session-based authentication checked via `/api/auth/user` endpoint
 
 ### Backend Architecture
 
 **Server Framework:**
 - Express.js as the HTTP server
 - TypeScript with ES modules for type-safe backend code
-- Token-based authentication (Firebase ID tokens)
+- Session-based authentication with express-session and PostgreSQL storage
 
 **API Design:**
 - RESTful API endpoints under `/api` prefix
-- Authentication route: `/api/auth/user` (verifies Firebase token, upserts user)
+- Authentication routes: `/api/login` (Google OAuth), `/api/callback` (OAuth callback), `/api/logout` (destroy session)
+- Auth status: `/api/auth/user` (returns current user from session)
 - App routes: `/api/apps` (list with filters), `/api/apps/:id` (details), `/api/apps/:id/launch` (increment counter)
 - Review routes: `/api/apps/:id/reviews` (create/list), `/api/apps/:id/rating` (average rating), `/api/reviews` (create)
 - Object storage routes: `/objects/:objectPath`, `/api/objects/upload`, `/api/apps/image`
 
 **Authentication & Authorization:**
-- Firebase Authentication with Google sign-in provider
-- Firebase ID tokens sent in Authorization header as Bearer tokens
-- Backend verification via Firebase REST API (`accounts:lookup` endpoint)
-- `isAuthenticated` middleware in `server/firebaseAdmin.ts` validates tokens
-- User data extracted from verified Firebase tokens and upserted to database
+- Google OAuth 2.0 via Passport.js with passport-google-oauth20 strategy
+- Session management with express-session and connect-pg-simple
+- Sessions stored in PostgreSQL `sessions` table (auto-created)
+- `isAuthenticated` middleware in `server/googleAuth.ts` checks `req.isAuthenticated()`
+- User data extracted from Google profile and upserted to database
 - Page-level and API-level auth guards
-- Unauthenticated requests return 401, handled by frontend to trigger sign-in
+- Unauthenticated requests return 401, handled by frontend to redirect to `/api/login`
 
 ### Data Storage Solutions
 
@@ -72,9 +73,9 @@ Preferred communication style: Simple, everyday language.
 
 **Database Schema:**
 - `app_listings`: Core app data (name, descriptions, URLs, tools, category, creator info, preview image, tags, learnings, launch count, timestamps, status)
-- `users`: User profiles from Firebase auth (id = Firebase UID, email, firstName, lastName, profileImageUrl, createdAt, updatedAt)
+- `users`: User profiles from Google OAuth (id = Google profile ID, email, firstName, lastName, profileImageUrl, createdAt, updatedAt)
 - `reviews`: User reviews with ratings (app_id, user_id, rating 1-5, reviewText, createdAt) with unique constraint on (appId, userId)
-- `sessions`: No longer used (removed with Replit Auth migration)
+- `sessions`: Session storage table (auto-created by connect-pg-simple)
 
 **File Storage:**
 - Google Cloud Storage for image uploads
@@ -89,12 +90,12 @@ Preferred communication style: Simple, everyday language.
 - Sorting by newest, oldest, or popular (launch count)
 - Average rating calculation via SQL aggregation
 - Launch count increment with optimistic UI updates
-- User upsert on authentication (Firebase UID as primary key)
+- User upsert on authentication (Google profile ID as primary key)
 
 ### External Dependencies
 
 **Third-Party Services:**
-- Firebase Authentication: Google OAuth login (no Replit account required)
+- Google OAuth 2.0: Direct authentication (no Firebase needed)
 - Google Cloud Storage: Image hosting and delivery
 - Neon PostgreSQL: Serverless database hosting
 
@@ -102,7 +103,10 @@ Preferred communication style: Simple, everyday language.
 - @neondatabase/serverless: PostgreSQL database client
 - @google-cloud/storage: GCS SDK for file operations
 - drizzle-orm: Type-safe SQL query builder
-- firebase: Firebase Authentication SDK for client-side auth
+- passport: Authentication middleware framework
+- passport-google-oauth20: Google OAuth 2.0 strategy for Passport
+- express-session: Session management middleware
+- connect-pg-simple: PostgreSQL session store for express-session
 - @uppy/core, @uppy/aws-s3, @uppy/dashboard: File upload UI and logic
 - react-hook-form + @hookform/resolvers + zod: Form validation
 - react-markdown + remark-gfm: Markdown rendering for descriptions
@@ -117,22 +121,45 @@ Preferred communication style: Simple, everyday language.
 ### Authentication Flow
 
 **Client-Side:**
-1. Firebase SDK initialized with project credentials (client/src/lib/firebase.ts)
-2. `useAuth` hook manages authentication state via `onAuthStateChanged`
-3. User clicks "Login with Google" → `signInWithPopup(auth, googleProvider)` opens Google OAuth popup
-4. On successful login, Firebase returns user object with ID token
-5. ID token stored in sessionStorage for API requests
-6. User data (UID, email, display name, photo) extracted and stored in React state
+1. User clicks "Login with Google" → redirects to `/api/login`
+2. `/api/login` initiates Google OAuth flow (Passport.js)
+3. User authenticates with Google on Google's OAuth page
+4. Google redirects back to `/api/callback` with authorization code
+5. Passport exchanges code for user profile data
+6. User data upserted to PostgreSQL, session created
+7. User redirected to home page (`/`) with session cookie
 
 **Backend:**
-1. Protected API endpoints require `Authorization: Bearer <idToken>` header
-2. `isAuthenticated` middleware intercepts requests
-3. Extracts token from Authorization header
-4. Verifies token via Firebase REST API (identitytoolkit.googleapis.com/v1/accounts:lookup)
-5. On successful verification, extracts user data and attaches to `req.user`
-6. First request triggers user upsert to PostgreSQL (Firebase UID as primary key)
+1. `/api/login` route uses `passport.authenticate('google')` to start OAuth
+2. `/api/callback` route uses `passport.authenticate('google')` to complete OAuth
+3. Passport strategy extracts user data from Google profile
+4. User upserted to database (Google profile ID as primary key)
+5. `passport.serializeUser` stores user ID in session
+6. `passport.deserializeUser` fetches user from database on subsequent requests
+7. Protected routes check `req.isAuthenticated()` via `isAuthenticated` middleware
+
+**Session Management:**
+1. Sessions stored in PostgreSQL `sessions` table via connect-pg-simple
+2. Session cookie (httpOnly, secure in production, sameSite: lax)
+3. 30-day session expiration
+4. All API requests include session cookie via `credentials: 'include'`
 
 **Logout:**
-1. User clicks "Logout" → `signOut(auth)` clears Firebase session
-2. sessionStorage cleared
-3. React state reset to null
+1. User clicks "Logout" → POST to `/api/logout`
+2. `req.logout()` destroys session
+3. Session removed from database
+4. User redirected to home page
+
+### Google OAuth Configuration
+
+**Required Setup:**
+1. Google Cloud Console project with OAuth 2.0 credentials
+2. Authorized redirect URI must include: `https://YOUR-REPLIT-URL/api/callback`
+3. Environment variables:
+   - `GOOGLE_CLIENT_ID`: OAuth 2.0 Client ID
+   - `GOOGLE_CLIENT_SECRET`: OAuth 2.0 Client Secret
+   - `SESSION_SECRET`: Secret for signing session cookies (optional, auto-generated if not set)
+
+**Current Callback URL:**
+- `https://316b5bd2-9f58-4298-8c70-82bb67a42bfa-00-1ygsbduvpp84b.spock.replit.dev/api/callback`
+- This must be added to Google Cloud Console → Credentials → OAuth 2.0 Client → Authorized redirect URIs
