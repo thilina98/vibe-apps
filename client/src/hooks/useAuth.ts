@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, type User as FirebaseUser } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export interface User {
   id: string;
@@ -10,79 +10,51 @@ export interface User {
   profileImageUrl: string | null;
 }
 
-// Store the ID token in sessionStorage to persist across page reloads
-const getStoredToken = () => sessionStorage.getItem('firebaseIdToken');
-const setStoredToken = (token: string) => sessionStorage.setItem('firebaseIdToken', token);
-const clearStoredToken = () => sessionStorage.removeItem('firebaseIdToken');
-
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [idToken, setIdToken] = useState<string | null>(getStoredToken());
+  const queryClient = useQueryClient();
+
+  // Fetch current user from session
+  const { data: user, error } = useQuery<User>({
+    queryKey: ['/api/auth/user'],
+    retry: false,
+    staleTime: Infinity,
+  });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        try {
-          // Get the ID token for API calls
-          const token = await firebaseUser.getIdToken();
-          setIdToken(token);
-          setStoredToken(token);
-
-          // Extract user info
-          const nameParts = firebaseUser.displayName?.split(' ') || ['', ''];
-          const userData: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            firstName: nameParts[0],
-            lastName: nameParts.slice(1).join(' '),
-            profileImageUrl: firebaseUser.photoURL,
-          };
-          
-          setUser(userData);
-        } catch (error) {
-          console.error("Error processing Firebase user:", error);
-          setUser(null);
-          setIdToken(null);
-          clearStoredToken();
-        }
-      } else {
-        setUser(null);
-        setIdToken(null);
-        clearStoredToken();
-      }
+    if (user !== undefined || error) {
       setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const signInWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
-      throw error;
     }
+  }, [user, error]);
+
+  const logout = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Logout failed');
+      return response.json();
+    },
+    onSuccess: () => {
+      // Clear all queries and redirect
+      queryClient.clear();
+      window.location.href = '/';
+    },
+  });
+
+  const signInWithGoogle = () => {
+    window.location.href = '/api/login';
   };
 
-  const signOut = async () => {
-    try {
-      await firebaseSignOut(auth);
-      setUser(null);
-      setIdToken(null);
-      clearStoredToken();
-    } catch (error) {
-      console.error("Error signing out:", error);
-      throw error;
-    }
+  const signOut = () => {
+    logout.mutate();
   };
 
   return {
-    user,
-    isLoading,
+    user: user || null,
     isAuthenticated: !!user,
-    idToken,
+    isLoading,
     signInWithGoogle,
     signOut,
   };
