@@ -27,7 +27,7 @@ import type { UploadResult } from "@uppy/core";
 export default function SubmitAppPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, signInWithGoogle } = useAuth();
 
   // Redirect to login if not authenticated (page-level protection)
   useEffect(() => {
@@ -38,10 +38,10 @@ export default function SubmitAppPage() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        signInWithGoogle();
       }, 500);
     }
-  }, [isAuthenticated, isLoading, toast]);
+  }, [isAuthenticated, isLoading, toast, signInWithGoogle]);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [tagInput, setTagInput] = useState("");
 

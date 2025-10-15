@@ -50,10 +50,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
 }
 
 export function ReviewSection({ appId }: ReviewSectionProps) {
-  const { user, isAuthenticated } = useAuth() as { 
-    user: UserType | undefined; 
-    isAuthenticated: boolean;
-  };
+  const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
@@ -89,11 +86,11 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          description: "Please log in to submit a review.",
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          signInWithGoogle();
         }, 500);
         return;
       }
@@ -174,9 +171,9 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
           <p className="text-sm text-muted-foreground mb-3">
             Please log in to write a review.
           </p>
-          <a href="/api/login">
-            <Button size="sm" data-testid="button-login-to-review">Log In to Review</Button>
-          </a>
+          <Button size="sm" data-testid="button-login-to-review" onClick={signInWithGoogle}>
+            Log In to Review
+          </Button>
         </div>
       )}
 
