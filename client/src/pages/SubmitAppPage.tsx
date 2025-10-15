@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { insertAppSchema, type Category, type Tool } from "@shared/schema";
 import type { InsertApp } from "@shared/schema";
-import { ObjectUploader } from "../components/ObjectUploader";
+import { ImageUpload } from "../components/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +22,6 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { UploadResult } from "@uppy/core";
 
 export default function SubmitAppPage() {
   const [, setLocation] = useLocation();
@@ -42,7 +41,7 @@ export default function SubmitAppPage() {
       }, 500);
     }
   }, [isAuthenticated, isLoading, toast, signInWithGoogle]);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  
   const [tagNames, setTagNames] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
@@ -104,35 +103,6 @@ export default function SubmitAppPage() {
     },
   });
 
-  const handleGetUploadParameters = async () => {
-    const response = await fetch("/api/objects/upload", {
-      method: "POST",
-    });
-    const data = await response.json();
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL,
-    };
-  };
-
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful.length > 0) {
-      const uploadUrl = result.successful[0].uploadURL;
-      
-      const response = await apiRequest("PUT", "/api/apps/image", {
-        imageURL: uploadUrl,
-      });
-      const data = await response.json();
-
-      setUploadedImageUrl(data.objectPath);
-      form.setValue("screenshotUrl", data.objectPath);
-      
-      toast({
-        title: "Image uploaded",
-        description: "Your preview image has been uploaded successfully.",
-      });
-    }
-  };
 
   const addTag = () => {
     if (tagInput.trim() && tagNames.length < 5 && !tagNames.includes(tagInput.trim())) {
@@ -467,37 +437,13 @@ export default function SubmitAppPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>App Screenshot *</FormLabel>
-                    <div className="space-y-4">
-                      <ObjectUploader
-                        maxNumberOfFiles={1}
-                        maxFileSize={5242880}
-                        onGetUploadParameters={handleGetUploadParameters}
-                        onComplete={handleUploadComplete}
-                        buttonClassName="w-full"
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <Upload className="w-5 h-5" />
-                          <span>{uploadedImageUrl ? "Change Image" : "Upload Image"}</span>
-                        </div>
-                      </ObjectUploader>
-                      
-                      {uploadedImageUrl && (
-                        <div className="relative aspect-video rounded-lg overflow-hidden border">
-                          <img 
-                            src={uploadedImageUrl} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                            data-testid="img-preview-uploaded"
-                          />
-                          <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
-                            <Check className="w-4 h-4" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <FormDescription>
-                      Max 5MB - 16:9 aspect ratio recommended
-                    </FormDescription>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                        onRemove={() => field.onChange("")}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
