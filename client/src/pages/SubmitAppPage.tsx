@@ -27,7 +27,7 @@ import type { UploadResult } from "@uppy/core";
 export default function SubmitAppPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, signInWithGoogle } = useAuth();
+  const { isAuthenticated, isLoading, signInWithGoogle, user } = useAuth();
 
   // Redirect to login if not authenticated (page-level protection)
   useEffect(() => {
@@ -167,6 +167,27 @@ export default function SubmitAppPage() {
     submitMutation.mutate(submissionData);
   };
 
+  // Show validation errors when form submission fails
+  const onInvalid = () => {
+    const errors = form.formState.errors;
+    const errorFields = Object.keys(errors);
+    
+    if (errorFields.length > 0) {
+      const firstError = errors[errorFields[0] as keyof typeof errors];
+      toast({
+        title: "Missing Required Fields",
+        description: `Please fill in all required fields. First missing field: ${errorFields[0]}`,
+        variant: "destructive",
+      });
+      
+      // Scroll to first error
+      const firstErrorElement = document.querySelector(`[name="${errorFields[0]}"]`);
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  };
+
   const toggleTool = (toolId: string) => {
     if (selectedToolIds.includes(toolId)) {
       setSelectedToolIds(selectedToolIds.filter(id => id !== toolId));
@@ -195,7 +216,7 @@ export default function SubmitAppPage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
             <Card className="p-6 space-y-6">
               <h2 className="text-2xl font-display font-semibold">Basic Information</h2>
               
