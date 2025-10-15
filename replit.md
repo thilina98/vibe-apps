@@ -10,13 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 15, 2025)
 
-**Latest Updates - App Visibility & Rating UI:**
+**Latest Updates - Rating Modal & Edit Feature:**
+- ✅ **Rating now uses modal dialog** - Clean popup interface instead of inline form
+- ✅ **Users can edit their reviews** - Click on filled star to open modal with existing rating/review pre-populated
+- ✅ User's rating displayed as filled star + number (e.g., ⭐ 8) with "Click to edit" hint
+- ✅ Backend supports both create and update operations on same endpoint (POST /api/reviews)
+- ✅ Modal shows 10-star rating interface with current rating pre-selected for editing
+- ✅ Review text auto-populated when editing existing review
+
+**Previous Updates - App Visibility & Rating UI:**
 - ✅ **FIXED: App visibility issue** - New apps now immediately visible to all users (changed default status from "draft" to "published")
 - ✅ Updated existing draft apps to published status in database
 - ✅ Form validation errors display on submit page with user-friendly field names
 - ✅ Backend check prevents creators from rating their own apps (403 error)
 - ✅ Frontend hides rating form if user is the app creator
-- ✅ New collapsible rating UI: single star with "Rate" text that expands to 10 stars when clicked
 - ✅ Fixed field name mismatches (profilePictureUrl, name, body fields)
 
 **Clean Database Migration Completed:**
