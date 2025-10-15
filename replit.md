@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 15, 2025)
 
+**Latest Updates - 10-Star Ratings & Comments System:**
+- Upgraded rating system from 5 stars to 10 stars for more granular feedback
+- Implemented comments section with nested replies support (one level deep)
+- Added 3 dummy apps to database for testing: TaskFlow AI, CodeSnap, and LearnPath
+- Created CommentsSection component with real-time comment posting and reply functionality
+- Added AppListing type to match API response format for compatibility
+
 **Migration from Firebase to Direct Google OAuth:**
 - Removed Firebase dependency completely - now using direct Google OAuth with Passport.js
 - Simplified authentication to use only Google Cloud Console credentials (no Firebase project needed)
@@ -73,8 +80,9 @@ Preferred communication style: Simple, everyday language.
 
 **Database Schema:**
 - `app_listings`: Core app data (name, descriptions, URLs, tools, category, creator info, preview image, tags, learnings, launch count, timestamps, status)
-- `users`: User profiles from Google OAuth (id = Google profile ID, email, firstName, lastName, profileImageUrl, createdAt, updatedAt)
-- `reviews`: User reviews with ratings (app_id, user_id, rating 1-5, reviewText, createdAt) with unique constraint on (appId, userId)
+- `users`: User profiles from Google OAuth (id = Google profile ID, email, name, profilePictureUrl, bio, social links, role, createdAt, updatedAt)
+- `reviews`: User reviews with ratings (app_id, user_id, rating 1-10, reviewText, createdAt) with unique constraint on (appId, userId) - 10-star rating system
+- `comments`: User comments with nested replies (app_id, user_id, content, parent_comment_id for replies, createdAt) - supports one level of nesting
 - `sessions`: Session storage table (auto-created by connect-pg-simple)
 
 **File Storage:**
