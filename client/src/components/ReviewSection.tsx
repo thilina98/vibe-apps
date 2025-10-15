@@ -68,7 +68,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
       const response = await apiRequest("POST", "/api/reviews", {
         appId,
         rating,
-        reviewText: reviewText.trim() || undefined,
+        body: reviewText.trim() || undefined,
       });
       return response.json();
     },
@@ -188,7 +188,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
             <div key={review.id} className="border-b last:border-0 pb-4 last:pb-0" data-testid={`review-${review.id}`}>
               <div className="flex items-start gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={review.user?.profileImageUrl || undefined} />
+                  <AvatarImage src={review.user?.profilePictureUrl || undefined} />
                   <AvatarFallback>
                     <UserIcon className="h-5 w-5" />
                   </AvatarFallback>
@@ -197,7 +197,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
                   <div className="flex items-center justify-between mb-1">
                     <div>
                       <p className="font-medium" data-testid={`review-author-${review.id}`}>
-                        {review.user?.firstName || review.user?.email || "Anonymous"}
+                        {review.user?.name?.split(" ")[0] || review.user?.email || "Anonymous"}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <StarRating rating={review.rating} readonly />
@@ -207,9 +207,9 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
                       </div>
                     </div>
                   </div>
-                  {review.reviewText && (
+                  {review.body && (
                     <p className="text-sm text-secondary-foreground mt-2" data-testid={`review-text-${review.id}`}>
-                      {review.reviewText}
+                      {review.body}
                     </p>
                   )}
                 </div>
