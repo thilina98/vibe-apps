@@ -25,7 +25,8 @@ export interface IStorage {
   createAppListing(listing: InsertAppListing): Promise<AppListing>;
   incrementLaunchCount(id: string): Promise<void>;
   
-  // User operations (required for Replit Auth)
+  // User operations
+  getUserById(id: string): Promise<User | undefined>;
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
@@ -113,10 +114,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(appListings.id, id));
   }
 
-  // User operations (required for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
+  // User operations
+  async getUserById(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.getUserById(id);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
