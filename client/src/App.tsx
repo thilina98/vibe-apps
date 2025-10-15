@@ -25,11 +25,7 @@ function Router() {
 }
 
 function Header() {
-  const { user, isLoading, isAuthenticated } = useAuth() as { 
-    user: User | undefined; 
-    isLoading: boolean; 
-    isAuthenticated: boolean;
-  };
+  const { user, isLoading, isAuthenticated, signInWithGoogle, signOut } = useAuth();
 
   return (
     <header className="border-b bg-card/50">
@@ -56,20 +52,16 @@ function Header() {
                   {user?.firstName || user?.email || "User"}
                 </span>
               </div>
-              <a href="/api/logout">
-                <Button variant="outline" size="sm" data-testid="button-logout">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </a>
+              <Button variant="outline" size="sm" data-testid="button-logout" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </>
           ) : (
-            <a href="/api/login">
-              <Button variant="default" size="sm" data-testid="button-login">
-                <LogIn className="h-4 w-4 mr-2" />
-                Login
-              </Button>
-            </a>
+            <Button variant="default" size="sm" data-testid="button-login" onClick={signInWithGoogle}>
+              <LogIn className="h-4 w-4 mr-2" />
+              Login with Google
+            </Button>
           )}
         </div>
       </div>

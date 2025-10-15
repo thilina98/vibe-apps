@@ -1,23 +1,29 @@
 // Referenced from javascript_object_storage blueprint (public file uploading)
-// Referenced from javascript_log_in_with_replit blueprint
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAppListingSchema, insertReviewSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { isAuthenticated } from "./firebaseAdmin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication (from javascript_log_in_with_replit blueprint)
-  await setupAuth(app);
 
   const objectStorageService = new ObjectStorageService();
 
-  // Auth routes (from javascript_log_in_with_replit blueprint)
+  // Auth route - returns current Firebase user
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      // Upsert user from Firebase auth data
+      const firebaseUser = req.user;
+      await storage.upsertUser({
+        id: firebaseUser.uid,
+        email: firebaseUser.email,
+        firstName: firebaseUser.firstName,
+        lastName: firebaseUser.lastName,
+        profileImageUrl: firebaseUser.profileImageUrl,
+      });
+      
+      const user = await storage.getUser(firebaseUser.uid);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -112,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a review (protected - requires authentication)
   app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.uid;
       
       // Check if user already reviewed this app
       const existingReview = await storage.getUserReviewForApp(req.body.appId, userId);
