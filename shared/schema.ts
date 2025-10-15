@@ -74,7 +74,7 @@ export const insertAppSchema = createInsertSchema(apps).omit({
   screenshotUrl: z.string().min(1, "Screenshot is required"),
   keyLearnings: z.string().max(1500).optional(),
   status: z.enum(["draft", "published"]).default("draft"),
-  creatorId: z.string().min(1, "Creator is required"),
+  creatorId: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
 });
 
