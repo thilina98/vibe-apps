@@ -18,6 +18,7 @@ interface ReviewWithUser extends Review {
 
 interface ReviewSectionProps {
   appId: string;
+  creatorId?: string | null;
 }
 
 function StarRating({ rating, onRatingChange, readonly = false }: {
@@ -49,11 +50,12 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
   );
 }
 
-export function ReviewSection({ appId }: ReviewSectionProps) {
+export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [rating, setRating] = useState(10);
   const [reviewText, setReviewText] = useState("");
+  const [showRatingStars, setShowRatingStars] = useState(false);
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
     queryKey: ["/api/apps", appId, "reviews"],
@@ -103,6 +105,7 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
   });
 
   const userAlreadyReviewed = reviews.some((review) => review.userId === user?.id);
+  const isCreator = user?.id === creatorId;
   const avgRating = ratingData?.averageRating;
 
   return (
@@ -128,35 +131,56 @@ export function ReviewSection({ appId }: ReviewSectionProps) {
 
       {/* Submit Review Form */}
       {isAuthenticated ? (
-        !userAlreadyReviewed ? (
+        isCreator ? (
+          <div className="mb-6 pb-6 border-b">
+            <p className="text-sm text-muted-foreground">
+              You cannot rate your own app.
+            </p>
+          </div>
+        ) : !userAlreadyReviewed ? (
           <div className="mb-6 pb-6 border-b">
             <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Your Rating</label>
-                <StarRating rating={rating} onRatingChange={setRating} />
+                {!showRatingStars ? (
+                  <button
+                    onClick={() => setShowRatingStars(true)}
+                    className="flex items-center gap-2 text-primary hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+                    data-testid="button-rate"
+                  >
+                    <Star className="h-5 w-5" />
+                    <span className="font-medium">Rate</span>
+                  </button>
+                ) : (
+                  <StarRating rating={rating} onRatingChange={setRating} />
+                )}
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Your Review (Optional)</label>
-                <Textarea
-                  placeholder="Share your thoughts about this app..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  maxLength={1000}
-                  rows={4}
-                  data-testid="textarea-review"
-                />
-                <div className="text-xs text-muted-foreground mt-1">
-                  {reviewText.length}/1000 characters
-                </div>
-              </div>
-              <Button
-                onClick={() => submitReviewMutation.mutate()}
-                disabled={submitReviewMutation.isPending}
-                data-testid="button-submit-review"
-              >
-                {submitReviewMutation.isPending ? "Submitting..." : "Submit Review"}
-              </Button>
+              {showRatingStars && (
+                <>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Your Review (Optional)</label>
+                    <Textarea
+                      placeholder="Share your thoughts about this app..."
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      maxLength={1000}
+                      rows={4}
+                      data-testid="textarea-review"
+                    />
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {reviewText.length}/1000 characters
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => submitReviewMutation.mutate()}
+                    disabled={submitReviewMutation.isPending}
+                    data-testid="button-submit-review"
+                  >
+                    {submitReviewMutation.isPending ? "Submitting..." : "Submit Review"}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         ) : (
