@@ -10,10 +10,52 @@ import {
   type Category,
   type Tool,
   type Tag,
+  type App,
+  type User,
+  type AppListing,
 } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { isAuthenticated } from "./googleAuth";
 import passport from "./googleAuth";
+
+// Helper function to transform App to AppListing format for frontend compatibility
+async function transformAppToListing(app: App, includeRelated: boolean = true): Promise<AppListing> {
+  let tools: Tool[] = [];
+  let tags: Tag[] = [];
+  let category: Category | undefined = undefined;
+  let creator: User | undefined = undefined;
+
+  if (includeRelated) {
+    [tools, tags, category, creator] = await Promise.all([
+      storage.getToolsForApp(app.id),
+      storage.getTagsForApp(app.id),
+      app.categoryId ? storage.getCategoryById(app.categoryId) : Promise.resolve(undefined),
+      app.creatorId ? storage.getUserById(app.creatorId) : Promise.resolve(undefined),
+    ]);
+  }
+
+  return {
+    id: app.id,
+    name: app.name,
+    shortDescription: app.shortDescription,
+    fullDescription: app.fullDescription,
+    launchUrl: app.launchUrl,
+    vibecodingTools: tools.map(t => t.name),
+    category: category?.name || "Other",
+    creatorName: creator?.name || "Unknown Creator",
+    creatorContact: creator?.email || null,
+    previewImage: app.screenshotUrl,
+    screenshotUrl: app.screenshotUrl,
+    tags: tags.map(t => t.name),
+    keyLearnings: app.keyLearnings,
+    launchCount: app.viewCount,
+    createdDate: app.createdAt,
+    submissionDate: app.createdAt,
+    status: app.status,
+    creatorId: app.creatorId || null,
+    categoryId: app.categoryId || null,
+  };
+}
 
 // Admin authorization middleware
 function isAdmin(req: Request, res: Response, next: NextFunction) {
@@ -86,7 +128,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const apps = await storage.getAllApps(filters);
-      res.json(apps);
+      const appListings = await Promise.all(apps.map(app => transformAppToListing(app)));
+      res.json(appListings);
     } catch (error) {
       console.error("Error fetching apps:", error);
       res.status(500).json({ error: "Failed to fetch apps" });
@@ -103,13 +146,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "App not found" });
       }
 
-      // Get tools and tags for the app
-      const [tools, tags] = await Promise.all([
-        storage.getToolsForApp(req.params.id),
-        storage.getTagsForApp(req.params.id)
-      ]);
-
-      res.json({ ...app, tools, tags });
+      const appListing = await transformAppToListing(app);
+      res.json(appListing);
     } catch (error) {
       console.error("Error fetching app:", error);
       res.status(500).json({ error: "Failed to fetch app" });
