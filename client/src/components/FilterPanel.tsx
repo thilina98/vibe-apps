@@ -1,40 +1,49 @@
-import { VIBECODING_TOOLS, CATEGORIES } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import type { Category, Tool } from "@shared/schema";
 
 interface FilterPanelProps {
-  selectedTools: string[];
-  onToolsChange: (tools: string[]) => void;
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
+  selectedToolIds: string[];
+  onToolIdsChange: (toolIds: string[]) => void;
+  selectedCategoryId: string;
+  onCategoryIdChange: (categoryId: string) => void;
   sortBy: "newest" | "oldest" | "popular";
   onSortChange: (sort: "newest" | "oldest" | "popular") => void;
 }
 
 export function FilterPanel({
-  selectedTools,
-  onToolsChange,
-  selectedCategory,
-  onCategoryChange,
+  selectedToolIds,
+  onToolIdsChange,
+  selectedCategoryId,
+  onCategoryIdChange,
   sortBy,
   onSortChange,
 }: FilterPanelProps) {
-  const hasActiveFilters = selectedTools.length > 0 || selectedCategory;
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  const { data: tools, isLoading: toolsLoading } = useQuery<Tool[]>({
+    queryKey: ["/api/tools"],
+  });
+
+  const hasActiveFilters = selectedToolIds.length > 0 || selectedCategoryId;
 
   const clearFilters = () => {
-    onToolsChange([]);
-    onCategoryChange("");
+    onToolIdsChange([]);
+    onCategoryIdChange("");
   };
 
-  const toggleTool = (tool: string) => {
-    if (selectedTools.includes(tool)) {
-      onToolsChange(selectedTools.filter((t) => t !== tool));
+  const toggleTool = (toolId: string) => {
+    if (selectedToolIds.includes(toolId)) {
+      onToolIdsChange(selectedToolIds.filter((id) => id !== toolId));
     } else {
-      onToolsChange([...selectedTools, tool]);
+      onToolIdsChange([...selectedToolIds, toolId]);
     }
   };
 
@@ -77,43 +86,59 @@ export function FilterPanel({
         <div className="border-t pt-4">
           <h4 className="font-semibold text-sm mb-3">
             Vibecoding Tools
-            {selectedTools.length > 0 && (
-              <span className="ml-2 text-xs text-muted-foreground">({selectedTools.length})</span>
+            {selectedToolIds.length > 0 && (
+              <span className="ml-2 text-xs text-muted-foreground">({selectedToolIds.length})</span>
             )}
           </h4>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {VIBECODING_TOOLS.map((tool) => (
-              <div key={tool} className="flex items-center space-x-2">
-                <Checkbox
-                  id={tool}
-                  checked={selectedTools.includes(tool)}
-                  onCheckedChange={() => toggleTool(tool)}
-                  data-testid={`checkbox-tool-${tool.toLowerCase().replace(/\s+/g, '-')}`}
-                />
-                <Label htmlFor={tool} className="cursor-pointer text-sm">
-                  {tool}
-                </Label>
-              </div>
-            ))}
-          </div>
+          {toolsLoading ? (
+            <div className="space-y-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-6 bg-muted rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {tools?.map((tool) => (
+                <div key={tool.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={tool.id}
+                    checked={selectedToolIds.includes(tool.id)}
+                    onCheckedChange={() => toggleTool(tool.id)}
+                    data-testid={`checkbox-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  />
+                  <Label htmlFor={tool.id} className="cursor-pointer text-sm">
+                    {tool.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="border-t pt-4">
           <h4 className="font-semibold text-sm mb-3">Category</h4>
-          <RadioGroup value={selectedCategory} onValueChange={onCategoryChange}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="" id="all-categories" data-testid="radio-all-categories" />
-              <Label htmlFor="all-categories" className="cursor-pointer text-sm">All Categories</Label>
+          {categoriesLoading ? (
+            <div className="space-y-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-6 bg-muted rounded animate-pulse" />
+              ))}
             </div>
-            {CATEGORIES.map((category) => (
-              <div key={category} className="flex items-center space-x-2">
-                <RadioGroupItem value={category} id={category} data-testid={`radio-category-${category.toLowerCase().replace(/\s+/g, '-')}`} />
-                <Label htmlFor={category} className="cursor-pointer text-sm">
-                  {category}
-                </Label>
+          ) : (
+            <RadioGroup value={selectedCategoryId} onValueChange={onCategoryIdChange}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="" id="all-categories" data-testid="radio-all-categories" />
+                <Label htmlFor="all-categories" className="cursor-pointer text-sm">All Categories</Label>
               </div>
-            ))}
-          </RadioGroup>
+              {categories?.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={category.id} id={category.id} data-testid={`radio-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`} />
+                  <Label htmlFor={category.id} className="cursor-pointer text-sm">
+                    {category.name}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
         </div>
       </div>
     </Card>

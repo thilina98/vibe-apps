@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { insertAppListingSchema, VIBECODING_TOOLS, CATEGORIES } from "@shared/schema";
-import type { InsertAppListing } from "@shared/schema";
+import { insertAppSchema, type Category, type Tool } from "@shared/schema";
+import type { InsertApp } from "@shared/schema";
 import { ObjectUploader } from "../components/ObjectUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,27 +43,37 @@ export default function SubmitAppPage() {
     }
   }, [isAuthenticated, isLoading, toast, signInWithGoogle]);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [tagNames, setTagNames] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
+  const [otherToolName, setOtherToolName] = useState("");
+  const [isOtherToolSelected, setIsOtherToolSelected] = useState(false);
 
-  const form = useForm<InsertAppListing>({
-    resolver: zodResolver(insertAppListingSchema),
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  const { data: tools, isLoading: toolsLoading } = useQuery<Tool[]>({
+    queryKey: ["/api/tools"],
+  });
+
+  const form = useForm<InsertApp>({
+    resolver: zodResolver(insertAppSchema),
     defaultValues: {
       name: "",
       shortDescription: "",
       fullDescription: "",
       launchUrl: "",
-      vibecodingTools: [],
-      category: "",
-      creatorName: "",
-      creatorContact: "",
-      previewImage: "",
-      tags: [],
+      screenshotUrl: "",
       keyLearnings: "",
+      status: "draft",
+      creatorId: "",
+      categoryId: "",
     },
   });
 
   const submitMutation = useMutation({
-    mutationFn: async (data: InsertAppListing) => {
+    mutationFn: async (data: InsertApp & { toolIds?: string[], tagNames?: string[], otherToolName?: string }) => {
       const response = await apiRequest("POST", "/api/apps", data);
       return response.json();
     },
@@ -115,7 +125,7 @@ export default function SubmitAppPage() {
       const data = await response.json();
 
       setUploadedImageUrl(data.objectPath);
-      form.setValue("previewImage", data.objectPath);
+      form.setValue("screenshotUrl", data.objectPath);
       
       toast({
         title: "Image uploaded",
@@ -125,28 +135,43 @@ export default function SubmitAppPage() {
   };
 
   const addTag = () => {
-    const currentTags = form.getValues("tags") || [];
-    if (tagInput.trim() && currentTags.length < 5 && !currentTags.includes(tagInput.trim())) {
-      form.setValue("tags", [...currentTags, tagInput.trim()]);
+    if (tagInput.trim() && tagNames.length < 5 && !tagNames.includes(tagInput.trim())) {
+      setTagNames([...tagNames, tagInput.trim()]);
       setTagInput("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    const currentTags = form.getValues("tags") || [];
-    form.setValue("tags", currentTags.filter(tag => tag !== tagToRemove));
+    setTagNames(tagNames.filter(tag => tag !== tagToRemove));
   };
 
-  const onSubmit = (data: InsertAppListing) => {
-    submitMutation.mutate(data);
+  const onSubmit = async (data: InsertApp) => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit an app.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Prepare submission data
+    const submissionData = {
+      ...data,
+      creatorId: user.id,
+      toolIds: selectedToolIds,
+      tagNames: tagNames,
+      otherToolName: isOtherToolSelected ? otherToolName : undefined,
+    };
+
+    submitMutation.mutate(submissionData);
   };
 
-  const toggleTool = (tool: string) => {
-    const currentTools = form.getValues("vibecodingTools");
-    if (currentTools.includes(tool)) {
-      form.setValue("vibecodingTools", currentTools.filter(t => t !== tool));
+  const toggleTool = (toolId: string) => {
+    if (selectedToolIds.includes(toolId)) {
+      setSelectedToolIds(selectedToolIds.filter(id => id !== toolId));
     } else {
-      form.setValue("vibecodingTools", [...currentTools, tool]);
+      setSelectedToolIds([...selectedToolIds, toolId]);
     }
   };
 
@@ -280,113 +305,136 @@ export default function SubmitAppPage() {
             <Card className="p-6 space-y-6">
               <h2 className="text-2xl font-display font-semibold">Categorization</h2>
 
-              <FormField
-                control={form.control}
-                name="vibecodingTools"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vibecoding Tools Used *</FormLabel>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {VIBECODING_TOOLS.map((tool) => (
-                        <div key={tool} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`tool-${tool}`}
-                            checked={field.value?.includes(tool)}
-                            onCheckedChange={() => toggleTool(tool)}
-                            data-testid={`checkbox-tool-${tool.toLowerCase().replace(/\s+/g, '-')}`}
-                          />
-                          <Label htmlFor={`tool-${tool}`} className="cursor-pointer text-sm">
-                            {tool}
-                          </Label>
-                        </div>
-                      ))}
+              <div>
+                <FormLabel>Vibecoding Tools Used *</FormLabel>
+                {toolsLoading ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-8 bg-muted rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                    {tools?.map((tool) => (
+                      <div key={tool.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`tool-${tool.id}`}
+                          checked={selectedToolIds.includes(tool.id)}
+                          onCheckedChange={() => toggleTool(tool.id)}
+                          data-testid={`checkbox-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
+                        />
+                        <Label htmlFor={`tool-${tool.id}`} className="cursor-pointer text-sm">
+                          {tool.name}
+                        </Label>
+                      </div>
+                    ))}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="tool-other"
+                        checked={isOtherToolSelected}
+                        onCheckedChange={(checked) => setIsOtherToolSelected(!!checked)}
+                        data-testid="checkbox-tool-other"
+                      />
+                      <Label htmlFor="tool-other" className="cursor-pointer text-sm">
+                        Other
+                      </Label>
                     </div>
-                    <FormMessage />
-                  </FormItem>
+                  </div>
                 )}
-              />
+                {isOtherToolSelected && (
+                  <div className="mt-3">
+                    <Input
+                      placeholder="Enter tool name"
+                      value={otherToolName}
+                      onChange={(e) => setOtherToolName(e.target.value)}
+                      data-testid="input-other-tool"
+                    />
+                  </div>
+                )}
+              </div>
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category *</FormLabel>
-                    <FormControl>
-                      <RadioGroup value={field.value} onValueChange={field.onChange}>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          {CATEGORIES.map((category) => (
-                            <div key={category} className="flex items-center space-x-2">
-                              <RadioGroupItem 
-                                value={category} 
-                                id={`category-${category}`}
-                                data-testid={`radio-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                              />
-                              <Label htmlFor={`category-${category}`} className="cursor-pointer text-sm">
-                                {category}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
+                    {categoriesLoading ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="h-8 bg-muted rounded animate-pulse" />
+                        ))}
+                      </div>
+                    ) : (
+                      <FormControl>
+                        <RadioGroup value={field.value} onValueChange={field.onChange}>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {categories?.map((category) => (
+                              <div key={category.id} className="flex items-center space-x-2">
+                                <RadioGroupItem 
+                                  value={category.id} 
+                                  id={`category-${category.id}`}
+                                  data-testid={`radio-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                />
+                                <Label htmlFor={`category-${category.id}`} className="cursor-pointer text-sm">
+                                  {category.name}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tags (Optional)</FormLabel>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Add a tag"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            addTag();
-                          }
-                        }}
-                        data-testid="input-tag"
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={addTag}
-                        disabled={(field.value?.length || 0) >= 5}
-                        data-testid="button-add-tag"
-                      >
-                        Add
-                      </Button>
-                    </div>
-                    {field.value && field.value.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {field.value.map((tag) => (
-                          <div key={tag} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md text-sm">
-                            <span data-testid={`badge-tag-${tag}`}>{tag}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeTag(tag)}
-                              className="ml-1 hover:text-destructive"
-                              data-testid={`button-remove-tag-${tag}`}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+              <div>
+                <FormLabel>Tags (Optional)</FormLabel>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Add a tag"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                    data-testid="input-tag"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={addTag}
+                    disabled={tagNames.length >= 5}
+                    data-testid="button-add-tag"
+                  >
+                    Add
+                  </Button>
+                </div>
+                {tagNames.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {tagNames.map((tag) => (
+                      <div key={tag} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md text-sm">
+                        <span data-testid={`badge-tag-${tag}`}>{tag}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                          data-testid={`button-remove-tag-${tag}`}
+                        >
+                          ×
+                        </button>
                       </div>
-                    )}
-                    <FormDescription>
-                      Max 5 tags
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+                    ))}
+                  </div>
                 )}
-              />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Max 5 tags
+                </p>
+              </div>
             </Card>
 
             <Card className="p-6 space-y-6">
@@ -394,7 +442,7 @@ export default function SubmitAppPage() {
 
               <FormField
                 control={form.control}
-                name="previewImage"
+                name="screenshotUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>App Screenshot *</FormLabel>
@@ -428,52 +476,6 @@ export default function SubmitAppPage() {
                     </div>
                     <FormDescription>
                       Max 5MB - 16:9 aspect ratio recommended
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Card>
-
-            <Card className="p-6 space-y-6">
-              <h2 className="text-2xl font-display font-semibold">Creator Information</h2>
-
-              <FormField
-                control={form.control}
-                name="creatorName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Your Name/Handle *</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="John Doe or @johndoe" 
-                        {...field} 
-                        data-testid="input-creator-name"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Max 50 characters
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="creatorContact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact (Optional)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="email@example.com or https://twitter.com/yourhandle" 
-                        {...field} 
-                        data-testid="input-creator-contact"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Email or social media link
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

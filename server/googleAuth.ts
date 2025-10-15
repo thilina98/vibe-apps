@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import type { Request, Response, NextFunction } from "express";
 import { storage } from "./storage";
-import type { User } from "@shared/schema";
+import type { User, UpsertUser } from "@shared/schema";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -30,15 +30,15 @@ passport.use(
           return done(new Error("No email found in Google profile"));
         }
 
-        const nameParts = profile.displayName?.split(" ") || ["", ""];
-        const userData: User = {
+        const userData: UpsertUser = {
           id: profile.id,
           email,
-          firstName: nameParts[0] || "",
-          lastName: nameParts.slice(1).join(" ") || "",
-          profileImageUrl: profile.photos?.[0]?.value || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          name: profile.displayName || "",
+          profilePictureUrl: profile.photos?.[0]?.value || null,
+          bio: null,
+          socialLink1: null,
+          socialLink2: null,
+          role: "user",
         };
 
         // Upsert user to database

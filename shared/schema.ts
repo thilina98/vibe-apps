@@ -53,7 +53,7 @@ export const apps = pgTable("apps", {
   ratingCount: integer("rating_count").notNull().default(0),
   creatorId: varchar("creator_id").references(() => users.id, { onDelete: "set null" }),
   categoryId: varchar("category_id").references(() => categories.id, { onDelete: "set null" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_date").notNull().defaultNow(), // using created_date to match DB
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
