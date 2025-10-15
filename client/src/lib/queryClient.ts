@@ -7,26 +7,18 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Get the Firebase ID token from sessionStorage
-const getIdToken = () => sessionStorage.getItem('firebaseIdToken');
-
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
   const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
-  
-  // Add Firebase ID token to Authorization header
-  const idToken = getIdToken();
-  if (idToken) {
-    headers["Authorization"] = `Bearer ${idToken}`;
-  }
 
   const res = await fetch(url, {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
+    credentials: 'include', // Send session cookie
   });
 
   await throwIfResNotOk(res);
@@ -39,16 +31,8 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const headers: HeadersInit = {};
-    
-    // Add Firebase ID token to Authorization header
-    const idToken = getIdToken();
-    if (idToken) {
-      headers["Authorization"] = `Bearer ${idToken}`;
-    }
-
     const res = await fetch(queryKey.join("/") as string, {
-      headers,
+      credentials: 'include', // Send session cookie
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
