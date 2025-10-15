@@ -66,7 +66,7 @@ export default function SubmitAppPage() {
       launchUrl: "",
       screenshotUrl: "",
       keyLearnings: "",
-      status: "draft",
+      status: "published",
       creatorId: "",
       categoryId: "",
     },
