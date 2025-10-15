@@ -4,26 +4,36 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAppListingSchema, insertReviewSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { isAuthenticated } from "./firebaseAdmin";
+import { isAuthenticated } from "./googleAuth";
+import passport from "./googleAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
   const objectStorageService = new ObjectStorageService();
 
-  // Auth route - returns current Firebase user
+  // Google OAuth routes
+  app.get('/api/login', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+  app.get('/api/callback',
+    passport.authenticate('google', { 
+      failureRedirect: '/',
+      successRedirect: '/'
+    })
+  );
+
+  app.post('/api/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Logout failed' });
+      }
+      res.json({ success: true });
+    });
+  });
+
+  // Auth route - returns current user from session
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      // Upsert user from Firebase auth data
-      const firebaseUser = req.user;
-      await storage.upsertUser({
-        id: firebaseUser.uid,
-        email: firebaseUser.email,
-        firstName: firebaseUser.firstName,
-        lastName: firebaseUser.lastName,
-        profileImageUrl: firebaseUser.profileImageUrl,
-      });
-      
-      const user = await storage.getUser(firebaseUser.uid);
+      const user = req.user;
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -118,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a review (protected - requires authentication)
   app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.uid;
+      const userId = req.user.id;
       
       // Check if user already reviewed this app
       const existingReview = await storage.getUserReviewForApp(req.body.appId, userId);
