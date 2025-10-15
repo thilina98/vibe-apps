@@ -10,10 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 15, 2025)
 
-**Latest Updates - Form Validation & Self-Rating Prevention:**
-- ✅ Fixed form validation errors to display on submit page (not toast notification)
-- ✅ All missing required fields listed with user-friendly names
-- ✅ Removed creatorId from validation (auto-populated from logged-in user)
+**Latest Updates - App Visibility & Rating UI:**
+- ✅ **FIXED: App visibility issue** - New apps now immediately visible to all users (changed default status from "draft" to "published")
+- ✅ Updated existing draft apps to published status in database
+- ✅ Form validation errors display on submit page with user-friendly field names
 - ✅ Backend check prevents creators from rating their own apps (403 error)
 - ✅ Frontend hides rating form if user is the app creator
 - ✅ New collapsible rating UI: single star with "Rate" text that expands to 10 stars when clicked
