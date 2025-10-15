@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { AppListing } from "@shared/schema";
+import type { App } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
 import { SearchBar } from "../components/SearchBar";
 import { FilterPanel } from "../components/FilterPanel";
@@ -10,8 +10,8 @@ import { Sparkles, Plus } from "lucide-react";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTools, setSelectedTools] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "popular">("newest");
   const [page, setPage] = useState(1);
   const itemsPerPage = 12;
@@ -19,16 +19,16 @@ export default function HomePage() {
   const buildQueryString = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("search", searchQuery);
-    if (selectedTools.length > 0) {
-      selectedTools.forEach(tool => params.append("tools", tool));
+    if (selectedToolIds.length > 0) {
+      selectedToolIds.forEach(toolId => params.append("tools", toolId));
     }
-    if (selectedCategory) params.append("category", selectedCategory);
+    if (selectedCategoryId) params.append("category", selectedCategoryId);
     params.append("sortBy", sortBy);
     return params.toString();
   };
 
   const queryString = buildQueryString();
-  const { data: apps, isLoading } = useQuery<AppListing[]>({
+  const { data: apps, isLoading } = useQuery<App[]>({
     queryKey: ["/api/apps?" + queryString],
   });
 
@@ -77,10 +77,10 @@ export default function HomePage() {
           <aside className="lg:w-64 flex-shrink-0">
             <div className="sticky top-4">
               <FilterPanel
-                selectedTools={selectedTools}
-                onToolsChange={setSelectedTools}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
+                selectedToolIds={selectedToolIds}
+                onToolIdsChange={setSelectedToolIds}
+                selectedCategoryId={selectedCategoryId}
+                onCategoryIdChange={setSelectedCategoryId}
                 sortBy={sortBy}
                 onSortChange={setSortBy}
               />
@@ -101,7 +101,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-2xl font-display font-semibold mb-3">No apps found</h3>
                 <p className="text-muted-foreground mb-6">
-                  {searchQuery || selectedTools.length > 0 || selectedCategory
+                  {searchQuery || selectedToolIds.length > 0 || selectedCategoryId
                     ? "Try adjusting your filters or search query"
                     : "Be the first to submit an app!"}
                 </p>

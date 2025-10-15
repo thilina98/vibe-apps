@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { AppListing } from "@shared/schema";
+import type { App, Tool } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Star } from "lucide-react";
@@ -8,7 +8,7 @@ import { getToolColor } from "../lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface AppCardProps {
-  app: AppListing;
+  app: App & { tools?: Tool[] };
 }
 
 export function AppCard({ app }: AppCardProps) {
@@ -36,7 +36,7 @@ export function AppCard({ app }: AppCardProps) {
       <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border" data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-video overflow-hidden">
           <img 
-            src={app.previewImage} 
+            src={app.screenshotUrl} 
             alt={app.name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             data-testid={`img-preview-${app.id}`}
@@ -44,21 +44,21 @@ export function AppCard({ app }: AppCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end max-w-[70%]">
-            {app.vibecodingTools.slice(0, 2).map((tool) => (
+            {app.tools?.slice(0, 2).map((tool) => (
               <Badge 
-                key={tool}
-                className={`${getToolColor(tool)} text-xs font-medium px-2 py-0.5 no-default-hover-elevate`}
-                data-testid={`badge-tool-${tool.toLowerCase().replace(/\s+/g, '-')}`}
+                key={tool.id}
+                className={`${getToolColor(tool.name)} text-xs font-medium px-2 py-0.5 no-default-hover-elevate`}
+                data-testid={`badge-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {tool}
+                {tool.name}
               </Badge>
             ))}
-            {app.vibecodingTools.length > 2 && (
+            {(app.tools?.length || 0) > 2 && (
               <Badge 
                 className="bg-background/80 text-foreground text-xs font-medium px-2 py-0.5 no-default-hover-elevate"
                 data-testid="badge-more-tools"
               >
-                +{app.vibecodingTools.length - 2}
+                +{(app.tools?.length || 0) - 2}
               </Badge>
             )}
           </div>
@@ -97,7 +97,7 @@ export function AppCard({ app }: AppCardProps) {
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
-              {app.category}
+              {app.category?.name || 'Uncategorized'}
             </Badge>
             
             <button
