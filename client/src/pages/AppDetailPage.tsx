@@ -101,7 +101,7 @@ export default function AppDetailPage() {
                   {app.name}
                 </h1>
                 <div className="flex flex-wrap gap-2">
-                  {app.vibecodingTools.map((tool) => (
+                  {app.vibecodingTools.map((tool: string) => (
                     <Badge 
                       key={tool}
                       className={getToolColor(tool)}
@@ -213,7 +213,7 @@ export default function AppDetailPage() {
                   <h3 className="font-display font-semibold">Tags</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {app.tags.map((tag) => (
+                  {app.tags.map((tag: string) => (
                     <Badge key={tag} variant="secondary" className="text-xs" data-testid={`badge-tag-${tag}`}>
                       {tag}
                     </Badge>

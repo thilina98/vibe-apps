@@ -236,3 +236,29 @@ export const sessions = pgTable(
 export const USER_ROLES = ["user", "admin"] as const;
 export const APP_STATUS = ["draft", "published"] as const;
 export const SUGGESTION_STATUS = ["pending", "approved", "rejected"] as const;
+
+// ============================================================================
+// 9. API RESPONSE TYPES (for compatibility with old database structure)
+// ============================================================================
+
+export interface AppListing {
+  id: string;
+  name: string;
+  shortDescription: string;
+  fullDescription: string;
+  launchUrl: string;
+  vibecodingTools: string[];
+  category: string;
+  creatorName: string;
+  creatorContact?: string | null;
+  previewImage: string;
+  tags?: string[] | null;
+  keyLearnings?: string | null;
+  launchCount: number;
+  createdDate: Date | string;
+  submissionDate: Date | string;
+  status: string;
+  screenshotUrl: string;
+  creatorId?: string | null;
+  categoryId?: string | null;
+}
