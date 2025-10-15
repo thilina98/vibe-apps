@@ -76,6 +76,7 @@ export interface IStorage {
   
   // Review operations
   createReview(review: InsertReview): Promise<Review>;
+  updateReview(appId: string, userId: string, rating: number, body?: string): Promise<Review>;
   getReviewsByApp(appId: string): Promise<Array<Review & { user: User | null }>>;
   getUserReviewForApp(appId: string, userId: string): Promise<Review | undefined>;
   updateAppRatingStats(appId: string): Promise<void>;
@@ -351,6 +352,23 @@ export class DatabaseStorage implements IStorage {
     
     // Update app rating stats
     await this.updateAppRatingStats(reviewData.appId);
+    
+    return review;
+  }
+
+  async updateReview(appId: string, userId: string, rating: number, body?: string): Promise<Review> {
+    const [review] = await db
+      .update(reviews)
+      .set({ 
+        rating, 
+        body: body || null,
+        updatedAt: new Date() 
+      })
+      .where(and(eq(reviews.appId, appId), eq(reviews.userId, userId)))
+      .returning();
+    
+    // Update app rating stats
+    await this.updateAppRatingStats(appId);
     
     return review;
   }
