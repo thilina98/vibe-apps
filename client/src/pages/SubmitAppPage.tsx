@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, Check } from "lucide-react";
+import { ArrowLeft, Upload, Check, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -47,6 +47,7 @@ export default function SubmitAppPage() {
   const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
   const [otherToolName, setOtherToolName] = useState("");
   const [isOtherToolSelected, setIsOtherToolSelected] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -125,6 +126,9 @@ export default function SubmitAppPage() {
       return;
     }
 
+    // Clear validation errors on submit
+    setValidationErrors([]);
+
     // Prepare submission data
     const submissionData = {
       ...data,
@@ -137,18 +141,26 @@ export default function SubmitAppPage() {
     submitMutation.mutate(submissionData);
   };
 
+  // Field name mapping for user-friendly error messages
+  const fieldLabels: Record<string, string> = {
+    name: "App Name",
+    shortDescription: "Short Description",
+    fullDescription: "Full Description",
+    launchUrl: "Launch URL",
+    screenshotUrl: "App Screenshot",
+    categoryId: "Category",
+    keyLearnings: "Key Learnings",
+  };
+
   // Show validation errors when form submission fails
   const onInvalid = () => {
     const errors = form.formState.errors;
-    const errorFields = Object.keys(errors);
+    const errorFields = Object.keys(errors).filter(field => field !== "creatorId");
     
     if (errorFields.length > 0) {
-      const firstError = errors[errorFields[0] as keyof typeof errors];
-      toast({
-        title: "Missing Required Fields",
-        description: `Please fill in all required fields. First missing field: ${errorFields[0]}`,
-        variant: "destructive",
-      });
+      // Map field names to user-friendly labels
+      const friendlyErrorFields = errorFields.map(field => fieldLabels[field] || field);
+      setValidationErrors(friendlyErrorFields);
       
       // Scroll to first error
       const firstErrorElement = document.querySelector(`[name="${errorFields[0]}"]`);
@@ -499,6 +511,29 @@ export default function SubmitAppPage() {
                 )}
               />
             </Card>
+
+            {validationErrors.length > 0 && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4" data-testid="validation-error-container">
+                <div className="flex items-start gap-3">
+                  <div className="text-destructive mt-0.5">
+                    <AlertCircle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-destructive mb-2" data-testid="validation-error-title">
+                      Missing Required Fields
+                    </h3>
+                    <p className="text-sm text-destructive/90 mb-2">
+                      Please fill in the following required fields:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-destructive/90 space-y-1">
+                      {validationErrors.map((field, index) => (
+                        <li key={index} data-testid={`validation-error-field-${index}`}>{field}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end gap-4 pt-6">
               <Link href="/">
