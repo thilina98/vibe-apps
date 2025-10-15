@@ -267,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a review (protected - requires authentication)
+  // Create or update a review (protected - requires authentication)
   app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -285,23 +285,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user already reviewed this app
       const existingReview = await storage.getUserReviewForApp(req.body.appId, userId);
-      if (existingReview) {
-        return res.status(400).json({ error: "You have already reviewed this app" });
-      }
-
-      const validatedData = insertReviewSchema.parse({
-        ...req.body,
-        userId,
-      });
       
-      const review = await storage.createReview(validatedData);
-      res.status(201).json(review);
+      let review;
+      if (existingReview) {
+        // Update existing review
+        review = await storage.updateReview(
+          req.body.appId, 
+          userId, 
+          req.body.rating, 
+          req.body.body
+        );
+        res.json(review);
+      } else {
+        // Create new review
+        const validatedData = insertReviewSchema.parse({
+          ...req.body,
+          userId,
+        });
+        
+        review = await storage.createReview(validatedData);
+        res.status(201).json(review);
+      }
     } catch (error: any) {
-      console.error("Error creating review:", error);
+      console.error("Error creating/updating review:", error);
       if (error.name === "ZodError") {
         return res.status(400).json({ error: "Validation failed", details: error.errors });
       }
-      res.status(500).json({ error: "Failed to create review" });
+      res.status(500).json({ error: "Failed to save review" });
     }
   });
 

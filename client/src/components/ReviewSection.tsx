@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Star, User as UserIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Review, User as UserType } from "@shared/schema";
@@ -53,9 +54,9 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
 export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [rating, setRating] = useState(10);
   const [reviewText, setReviewText] = useState("");
-  const [showRatingStars, setShowRatingStars] = useState(false);
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
     queryKey: ["/api/apps", appId, "reviews"],
@@ -64,6 +65,21 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
   const { data: ratingData } = useQuery<{ averageRating: number | null }>({
     queryKey: ["/api/apps", appId, "rating"],
   });
+
+  const userReview = reviews.find((review) => review.userId === user?.id);
+  const isCreator = user?.id === creatorId;
+  const avgRating = ratingData?.averageRating;
+
+  // Populate form with existing review when editing
+  useEffect(() => {
+    if (userReview && isDialogOpen) {
+      setRating(userReview.rating);
+      setReviewText(userReview.body || "");
+    } else if (!userReview && isDialogOpen) {
+      setRating(10);
+      setReviewText("");
+    }
+  }, [userReview, isDialogOpen]);
 
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
@@ -76,11 +92,10 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
     },
     onSuccess: () => {
       toast({
-        title: "Review Submitted",
+        title: userReview ? "Review Updated" : "Review Submitted",
         description: "Thank you for your feedback!",
       });
-      setRating(10);
-      setReviewText("");
+      setIsDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "reviews"] });
       queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "rating"] });
     },
@@ -91,6 +106,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
           description: "Please log in to submit a review.",
           variant: "destructive",
         });
+        setIsDialogOpen(false);
         setTimeout(() => {
           signInWithGoogle();
         }, 500);
@@ -104,9 +120,20 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
     },
   });
 
-  const userAlreadyReviewed = reviews.some((review) => review.userId === user?.id);
-  const isCreator = user?.id === creatorId;
-  const avgRating = ratingData?.averageRating;
+  const handleOpenDialog = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to write a review.",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        signInWithGoogle();
+      }, 500);
+      return;
+    }
+    setIsDialogOpen(true);
+  };
 
   return (
     <Card className="p-6">
@@ -129,7 +156,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
         </div>
       )}
 
-      {/* Submit Review Form */}
+      {/* Rate Button or User's Rating */}
       {isAuthenticated ? (
         isCreator ? (
           <div className="mb-6 pb-6 border-b">
@@ -137,57 +164,30 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
               You cannot rate your own app.
             </p>
           </div>
-        ) : !userAlreadyReviewed ? (
+        ) : userReview ? (
           <div className="mb-6 pb-6 border-b">
-            <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Your Rating</label>
-                {!showRatingStars ? (
-                  <button
-                    onClick={() => setShowRatingStars(true)}
-                    className="flex items-center gap-2 text-primary hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
-                    data-testid="button-rate"
-                  >
-                    <Star className="h-5 w-5" />
-                    <span className="font-medium">Rate</span>
-                  </button>
-                ) : (
-                  <StarRating rating={rating} onRatingChange={setRating} />
-                )}
-              </div>
-              {showRatingStars && (
-                <>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Your Review (Optional)</label>
-                    <Textarea
-                      placeholder="Share your thoughts about this app..."
-                      value={reviewText}
-                      onChange={(e) => setReviewText(e.target.value)}
-                      maxLength={1000}
-                      rows={4}
-                      data-testid="textarea-review"
-                    />
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {reviewText.length}/1000 characters
-                    </div>
-                  </div>
-                  <Button
-                    onClick={() => submitReviewMutation.mutate()}
-                    disabled={submitReviewMutation.isPending}
-                    data-testid="button-submit-review"
-                  >
-                    {submitReviewMutation.isPending ? "Submitting..." : "Submit Review"}
-                  </Button>
-                </>
-              )}
-            </div>
+            <button
+              onClick={handleOpenDialog}
+              className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+              data-testid="button-edit-rating"
+            >
+              <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+              <span className="text-lg font-semibold">{userReview.rating}</span>
+            </button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Click to edit your review
+            </p>
           </div>
         ) : (
           <div className="mb-6 pb-6 border-b">
-            <p className="text-sm text-muted-foreground">
-              You have already reviewed this app.
-            </p>
+            <button
+              onClick={handleOpenDialog}
+              className="flex items-center gap-2 text-primary hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+              data-testid="button-rate"
+            >
+              <Star className="h-5 w-5" />
+              <span className="font-medium">Rate</span>
+            </button>
           </div>
         )
       ) : (
@@ -200,6 +200,57 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
           </Button>
         </div>
       )}
+
+      {/* Rating Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]" data-testid="dialog-rate">
+          <DialogHeader>
+            <DialogTitle>{userReview ? "Edit Your Review" : "Write a Review"}</DialogTitle>
+            <DialogDescription>
+              Share your experience with this app
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Your Rating</label>
+              <StarRating rating={rating} onRatingChange={setRating} />
+              <p className="text-sm text-muted-foreground mt-2">
+                {rating}/10 stars
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Your Review (Optional)</label>
+              <Textarea
+                placeholder="Share your thoughts about this app..."
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                maxLength={1000}
+                rows={4}
+                data-testid="textarea-review"
+              />
+              <div className="text-xs text-muted-foreground mt-1">
+                {reviewText.length}/1000 characters
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+                data-testid="button-cancel-review"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => submitReviewMutation.mutate()}
+                disabled={submitReviewMutation.isPending}
+                data-testid="button-submit-review"
+              >
+                {submitReviewMutation.isPending ? "Submitting..." : userReview ? "Update Review" : "Submit Review"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Reviews List */}
       <div className="space-y-4">
