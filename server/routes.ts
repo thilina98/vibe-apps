@@ -79,10 +79,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // GOOGLE OAUTH ROUTES
   // ============================================================================
 
-  app.get('/api/login', passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    prompt: 'select_account' // Force account selection screen every time
-  }));
+  app.get('/api/login', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
   app.get('/api/callback',
     passport.authenticate('google', { 
