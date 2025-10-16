@@ -101,10 +101,6 @@ export default function AppDetailPage() {
                 appId={app.id} 
                 appName={app.name}
                 creatorId={app.creatorId}
-                onReviewsClick={() => {
-                  const reviewsSection = document.getElementById('reviews-section');
-                  reviewsSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
               />
               
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
