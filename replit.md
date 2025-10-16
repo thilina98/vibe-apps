@@ -10,12 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 16, 2025)
 
-**Latest Updates - Separated Rating & Review UI (IMDb-style):**
-- ✅ **Separated components** - Rating and reviews are now completely independent with separate modals
-- ✅ **Rating in header** - App title on left, ★ 7.5/10 rating display on right with clickable reviews count link
-- ✅ **Rating-only modal** - Simple 10-star selection + "Remove Rating" button (no review text)
-- ✅ **Review-only modal** - Separate "+ Review" button opens modal with just review text area (no stars)
-- ✅ **Scroll to reviews** - Clicking reviews count in header smoothly scrolls to reviews section
+**Latest Updates - Complete IMDb-Style Rating & Review System:**
+- ✅ **Header layout** - App title on left, rating info on right (APP RATING + YOUR RATING sections)
+- ✅ **APP RATING display** - Shows ★ X.X/10 with "APP RATING" label above and rater count below (e.g., "523 ratings")
+- ✅ **YOUR RATING display** - Shows "YOUR RATING" label above, blue ★ X/10 when rated, empty star + "Rate" text when not rated
+- ✅ **Auto-submit rating modal** - Click any star to instantly submit rating (no submit button needed)
+- ✅ **Modal buttons** - "Cancel" always visible, "Remove Rating" only shown when user has existing rating
+- ✅ **Top navigation links** - "About • Reviews • Comments" in header top-right with smooth scroll to sections
+- ✅ **Separated components** - Rating (RatingDisplay.tsx) and reviews (ReviewsSection.tsx) are independent
 - ✅ **Independent edit/delete** - Reviews have their own edit/delete buttons, rating has remove button in modal
 
 **Previous Updates - IMDb-Style Rating System:**
