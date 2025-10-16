@@ -403,13 +403,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { appId } = req.params;
       const deleteRating = req.query.deleteRating === 'true';
       
+      console.log(`[DEBUG] Delete review request - appId: ${appId}, userId: ${userId}, deleteRating: ${deleteRating}, query:`, req.query);
+      
       // Check if user has a review for this app
       const existingReview = await storage.getUserReviewForApp(appId, userId);
       if (!existingReview) {
+        console.log(`[DEBUG] No existing review found for appId: ${appId}, userId: ${userId}`);
         return res.status(404).json({ error: "Review not found" });
       }
       
+      console.log(`[DEBUG] Found existing review:`, existingReview);
       await storage.deleteReview(appId, userId, deleteRating);
+      console.log(`[DEBUG] Review deletion completed for appId: ${appId}, userId: ${userId}`);
       res.json({ success: true, message: "Review deleted successfully" });
     } catch (error: any) {
       console.error("Error deleting review:", error);
