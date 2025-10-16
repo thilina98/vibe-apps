@@ -23,12 +23,45 @@ interface ReviewsSectionProps {
   creatorId?: string | null;
 }
 
+function StarRating({ rating, onRatingChange }: {
+  rating: number;
+  onRatingChange?: (rating: number) => void;
+}) {
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  
+  const displayRating = hoveredStar !== null ? hoveredStar : rating;
+  
+  return (
+    <div className="flex gap-1" onMouseLeave={() => setHoveredStar(null)}>
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onRatingChange?.(star)}
+          onMouseEnter={() => setHoveredStar(star)}
+          className="cursor-pointer hover-elevate transition-transform active-elevate-2 rounded-sm"
+          data-testid={`review-star-${star}`}
+        >
+          <Star
+            className={`h-5 w-5 transition-colors ${
+              star <= displayRating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(0);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
