@@ -167,39 +167,41 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           {appName}
         </h1>
         
-        <div className="flex items-start gap-6">
+        <div className="flex items-start gap-8">
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
-            <div className="flex flex-col items-center w-32">
+            <div className="flex flex-col">
               <div className="text-xs font-medium text-muted-foreground mb-1.5">APP RATING</div>
-              <div className="flex items-center gap-2">
-                <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold" data-testid="text-average-rating">
-                    {avgRating.toFixed(1)}
-                  </span>
-                  <span className="text-sm text-muted-foreground">/10</span>
+              <div className="flex items-start gap-2">
+                <Star className="h-6 w-6 fill-yellow-400 text-yellow-400 mt-0.5" />
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold leading-none" data-testid="text-average-rating">
+                      {avgRating.toFixed(1)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">/10</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
+                  </div>
                 </div>
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
               </div>
             </div>
           )}
 
           {/* User Rating */}
           {isAuthenticated && !isCreator && (
-            <div className="flex flex-col items-center w-32">
+            <div className="flex flex-col">
               <div className="text-xs font-medium text-muted-foreground mb-1.5">YOUR RATING</div>
               <button
                 onClick={handleOpenRatingDialog}
-                className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+                className="flex items-start gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
                 data-testid="button-rate"
               >
-                <Star className={`h-6 w-6 ${userReview ? 'fill-blue-500 text-blue-500' : 'text-muted-foreground'}`} />
+                <Star className={`h-6 w-6 ${userReview ? 'fill-blue-500 text-blue-500' : 'text-muted-foreground'} mt-0.5`} />
                 {userReview ? (
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold">{userReview.rating}</span>
+                    <span className="text-2xl font-bold leading-none">{userReview.rating}</span>
                     <span className="text-sm text-muted-foreground">/10</span>
                   </div>
                 ) : (
