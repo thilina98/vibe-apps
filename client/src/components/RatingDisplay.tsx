@@ -13,7 +13,6 @@ interface RatingDisplayProps {
   appId: string;
   appName: string;
   creatorId?: string | null;
-  onReviewsClick?: () => void;
 }
 
 function StarRating({ rating, onRatingChange }: {
@@ -48,7 +47,7 @@ function StarRating({ rating, onRatingChange }: {
   );
 }
 
-export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: RatingDisplayProps) {
+export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
@@ -58,14 +57,14 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
     queryKey: ["/api/apps", appId, "reviews"],
   });
 
-  const { data: ratingData } = useQuery<{ averageRating: number | null }>({
+  const { data: ratingData } = useQuery<{ averageRating: number | null; ratingCount: number }>({
     queryKey: ["/api/apps", appId, "rating"],
   });
 
   const userReview = reviews.find((review) => review.userId === user?.id);
   const isCreator = user?.id === creatorId;
   const avgRating = ratingData?.averageRating;
-  const reviewCount = reviews.filter(r => r.body).length;
+  const ratingCount = ratingData?.ratingCount || 0;
 
   useEffect(() => {
     if (userReview && isRatingDialogOpen) {
@@ -76,13 +75,13 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
   }, [userReview, isRatingDialogOpen]);
 
   const submitRatingMutation = useMutation({
-    mutationFn: async () => {
-      if (rating < 1) {
+    mutationFn: async (selectedRating: number) => {
+      if (selectedRating < 1) {
         throw new Error("Please select a rating (minimum 1 star)");
       }
       const response = await apiRequest("POST", "/api/reviews", {
         appId,
-        rating,
+        rating: selectedRating,
       });
       return response.json();
     },
@@ -156,6 +155,11 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
     setIsRatingDialogOpen(true);
   };
 
+  const handleStarClick = (selectedRating: number) => {
+    setRating(selectedRating);
+    submitRatingMutation.mutate(selectedRating);
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -163,38 +167,43 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
           {appName}
         </h1>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
+          {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
-            <div className="flex items-center gap-2">
-              <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold" data-testid="text-average-rating">
-                  {avgRating.toFixed(1)}
-                </span>
-                <span className="text-sm text-muted-foreground">/10</span>
+            <div className="text-center">
+              <div className="text-xs font-medium text-muted-foreground mb-1">APP RATING</div>
+              <div className="flex items-center gap-2">
+                <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold" data-testid="text-average-rating">
+                    {avgRating.toFixed(1)}
+                  </span>
+                  <span className="text-sm text-muted-foreground">/10</span>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
               </div>
             </div>
           )}
-          
-          {reviewCount > 0 && (
-            <button
-              onClick={onReviewsClick}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              data-testid="link-reviews"
-            >
-              {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
-            </button>
-          )}
 
+          {/* User Rating */}
           {isAuthenticated && !isCreator && (
-            <button
-              onClick={handleOpenRatingDialog}
-              className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
-              data-testid="button-rate"
-            >
-              <Star className={`h-5 w-5 ${userReview ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
-              {userReview && <span className="text-sm font-semibold">{userReview.rating}/10</span>}
-            </button>
+            <div className="text-center">
+              <div className="text-xs font-medium text-muted-foreground mb-1">YOUR RATING</div>
+              <button
+                onClick={handleOpenRatingDialog}
+                className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+                data-testid="button-rate"
+              >
+                <Star className={`h-6 w-6 ${userReview ? 'fill-blue-500 text-blue-500' : 'text-muted-foreground'}`} />
+                {userReview ? (
+                  <span className="text-xl font-semibold">{userReview.rating}/10</span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Rate</span>
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -205,13 +214,13 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
           <DialogHeader>
             <DialogTitle>{userReview ? "Edit Your Rating" : "Rate This App"}</DialogTitle>
             <DialogDescription>
-              Share your rating for {appName}
+              Click a star to rate {appName}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-3 block">Your Rating *</label>
-              <StarRating rating={rating} onRatingChange={setRating} />
+              <label className="text-sm font-medium mb-3 block">Your Rating</label>
+              <StarRating rating={rating} onRatingChange={handleStarClick} />
               <p className="text-sm text-muted-foreground mt-2">
                 {rating === 0 ? "Click a star to rate" : `${rating}/10 stars`}
               </p>
@@ -233,13 +242,6 @@ export function RatingDisplay({ appId, appName, creatorId, onReviewsClick }: Rat
                 data-testid="button-cancel-rating"
               >
                 Cancel
-              </Button>
-              <Button
-                onClick={() => submitRatingMutation.mutate()}
-                disabled={submitRatingMutation.isPending}
-                data-testid="button-submit-rating"
-              >
-                {submitRatingMutation.isPending ? "Submitting..." : userReview ? "Update Rating" : "Submit Rating"}
               </Button>
             </div>
           </div>
