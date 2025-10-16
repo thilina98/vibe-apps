@@ -117,9 +117,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
 
   const deleteRatingMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("DELETE", `/api/reviews/${appId}`, {
-        deleteRating: true,
-      });
+      const response = await apiRequest("DELETE", `/api/reviews/${appId}?deleteRating=true`);
       return response.json();
     },
     onSuccess: () => {
