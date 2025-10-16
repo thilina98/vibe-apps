@@ -217,36 +217,28 @@ export default function AppDetailPage() {
 
           <aside className="space-y-6">
             <Card className="p-6">
-              <h3 className="font-display font-semibold mb-4">Creator Info</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
+              <h3 className="font-display font-semibold mb-4">Info</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium" data-testid="text-creator-name">{app.creatorName}</span>
+                  <span className="text-muted-foreground">Creator</span>
+                  <span className="ml-auto font-medium" data-testid="text-creator-name">{app.creatorName}</span>
                 </div>
-                {app.creatorContact && (
-                  <div className="text-sm text-muted-foreground" data-testid="text-creator-contact">
-                    {app.creatorContact.includes("@") && !app.creatorContact.includes("http") ? (
-                      <a href={`mailto:${app.creatorContact}`} className="hover:text-primary">
-                        {app.creatorContact}
-                      </a>
-                    ) : (
-                      <a 
-                        href={app.creatorContact.startsWith("http") ? app.creatorContact : `https://${app.creatorContact}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:text-primary"
-                      >
-                        {app.creatorContact}
-                      </a>
-                    )}
+                {app.creatorContact && !app.creatorContact.includes("@") && (
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">Website</span>
+                    <a 
+                      href={app.creatorContact.startsWith("http") ? app.creatorContact : `https://${app.creatorContact}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="ml-auto hover:text-primary hover:underline"
+                      data-testid="text-creator-contact"
+                    >
+                      Visit
+                    </a>
                   </div>
                 )}
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="font-display font-semibold mb-4">Details</h3>
-              <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Created</span>
@@ -259,24 +251,23 @@ export default function AppDetailPage() {
                   <span className="text-muted-foreground">Launches</span>
                   <span className="ml-auto font-semibold" data-testid="text-launch-count">{app.launchCount}</span>
                 </div>
+                {app.tags && app.tags.length > 0 && (
+                  <div className="pt-2 mt-2 border-t">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Tag className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Tags</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {app.tags.map((tag: string) => (
+                        <Badge key={tag} variant="secondary" className="text-xs" data-testid={`badge-tag-${tag}`}>
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
-
-            {app.tags && app.tags.length > 0 && (
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Tag className="w-4 h-4" />
-                  <h3 className="font-display font-semibold">Tags</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {app.tags.map((tag: string) => (
-                    <Badge key={tag} variant="secondary" className="text-xs" data-testid={`badge-tag-${tag}`}>
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </Card>
-            )}
           </aside>
         </div>
 
