@@ -180,10 +180,10 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
               data-testid="button-edit-rating"
             >
               <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-              <span className="text-lg font-semibold">{userReview.rating}</span>
+              <span className="text-lg font-semibold">{userReview.rating}/10</span>
             </button>
             <p className="text-xs text-muted-foreground mt-2">
-              Click to edit your review
+              Click to edit your rating
             </p>
           </div>
         ) : (
