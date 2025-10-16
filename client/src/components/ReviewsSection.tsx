@@ -193,6 +193,13 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
+              <label className="text-sm font-medium mb-2 block">Your Rating</label>
+              <StarRating rating={rating} onRatingChange={setRating} />
+              <p className="text-sm text-muted-foreground mt-2">
+                {rating === 0 ? "Click a star to rate" : `${rating}/10`}
+              </p>
+            </div>
+            <div>
               <label className="text-sm font-medium mb-2 block">Your Review</label>
               <Textarea
                 placeholder="Share your thoughts about this app..."
@@ -216,7 +223,7 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
               </Button>
               <Button
                 onClick={() => submitReviewMutation.mutate()}
-                disabled={submitReviewMutation.isPending || !reviewText.trim()}
+                disabled={submitReviewMutation.isPending || !reviewText.trim() || rating < 1}
                 data-testid="button-submit-review"
               >
                 {submitReviewMutation.isPending ? "Submitting..." : editingReviewId ? "Update Review" : "Submit Review"}
