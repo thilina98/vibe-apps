@@ -413,6 +413,24 @@ export class DatabaseStorage implements IStorage {
     return review || undefined;
   }
 
+  async deleteReview(appId: string, userId: string, deleteRating: boolean): Promise<void> {
+    if (deleteRating) {
+      await db
+        .delete(reviews)
+        .where(and(eq(reviews.appId, appId), eq(reviews.userId, userId)));
+    } else {
+      await db
+        .update(reviews)
+        .set({ 
+          body: null,
+          updatedAt: new Date() 
+        })
+        .where(and(eq(reviews.appId, appId), eq(reviews.userId, userId)));
+    }
+    
+    await this.updateAppRatingStats(appId);
+  }
+
   async updateAppRatingStats(appId: string): Promise<void> {
     const result = await db
       .select({
