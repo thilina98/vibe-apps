@@ -167,11 +167,11 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           {appName}
         </h1>
         
-        <div className="flex items-start gap-8">
+        <div className="flex items-start gap-4">
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
             <div className="flex flex-col items-center">
-              <div className="text-xs font-medium text-muted-foreground mb-1.5">APP RATING</div>
+              <div className="text-xs font-medium text-muted-foreground mb-1">APP RATING</div>
               <div className="flex items-start gap-2">
                 <Star className="h-6 w-6 fill-yellow-400 text-yellow-400 mt-0.5" />
                 <div className="flex flex-col">
@@ -192,7 +192,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           {/* User Rating */}
           {isAuthenticated && !isCreator && (
             <div className="flex flex-col items-center">
-              <div className="text-xs font-medium text-muted-foreground mb-1.5">YOUR RATING</div>
+              <div className="text-xs font-medium text-muted-foreground mb-1">YOUR RATING</div>
               <button
                 onClick={handleOpenRatingDialog}
                 className="flex items-start gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
