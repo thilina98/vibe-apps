@@ -196,6 +196,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update app (protected - creator only)
+  app.patch("/api/apps/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const appId = req.params.id;
+      
+      // Get existing app
+      const existingApp = await storage.getApp(appId, userId);
+      
+      if (!existingApp) {
+        return res.status(404).json({ error: "App not found" });
+      }
+      
+      // Check if user is creator
+      if (existingApp.creatorId !== userId) {
+        return res.status(403).json({ error: "Forbidden: You don't have permission to update this app" });
+      }
+      
+      // Extract tools and tags from request body
+      const { toolIds, tagNames, ...appData } = req.body;
+      
+      // Validate app data (exclude creatorId and status from update)
+      const { creatorId, status, ...dataToUpdate } = appData;
+      
+      // Update app
+      const updatedApp = await storage.updateApp(appId, dataToUpdate);
+      
+      // Update tools if provided
+      if (toolIds !== undefined && Array.isArray(toolIds)) {
+        // Get current tools
+        const currentTools = await storage.getToolsForApp(appId);
+        const currentToolIds = currentTools.map(t => t.id);
+        
+        // Remove tools that are not in the new list
+        for (const toolId of currentToolIds) {
+          if (!toolIds.includes(toolId)) {
+            await storage.removeToolFromApp(appId, toolId);
+          }
+        }
+        
+        // Add new tools
+        for (const toolId of toolIds) {
+          if (!currentToolIds.includes(toolId)) {
+            await storage.addToolToApp(appId, toolId);
+          }
+        }
+      }
+      
+      // Update tags if provided
+      if (tagNames !== undefined && Array.isArray(tagNames)) {
+        // Get current tags
+        const currentTags = await storage.getTagsForApp(appId);
+        const currentTagNames = currentTags.map(t => t.name);
+        
+        // Remove tags that are not in the new list
+        for (const tag of currentTags) {
+          if (!tagNames.includes(tag.name)) {
+            await storage.removeTagFromApp(appId, tag.id);
+          }
+        }
+        
+        // Add new tags
+        for (const tagName of tagNames) {
+          if (!currentTagNames.includes(tagName)) {
+            const tag = await storage.getOrCreateTag(tagName);
+            await storage.addTagToApp(appId, tag.id);
+          }
+        }
+      }
+      
+      const appListing = await transformAppToListing(updatedApp);
+      res.json(appListing);
+    } catch (error: any) {
+      console.error("Error updating app:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Validation failed", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update app" });
+    }
+  });
+
   // Increment view count (was launch count)
   app.post("/api/apps/:id/launch", async (req, res) => {
     try {
