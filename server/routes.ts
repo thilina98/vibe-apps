@@ -401,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const { appId } = req.params;
-      const { deleteRating } = req.body;
+      const deleteRating = req.query.deleteRating === 'true';
       
       // Check if user has a review for this app
       const existingReview = await storage.getUserReviewForApp(appId, userId);
@@ -409,7 +409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Review not found" });
       }
       
-      await storage.deleteReview(appId, userId, deleteRating === true);
+      await storage.deleteReview(appId, userId, deleteRating);
       res.json({ success: true, message: "Review deleted successfully" });
     } catch (error: any) {
       console.error("Error deleting review:", error);
