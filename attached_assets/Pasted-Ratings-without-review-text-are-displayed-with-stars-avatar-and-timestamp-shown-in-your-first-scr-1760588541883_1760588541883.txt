@@ -1,0 +1,28 @@
+Ratings without review text are displayed with stars, avatar, and timestamp (shown in your first screenshot with the red box)
+you understood this erroneously. there is no avatar. the ratings without the reviews are only showed to the user. other users don't see it. it is included in the total review, and that is the only thing others see. if there were a review and a rating both, that's when you show it like the first screenshot. even then, you don't show 10 stars. just one filled star with the number.
+
+This should only show when there's actual review text accompanying the rating - yes.
+
+When clicking "Rate" button, open a modal with 10 stars
+Default: 0 stars (all empty) instead of current default of 10 - correct
+Hover: Stars automatically fill up to the hovered star - correct
+Click: Set rating to that star's value (e.g., clicking 6th star = rating of 6) - correct
+Review text: Optional (can submit rating without review text) - correct
+Rating: Required (cannot submit review text without a rating) - correct, but a user can close the rating modal and decide not to rate.
+
+IMDb-Style Display:
+Show average rating with filled stars
+Show "Rate" button (or user's current rating if they've rated)
+Similar to your second and third screenshots
+
+this is correct. remember when a user comes back, user should be able to edit user's own rating just by clicking the star. the same modal should display to rate.
+when a user wants to edit, or delete a review, there should be edit, delete buttons for that. in case the user is deleting the review, the user has to click a check box to delete his rating with the review.
+In the reviews list, should we:
+Completely hide ratings that don't have review text? OR
+Still count them in the average but just not display them in the list?
+
+For the user's own rating display (when they've already rated), should it:
+Show like IMDb (just the number like "7/10") without the 10 stars? OR
+Keep current behavior with a single filled star and the number?
+
+Minimum rating: Should users be able to submit a rating of 0, or should the minimum be 1 star?
