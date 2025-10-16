@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { App, Tool } from "@shared/schema";
+import type { AppListing } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Star } from "lucide-react";
@@ -8,7 +8,7 @@ import { getToolColor } from "../lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface AppCardProps {
-  app: App & { tools?: Tool[] };
+  app: AppListing & { tools?: Array<{ id: string; name: string; websiteUrl?: string | null; logoUrl?: string | null }> };
 }
 
 export function AppCard({ app }: AppCardProps) {
@@ -97,7 +97,7 @@ export function AppCard({ app }: AppCardProps) {
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
-              {app.category?.name || 'Uncategorized'}
+              {app.category || 'Uncategorized'}
             </Badge>
             
             <button

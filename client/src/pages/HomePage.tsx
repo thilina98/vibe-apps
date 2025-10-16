@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import type { App } from "@shared/schema";
+import type { AppListing } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
 import { SearchBar } from "../components/SearchBar";
 import { FilterPanel } from "../components/FilterPanel";
@@ -28,7 +28,7 @@ export default function HomePage() {
   };
 
   const queryString = buildQueryString();
-  const { data: apps, isLoading } = useQuery<App[]>({
+  const { data: apps, isLoading } = useQuery<AppListing[]>({
     queryKey: ["/api/apps?" + queryString],
   });
 
