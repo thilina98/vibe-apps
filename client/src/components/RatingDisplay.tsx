@@ -167,10 +167,10 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           {appName}
         </h1>
         
-        <div className="flex items-center gap-8">
+        <div className="flex items-start gap-8">
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
-            <div className="text-center">
+            <div className="min-w-[140px]">
               <div className="text-xs font-medium text-muted-foreground mb-1">APP RATING</div>
               <div className="flex items-center gap-2">
                 <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
@@ -181,7 +181,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
                   <span className="text-sm text-muted-foreground">/10</span>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="text-xs text-muted-foreground mt-0.5 ml-8">
                 {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
               </div>
             </div>
@@ -189,7 +189,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
 
           {/* User Rating */}
           {isAuthenticated && !isCreator && (
-            <div className="text-center">
+            <div className="min-w-[140px]">
               <div className="text-xs font-medium text-muted-foreground mb-1">YOUR RATING</div>
               <button
                 onClick={handleOpenRatingDialog}
@@ -198,7 +198,10 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
               >
                 <Star className={`h-6 w-6 ${userReview ? 'fill-blue-500 text-blue-500' : 'text-muted-foreground'}`} />
                 {userReview ? (
-                  <span className="text-xl font-semibold">{userReview.rating}/10</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold">{userReview.rating}</span>
+                    <span className="text-sm text-muted-foreground">/10</span>
+                  </div>
                 ) : (
                   <span className="text-sm text-muted-foreground">Rate</span>
                 )}
