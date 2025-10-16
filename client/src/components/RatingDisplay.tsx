@@ -219,17 +219,13 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
       <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
         <DialogContent className="sm:max-w-[500px]" data-testid="dialog-rate">
           <DialogHeader>
-            <DialogTitle>{userReview ? "Edit Your Rating" : "Rate This App"}</DialogTitle>
-            <DialogDescription>
-              Click a star to rate {appName}
-            </DialogDescription>
+            <DialogTitle>Your Rating</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-3 block">Your Rating</label>
               <StarRating rating={rating} onRatingChange={handleStarClick} />
               <p className="text-sm text-muted-foreground mt-2">
-                {rating === 0 ? "Click a star to rate" : `${rating}/10 stars`}
+                {rating === 0 ? "Click a star to rate" : `${rating}/10`}
               </p>
             </div>
             <div className="flex gap-2 justify-end pt-4">
