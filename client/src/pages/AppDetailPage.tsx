@@ -10,7 +10,8 @@ import { getToolColor } from "../lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { ReviewSection } from "@/components/ReviewSection";
+import { RatingDisplay } from "@/components/RatingDisplay";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { CommentsSection } from "@/components/CommentsSection";
 
 export default function AppDetailPage() {
@@ -95,11 +96,18 @@ export default function AppDetailPage() {
 
         <div className="absolute bottom-0 left-0 right-0 p-6 max-w-5xl mx-auto">
           <Card className="p-6 bg-background/95 backdrop-blur-md border">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-display font-bold mb-3" data-testid="text-app-name">
-                  {app.name}
-                </h1>
+            <div className="space-y-4">
+              <RatingDisplay 
+                appId={app.id} 
+                appName={app.name}
+                creatorId={app.creatorId}
+                onReviewsClick={() => {
+                  const reviewsSection = document.getElementById('reviews-section');
+                  reviewsSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+              
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex flex-wrap gap-2">
                   {app.vibecodingTools && app.vibecodingTools.map((tool: string) => (
                     <Badge 
@@ -114,17 +122,17 @@ export default function AppDetailPage() {
                     {app.category}
                   </Badge>
                 </div>
+                
+                <Button 
+                  size="lg"
+                  onClick={handleLaunch}
+                  className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold px-8 shadow-lg"
+                  data-testid="button-launch-app"
+                >
+                  Launch App
+                  <ExternalLink className="w-5 h-5 ml-2" />
+                </Button>
               </div>
-              
-              <Button 
-                size="lg"
-                onClick={handleLaunch}
-                className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold px-8 shadow-lg"
-                data-testid="button-launch-app"
-              >
-                Launch App
-                <ExternalLink className="w-5 h-5 ml-2" />
-              </Button>
             </div>
           </Card>
         </div>
@@ -226,7 +234,7 @@ export default function AppDetailPage() {
 
         {/* Reviews Section */}
         <div className="mt-12">
-          <ReviewSection appId={app.id} creatorId={app.creatorId} />
+          <ReviewsSection appId={app.id} creatorId={app.creatorId} />
         </div>
 
         {/* Comments Section */}
