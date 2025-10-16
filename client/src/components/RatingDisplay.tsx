@@ -169,7 +169,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           </h1>
         )}
         
-        <div className={`flex items-start gap-4 ${!appName ? 'w-full justify-between' : ''}`}>
+        <div className={`flex items-start gap-2 ${!appName ? 'w-full justify-between' : ''}`}>
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
             <div className="flex flex-col items-center flex-1">

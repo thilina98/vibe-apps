@@ -144,7 +144,7 @@ export default function AppDetailPage() {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-1.5 w-[280px]">
+              <div className="flex flex-col gap-1.5 w-[240px]">
                 <RatingDisplay 
                   appId={app.id} 
                   appName=""
