@@ -77,11 +77,14 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
       if (!reviewText.trim()) {
         throw new Error("Please enter a review");
       }
+      if (rating < 1) {
+        throw new Error("Please select a rating (minimum 1 star)");
+      }
       
       const response = await apiRequest("POST", "/api/reviews", {
         appId,
         body: reviewText.trim(),
-        rating: userReview?.rating || 5,
+        rating: rating,
       });
       return response.json();
     },
@@ -118,9 +121,7 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
 
   const deleteReviewMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("DELETE", `/api/reviews/${appId}`, {
-        deleteRating: false,
-      });
+      const response = await apiRequest("DELETE", `/api/reviews/${appId}?deleteRating=false`);
       return response.json();
     },
     onSuccess: () => {
@@ -155,9 +156,11 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
 
     if (edit && userReview?.body) {
       setReviewText(userReview.body);
+      setRating(userReview.rating);
       setEditingReviewId(userReview.id);
     } else {
       setReviewText("");
+      setRating(userReview?.rating || 0);
       setEditingReviewId(null);
     }
     setIsReviewDialogOpen(true);
