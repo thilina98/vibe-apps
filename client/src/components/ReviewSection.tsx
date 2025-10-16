@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Star, User as UserIcon } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Star, User as UserIcon, Pencil, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Review, User as UserType } from "@shared/schema";
 
@@ -60,6 +62,8 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteRatingToo, setDeleteRatingToo] = useState(false);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
 
@@ -143,6 +147,32 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
     setIsDialogOpen(true);
   };
 
+  const deleteReviewMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("DELETE", `/api/reviews/${appId}`, {
+        deleteRating: deleteRatingToo,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Review Deleted",
+        description: deleteRatingToo ? "Your review and rating have been removed." : "Your review has been deleted, but your rating remains.",
+      });
+      setIsDeleteDialogOpen(false);
+      setDeleteRatingToo(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "rating"] });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete review. Please try again.",
+      });
+    },
+  });
+
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-heading font-bold mb-6">Reviews & Ratings</h2>
@@ -174,16 +204,40 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
           </div>
         ) : userReview ? (
           <div className="mb-6 pb-6 border-b">
-            <button
-              onClick={handleOpenDialog}
-              className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
-              data-testid="button-edit-rating"
-            >
-              <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-              <span className="text-lg font-semibold">{userReview.rating}/10</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleOpenDialog}
+                className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+                data-testid="button-edit-rating"
+              >
+                <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                <span className="text-lg font-semibold">{userReview.rating}/10</span>
+              </button>
+              {userReview.body && (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleOpenDialog}
+                    data-testid="button-edit-review"
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                    data-testid="button-delete-review"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Click to edit your rating
+              {userReview.body ? "Manage your review" : "Click to edit your rating"}
             </p>
           </div>
         ) : (
@@ -259,6 +313,42 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent data-testid="dialog-delete-review">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Review</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete your review? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex items-center space-x-2 my-4">
+            <Checkbox
+              id="delete-rating"
+              checked={deleteRatingToo}
+              onCheckedChange={(checked) => setDeleteRatingToo(checked === true)}
+              data-testid="checkbox-delete-rating"
+            />
+            <label
+              htmlFor="delete-rating"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Also delete my rating
+            </label>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteReviewMutation.mutate()}
+              disabled={deleteReviewMutation.isPending}
+              data-testid="button-confirm-delete"
+            >
+              {deleteReviewMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Reviews List */}
       <div className="space-y-4">
