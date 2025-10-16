@@ -167,12 +167,12 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
           {appName}
         </h1>
         
-        <div className="flex items-start gap-8">
+        <div className="flex items-start gap-12">
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
-            <div className="min-w-[140px]">
-              <div className="text-xs font-medium text-muted-foreground mb-1">APP RATING</div>
-              <div className="flex items-center gap-2">
+            <div className="text-center">
+              <div className="text-xs font-medium text-muted-foreground uppercase mb-1.5">App Rating</div>
+              <div className="flex items-center justify-center gap-2">
                 <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-bold" data-testid="text-average-rating">
@@ -181,7 +181,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
                   <span className="text-sm text-muted-foreground">/10</span>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground mt-0.5 ml-8">
+              <div className="text-xs text-muted-foreground mt-1">
                 {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
               </div>
             </div>
@@ -189,11 +189,11 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
 
           {/* User Rating */}
           {isAuthenticated && !isCreator && (
-            <div className="min-w-[140px]">
-              <div className="text-xs font-medium text-muted-foreground mb-1">YOUR RATING</div>
+            <div className="text-center">
+              <div className="text-xs font-medium text-muted-foreground uppercase mb-1.5">Your Rating</div>
               <button
                 onClick={handleOpenRatingDialog}
-                className="flex items-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all"
+                className="flex items-center justify-center gap-2 hover-elevate active-elevate-2 px-3 py-2 rounded-md transition-all mx-auto"
                 data-testid="button-rate"
               >
                 <Star className={`h-6 w-6 ${userReview ? 'fill-blue-500 text-blue-500' : 'text-muted-foreground'}`} />
