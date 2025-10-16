@@ -424,16 +424,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteReview(appId: string, userId: string, deleteRating: boolean): Promise<void> {
-    console.log(`[DEBUG storage.deleteReview] appId: ${appId}, userId: ${userId}, deleteRating: ${deleteRating}`);
-    
     if (deleteRating) {
-      console.log(`[DEBUG] Deleting entire review record`);
-      const result = await db
+      await db
         .delete(reviews)
         .where(and(eq(reviews.appId, appId), eq(reviews.userId, userId)));
-      console.log(`[DEBUG] Delete result:`, result);
     } else {
-      console.log(`[DEBUG] Deleting only review body (keeping rating)`);
       await db
         .update(reviews)
         .set({ 
@@ -443,9 +438,7 @@ export class DatabaseStorage implements IStorage {
         .where(and(eq(reviews.appId, appId), eq(reviews.userId, userId)));
     }
     
-    console.log(`[DEBUG] Updating app rating stats for appId: ${appId}`);
     await this.updateAppRatingStats(appId);
-    console.log(`[DEBUG] App rating stats updated`);
   }
 
   async updateAppRatingStats(appId: string): Promise<void> {
