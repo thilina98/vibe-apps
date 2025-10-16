@@ -163,14 +163,16 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl md:text-4xl font-display font-bold" data-testid="text-app-name">
-          {appName}
-        </h1>
+        {appName && (
+          <h1 className="text-3xl md:text-4xl font-display font-bold" data-testid="text-app-name">
+            {appName}
+          </h1>
+        )}
         
-        <div className="flex items-start gap-4">
+        <div className={`flex items-start gap-4 ${!appName ? 'w-full justify-between' : ''}`}>
           {/* App Rating */}
           {avgRating !== null && avgRating !== undefined && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-1">
               <div className="text-xs font-medium text-muted-foreground mb-1">APP RATING</div>
               <div className="flex items-start gap-2">
                 <Star className="h-6 w-6 fill-yellow-400 text-yellow-400 mt-0.5" />
@@ -191,7 +193,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
 
           {/* User Rating */}
           {isAuthenticated && !isCreator && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-1">
               <div className="text-xs font-medium text-muted-foreground mb-1">YOUR RATING</div>
               <button
                 onClick={handleOpenRatingDialog}

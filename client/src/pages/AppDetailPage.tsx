@@ -122,13 +122,11 @@ export default function AppDetailPage() {
 
         <div className="absolute bottom-0 left-0 right-0 p-6 max-w-5xl mx-auto">
           <Card className="p-6 bg-background/95 backdrop-blur-md border">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1.5">
-                <RatingDisplay 
-                  appId={app.id} 
-                  appName={app.name}
-                  creatorId={app.creatorId}
-                />
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex-1 space-y-4">
+                <h1 className="text-3xl md:text-4xl font-display font-bold" data-testid="text-app-name">
+                  {app.name}
+                </h1>
                 
                 <div className="flex flex-wrap gap-2">
                   {app.vibecodingTools && app.vibecodingTools.map((tool: string) => (
@@ -146,15 +144,23 @@ export default function AppDetailPage() {
                 </div>
               </div>
               
-              <Button 
-                size="lg"
-                onClick={handleLaunch}
-                className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold shadow-lg w-[240px]"
-                data-testid="button-launch-app"
-              >
-                Launch App
-                <ExternalLink className="w-5 h-5 ml-2" />
-              </Button>
+              <div className="flex flex-col gap-1.5 w-[280px]">
+                <RatingDisplay 
+                  appId={app.id} 
+                  appName=""
+                  creatorId={app.creatorId}
+                />
+                
+                <Button 
+                  size="lg"
+                  onClick={handleLaunch}
+                  className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold shadow-lg w-full"
+                  data-testid="button-launch-app"
+                >
+                  Launch App
+                  <ExternalLink className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
