@@ -60,7 +60,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
   const { user, isAuthenticated, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [rating, setRating] = useState(10);
+  const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
@@ -81,13 +81,16 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
       setRating(userReview.rating);
       setReviewText(userReview.body || "");
     } else if (!userReview && isDialogOpen) {
-      setRating(10);
+      setRating(0);
       setReviewText("");
     }
   }, [userReview, isDialogOpen]);
 
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
+      if (rating < 1) {
+        throw new Error("Please select a rating (minimum 1 star)");
+      }
       const response = await apiRequest("POST", "/api/reviews", {
         appId,
         rating,
@@ -217,10 +220,10 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Your Rating</label>
+              <label className="text-sm font-medium mb-2 block">Your Rating *</label>
               <StarRating rating={rating} onRatingChange={setRating} />
               <p className="text-sm text-muted-foreground mt-2">
-                {rating}/10 stars
+                {rating === 0 ? "Click a star to rate" : `${rating}/10 stars`}
               </p>
             </div>
             <div>
