@@ -10,7 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 16, 2025)
 
-**Latest Updates - IMDb-Style Rating System:**
+**Latest Updates - Separated Rating & Review UI (IMDb-style):**
+- ✅ **Separated components** - Rating and reviews are now completely independent with separate modals
+- ✅ **Rating in header** - App title on left, ★ 7.5/10 rating display on right with clickable reviews count link
+- ✅ **Rating-only modal** - Simple 10-star selection + "Remove Rating" button (no review text)
+- ✅ **Review-only modal** - Separate "+ Review" button opens modal with just review text area (no stars)
+- ✅ **Scroll to reviews** - Clicking reviews count in header smoothly scrolls to reviews section
+- ✅ **Independent edit/delete** - Reviews have their own edit/delete buttons, rating has remove button in modal
+
+**Previous Updates - IMDb-Style Rating System:**
 - ✅ **Star rating hover effects** - Stars fill on hover up to hovered star, click to select rating
 - ✅ **Rating default changed to 0** - Modal starts with all stars empty, minimum rating of 1 required
 - ✅ **IMDb-style rating display** - User's rating shown as ★ 7/10 (single filled star + number)
