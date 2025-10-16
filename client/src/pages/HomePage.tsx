@@ -18,9 +18,9 @@ export default function HomePage() {
     queryKey: ["/api/apps/landing/top-rated"],
   });
 
-  // Fetch top 5 trending categories
-  const { data: trendingCategories } = useQuery<Array<{ name: string; count: number }>>({
-    queryKey: ["/api/categories/trending"],
+  // Fetch top trending apps by trending score
+  const { data: trendingApps } = useQuery<AppListing[]>({
+    queryKey: ["/api/apps/landing/trending"],
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -68,31 +68,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trending Categories */}
-      {trendingCategories && trendingCategories.length > 0 && (
+      {/* Top Rated Apps (by trending score) */}
+      {trendingApps && trendingApps.length > 0 && (
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-categories-title">
-                Trending Categories
+              <h2 className="text-2xl font-heading font-bold" data-testid="text-top-rated-apps-title">
+                Top Rated Apps
               </h2>
             </div>
-            <div className="flex flex-wrap gap-3">
-              {trendingCategories.map((category) => (
-                <Link
-                  key={category.name}
-                  href={`/explore?category=${encodeURIComponent(category.name)}`}
-                >
-                  <Badge
-                    variant="outline"
-                    className="text-base py-2 px-4 hover-elevate active-elevate-2 cursor-pointer"
-                    data-testid={`badge-category-${category.name}`}
-                  >
-                    <span className="font-semibold">{category.name}</span>
-                    <span className="ml-2 text-xs text-muted-foreground">({category.count})</span>
-                  </Badge>
-                </Link>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trendingApps.map((app) => (
+                <AppCard key={app.id} app={app} />
               ))}
             </div>
           </div>
@@ -105,7 +93,7 @@ export default function HomePage() {
           <div className="container mx-auto max-w-6xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
-                Top Rated Apps
+                Recently Added Apps
               </h2>
               <Link href="/explore">
                 <Button variant="ghost" data-testid="button-view-all">
@@ -115,61 +103,10 @@ export default function HomePage() {
               </Link>
             </div>
             
-            {/* Grid: 3 rows of 2 + 1 app on left and submit card on right */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* First 6 apps in 2 columns */}
-              {topRatedApps.slice(0, 6).map((app) => (
+              {topRatedApps.map((app) => (
                 <AppCard key={app.id} app={app} />
               ))}
-              
-              {/* Third row: 7th app on left, submit card on right */}
-              {topRatedApps.length > 6 && (
-                <AppCard app={topRatedApps[6]} />
-              )}
-              
-              {/* Submit Card */}
-              <Card className="p-8 flex flex-col items-center justify-center text-center hover-elevate active-elevate-2 min-h-[300px]">
-                <div className="mb-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                    <Plus className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-heading font-bold mb-2" data-testid="text-submit-card-title">
-                    Submit Your App
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4" data-testid="text-submit-card-description">
-                    Built something awesome? Share it with the community!
-                  </p>
-                </div>
-                <Link href="/submit">
-                  <Button data-testid="button-submit-app">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Submit App
-                  </Button>
-                </Link>
-              </Card>
-              
-              {/* If there are fewer than 7 apps, fill remaining space */}
-              {topRatedApps.length < 7 && (
-                <Card className="p-8 flex flex-col items-center justify-center text-center hover-elevate active-elevate-2 min-h-[300px]">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                      <Plus className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-heading font-bold mb-2" data-testid="text-submit-card-title">
-                      Submit Your App
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4" data-testid="text-submit-card-description">
-                      Built something awesome? Share it with the community!
-                    </p>
-                  </div>
-                  <Link href="/submit">
-                    <Button data-testid="button-submit-app">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Submit App
-                    </Button>
-                  </Link>
-                </Card>
-              )}
             </div>
           </div>
         </section>
@@ -299,7 +236,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2" data-testid="text-apps-count">
-                {topRatedApps?.length || 0}+
+                {(topRatedApps?.length || 0) + (trendingApps?.length || 0)}+
               </div>
               <p className="text-sm text-muted-foreground" data-testid="text-apps-label">
                 AI-Built Apps
@@ -307,11 +244,11 @@ export default function HomePage() {
             </Card>
             
             <Card className="p-6 text-center">
-              <div className="text-4xl font-bold text-primary mb-2" data-testid="text-categories-count">
-                {trendingCategories?.length || 0}+
+              <div className="text-4xl font-bold text-primary mb-2" data-testid="text-trending-count">
+                {trendingApps?.length || 0}+
               </div>
-              <p className="text-sm text-muted-foreground" data-testid="text-categories-label">
-                Categories
+              <p className="text-sm text-muted-foreground" data-testid="text-trending-label">
+                Trending Apps
               </p>
             </Card>
             
