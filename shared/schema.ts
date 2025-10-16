@@ -49,7 +49,7 @@ export const apps = pgTable("apps", {
   keyLearnings: text("key_learnings"),
   status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft' or 'published'
   viewCount: integer("view_count").notNull().default(0),
-  averageRating: decimal("average_rating", { precision: 3, scale: 2 }).notNull().default("0.00"),
+  averageRating: decimal("average_rating", { precision: 4, scale: 2 }).notNull().default("0.00"),
   ratingCount: integer("rating_count").notNull().default(0),
   creatorId: varchar("creator_id").references(() => users.id, { onDelete: "set null" }),
   categoryId: varchar("category_id").references(() => categories.id, { onDelete: "set null" }),
