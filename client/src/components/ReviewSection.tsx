@@ -262,12 +262,12 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
 
       {/* Reviews List */}
       <div className="space-y-4">
-        {reviews.length === 0 ? (
+        {reviews.filter(review => review.body).length === 0 ? (
           <p className="text-muted-foreground text-center py-8">
             No reviews yet. Be the first to review this app!
           </p>
         ) : (
-          reviews.map((review) => (
+          reviews.filter(review => review.body).map((review) => (
             <div key={review.id} className="border-b last:border-0 pb-4 last:pb-0" data-testid={`review-${review.id}`}>
               <div className="flex items-start gap-3">
                 <Avatar className="h-10 w-10">
