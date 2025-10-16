@@ -27,20 +27,25 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
   onRatingChange?: (rating: number) => void;
   readonly?: boolean;
 }) {
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  
+  const displayRating = !readonly && hoveredStar !== null ? hoveredStar : rating;
+  
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1" onMouseLeave={() => setHoveredStar(null)}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
         <button
           key={star}
           type="button"
           onClick={() => !readonly && onRatingChange?.(star)}
+          onMouseEnter={() => !readonly && setHoveredStar(star)}
           disabled={readonly}
           className={`${readonly ? 'cursor-default' : 'cursor-pointer hover-elevate'} transition-transform active-elevate-2 rounded-sm`}
           data-testid={`star-${star}`}
         >
           <Star
-            className={`h-4 w-4 ${
-              star <= rating
+            className={`h-4 w-4 transition-colors ${
+              star <= displayRating
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-muted-foreground"
             }`}
