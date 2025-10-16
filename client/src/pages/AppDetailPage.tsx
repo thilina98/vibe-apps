@@ -81,7 +81,7 @@ export default function AppDetailPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         
-        <div className="absolute top-6 left-6">
+        <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
           <Link href="/">
             <Button 
               variant="outline" 
@@ -92,6 +92,32 @@ export default function AppDetailPage() {
               Back
             </Button>
           </Link>
+          
+          <div className="flex items-center gap-4 text-sm text-white/90 font-medium">
+            <button 
+              onClick={() => document.getElementById('about-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:text-white transition-colors"
+              data-testid="link-about"
+            >
+              About
+            </button>
+            <span className="text-white/40">•</span>
+            <button 
+              onClick={() => document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:text-white transition-colors"
+              data-testid="link-reviews"
+            >
+              Reviews
+            </button>
+            <span className="text-white/40">•</span>
+            <button 
+              onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:text-white transition-colors"
+              data-testid="link-comments"
+            >
+              Comments
+            </button>
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-6 max-w-5xl mx-auto">
@@ -137,7 +163,7 @@ export default function AppDetailPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <section>
+            <section id="about-section">
               <h2 className="text-2xl font-display font-semibold mb-4">About this app</h2>
               <div className="prose prose-slate max-w-none" data-testid="text-full-description">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -229,12 +255,12 @@ export default function AppDetailPage() {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-12">
+        <div id="reviews-section" className="mt-12">
           <ReviewsSection appId={app.id} creatorId={app.creatorId} />
         </div>
 
         {/* Comments Section */}
-        <div className="mt-8">
+        <div id="comments-section" className="mt-8">
           <CommentsSection appId={app.id} />
         </div>
       </div>
