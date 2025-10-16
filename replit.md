@@ -10,7 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 16, 2025)
 
-**Latest Updates - Complete IMDb-Style Rating & Review System:**
+**Latest Updates - App Edit Functionality:**
+- ✅ **Creators can now edit their apps** - App creators can update all app details after submission
+- ✅ **Edit button on app detail page** - "Edit App" button appears only for the app creator
+- ✅ **EditAppPage with pre-populated data** - Edit form automatically loads existing app data
+- ✅ **Full field editing** - Update name, descriptions, URL, tools, category, tags, screenshot, and key learnings
+- ✅ **Backend PATCH endpoint** - PATCH /api/apps/:id for updating apps (creator-only access)
+- ✅ **Tools and tags management** - Automatically sync tool/tag relationships when editing
+- ✅ **Permission checks** - Only creators can edit their own apps (enforced on both frontend and backend)
+
+**Previous Updates - Complete IMDb-Style Rating & Review System:**
 - ✅ **Header layout** - App title on left, rating info on right (APP RATING + YOUR RATING sections)
 - ✅ **APP RATING display** - Shows ★ X.X/10 with "APP RATING" label above and rater count below (e.g., "523 ratings")
 - ✅ **YOUR RATING display** - Shows "YOUR RATING" label above, blue ★ X/10 when rated, empty star + "Rate" text when not rated
