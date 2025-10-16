@@ -18,9 +18,14 @@ export default function HomePage() {
     queryKey: ["/api/apps/landing/top-rated"],
   });
 
-  // Fetch top trending apps by trending score
+  // Fetch top trending apps by trending score (6 for top section)
+  const { data: topTrendingApps } = useQuery<AppListing[]>({
+    queryKey: ["/api/apps/landing/trending?limit=6"],
+  });
+
+  // Fetch more trending apps (8 for trending section)
   const { data: trendingApps } = useQuery<AppListing[]>({
-    queryKey: ["/api/apps/landing/trending"],
+    queryKey: ["/api/apps/landing/trending?limit=8"],
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -69,7 +74,7 @@ export default function HomePage() {
       </section>
 
       {/* Top Rated Apps (by trending score) */}
-      {trendingApps && trendingApps.length > 0 && (
+      {topTrendingApps && topTrendingApps.length > 0 && (
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="flex items-center gap-2 mb-6">
@@ -79,7 +84,7 @@ export default function HomePage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {trendingApps.map((app) => (
+              {topTrendingApps.map((app) => (
                 <AppCard key={app.id} app={app} />
               ))}
             </div>
@@ -87,7 +92,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Featured Apps */}
+      {/* Recently Added Apps */}
       {topRatedApps && topRatedApps.length > 0 && (
         <section className="py-12 px-4 bg-muted/30">
           <div className="container mx-auto max-w-6xl">
@@ -105,6 +110,25 @@ export default function HomePage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {topRatedApps.map((app) => (
+                <AppCard key={app.id} app={app} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trending Apps */}
+      {trendingApps && trendingApps.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
+                Trending Apps
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {trendingApps.map((app) => (
                 <AppCard key={app.id} app={app} />
               ))}
             </div>
