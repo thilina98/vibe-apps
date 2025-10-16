@@ -42,13 +42,17 @@ export interface IStorage {
     toolIds?: string[];
     categoryId?: string;
     status?: "draft" | "published";
-    sortBy?: "newest" | "oldest" | "popular" | "rating";
+    sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
+    dateRange?: "week" | "month" | "3months" | "6months" | "all";
     userId?: string; // To filter by creator
   }): Promise<App[]>;
   createApp(app: InsertApp): Promise<App>;
   updateApp(id: string, appData: Partial<InsertApp>): Promise<App>;
   updateAppStatus(id: string, status: "draft" | "published"): Promise<void>;
   incrementViewCount(id: string): Promise<void>;
+  getTopRatedAppsFromLastMonths(months: number, limit: number): Promise<App[]>;
+  getTopTrendingCategories(limit: number): Promise<Array<Category & { appCount: number }>>;
+  getCategoryStats(): Promise<Array<{ categoryId: string; categoryName: string; launchCount: number }>>
   
   // Category operations
   getAllCategories(): Promise<Category[]>;
@@ -121,7 +125,8 @@ export class DatabaseStorage implements IStorage {
     toolIds?: string[];
     categoryId?: string;
     status?: "draft" | "published";
-    sortBy?: "newest" | "oldest" | "popular" | "rating";
+    sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
+    dateRange?: "week" | "month" | "3months" | "6months" | "all";
     userId?: string;
   }): Promise<App[]> {
     const conditions = [];
@@ -140,6 +145,29 @@ export class DatabaseStorage implements IStorage {
     } else {
       // Default: only published
       conditions.push(eq(apps.status, "published"));
+    }
+
+    // Date range filter
+    if (filters?.dateRange && filters.dateRange !== "all") {
+      const now = new Date();
+      let cutoffDate = new Date();
+      
+      switch (filters.dateRange) {
+        case "week":
+          cutoffDate.setDate(now.getDate() - 7);
+          break;
+        case "month":
+          cutoffDate.setMonth(now.getMonth() - 1);
+          break;
+        case "3months":
+          cutoffDate.setMonth(now.getMonth() - 3);
+          break;
+        case "6months":
+          cutoffDate.setMonth(now.getMonth() - 6);
+          break;
+      }
+      
+      conditions.push(sql`${apps.createdAt} >= ${cutoffDate.toISOString()}`);
     }
 
     // Search across name and description
@@ -184,6 +212,16 @@ export class DatabaseStorage implements IStorage {
         return await query.orderBy(desc(apps.viewCount));
       case "rating":
         return await query.orderBy(desc(apps.averageRating), desc(apps.ratingCount));
+      case "most_launched":
+        return await query.orderBy(desc(apps.viewCount));
+      case "highest_rated":
+        return await query.orderBy(desc(apps.averageRating), desc(apps.ratingCount));
+      case "trending":
+        // Trending: (launches in last 7 days * 2) + (rating * rating count)
+        // For simplicity, we'll use viewCount + rating as approximation since we don't track launch dates
+        return await query.orderBy(
+          sql`(${apps.viewCount} + (${apps.averageRating}::numeric * ${apps.ratingCount})) DESC`
+        );
       case "newest":
       default:
         return await query.orderBy(desc(apps.createdAt));
@@ -216,6 +254,68 @@ export class DatabaseStorage implements IStorage {
       .update(apps)
       .set({ viewCount: sql`${apps.viewCount} + 1` })
       .where(eq(apps.id, id));
+  }
+
+  async getTopRatedAppsFromLastMonths(months: number, limit: number): Promise<App[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
+
+    return await db
+      .select()
+      .from(apps)
+      .where(
+        and(
+          eq(apps.status, "published"),
+          sql`${apps.createdAt} >= ${cutoffDate.toISOString()}`
+        )
+      )
+      .orderBy(desc(apps.averageRating), desc(apps.ratingCount))
+      .limit(limit);
+  }
+
+  async getTopTrendingCategories(limit: number): Promise<Array<Category & { appCount: number }>> {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const result = await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        appCount: sql<number>`COUNT(${apps.id})::int`,
+      })
+      .from(categories)
+      .leftJoin(apps, and(
+        eq(apps.categoryId, categories.id),
+        eq(apps.status, "published"),
+        sql`${apps.createdAt} >= ${sevenDaysAgo.toISOString()}`
+      ))
+      .groupBy(categories.id, categories.name)
+      .orderBy(sql`COUNT(${apps.id}) DESC`)
+      .limit(limit);
+
+    return result;
+  }
+
+  async getCategoryStats(): Promise<Array<{ categoryId: string; categoryName: string; launchCount: number }>> {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const result = await db
+      .select({
+        categoryId: categories.id,
+        categoryName: categories.name,
+        launchCount: sql<number>`SUM(${apps.viewCount})::int`,
+      })
+      .from(categories)
+      .leftJoin(apps, and(
+        eq(apps.categoryId, categories.id),
+        eq(apps.status, "published"),
+        sql`${apps.createdAt} >= ${sevenDaysAgo.toISOString()}`
+      ))
+      .groupBy(categories.id, categories.name)
+      .orderBy(sql`SUM(${apps.viewCount}) DESC`);
+
+    return result;
   }
 
   // ============================================================================

@@ -115,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all apps with optional filters
   app.get("/api/apps", async (req, res) => {
     try {
-      const { search, tools, category, sortBy, status } = req.query;
+      const { search, tools, category, sortBy, status, dateRange } = req.query;
       const user = req.user as any;
       
       const filters = {
@@ -123,7 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         toolIds: tools ? (Array.isArray(tools) ? tools : [tools]) as string[] : undefined,
         categoryId: category as string | undefined,
         status: status as "draft" | "published" | undefined,
-        sortBy: (sortBy as "newest" | "oldest" | "popular" | "rating") || "newest",
+        sortBy: (sortBy as "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending") || "newest",
+        dateRange: (dateRange as "week" | "month" | "3months" | "6months" | "all") || "all",
         userId: user?.id, // Pass userId to show user's drafts
       };
 
@@ -285,6 +286,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error incrementing view count:", error);
       res.status(500).json({ error: "Failed to increment view count" });
+    }
+  });
+
+  // Get top-rated apps from last N months (for landing page)
+  app.get("/api/apps/landing/top-rated", async (req, res) => {
+    try {
+      const months = parseInt(req.query.months as string) || 4;
+      const limit = parseInt(req.query.limit as string) || 7;
+      
+      const apps = await storage.getTopRatedAppsFromLastMonths(months, limit);
+      const appListings = await Promise.all(apps.map(app => transformAppToListing(app)));
+      res.json(appListings);
+    } catch (error) {
+      console.error("Error fetching top-rated apps:", error);
+      res.status(500).json({ error: "Failed to fetch top-rated apps" });
+    }
+  });
+
+  // Get top trending categories (for landing page)
+  app.get("/api/categories/trending", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const trendingCategories = await storage.getTopTrendingCategories(limit);
+      res.json(trendingCategories);
+    } catch (error) {
+      console.error("Error fetching trending categories:", error);
+      res.status(500).json({ error: "Failed to fetch trending categories" });
     }
   });
 
