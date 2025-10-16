@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocation } from "wouter";
-import type { AppListing } from "@shared/schema";
+import { Link } from "wouter";
+import type { AppListing, Category, Tool } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
 import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Plus, X, Filter } from "lucide-react";
-import type { Category, Tool } from "@shared/schema";
 
 export default function ExplorePage() {
-  const [, setLocation] = useLocation();
-  
   // Get URL params
   const urlParams = new URLSearchParams(window.location.search);
   
