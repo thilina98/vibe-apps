@@ -315,6 +315,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete a review (protected - requires authentication)
+  app.delete("/api/reviews/:appId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { appId } = req.params;
+      const { deleteRating } = req.body;
+      
+      // Check if user has a review for this app
+      const existingReview = await storage.getUserReviewForApp(appId, userId);
+      if (!existingReview) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      
+      await storage.deleteReview(appId, userId, deleteRating === true);
+      res.json({ success: true, message: "Review deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting review:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
   // ============================================================================
   // CATEGORY ROUTES
   // ============================================================================
