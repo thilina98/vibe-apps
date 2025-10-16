@@ -8,9 +8,19 @@ The Vibecoded Apps Marketplace is a platform for discovering and sharing applica
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (October 15, 2025)
+## Recent Changes (October 16, 2025)
 
-**Latest Updates - Rating Modal & Edit Feature:**
+**Latest Updates - IMDb-Style Rating System:**
+- ✅ **Star rating hover effects** - Stars fill on hover up to hovered star, click to select rating
+- ✅ **Rating default changed to 0** - Modal starts with all stars empty, minimum rating of 1 required
+- ✅ **IMDb-style rating display** - User's rating shown as ★ 7/10 (single filled star + number)
+- ✅ **Reviews list filtering** - Only reviews with text are displayed; ratings-only hidden but counted in average
+- ✅ **Single star display in reviews** - Reviews show ★ 9/10 format instead of 10 stars
+- ✅ **Edit and Delete functionality** - Edit/Delete buttons appear when user has written review (not just rating)
+- ✅ **Delete confirmation dialog** - Checkbox option to delete rating along with review, or keep rating
+- ✅ **Backend DELETE endpoint** - DELETE /api/reviews/:appId with optional rating deletion
+
+**Previous Updates - Rating Modal & Edit Feature:**
 - ✅ **Rating now uses modal dialog** - Clean popup interface instead of inline form
 - ✅ **Users can edit their reviews** - Click on filled star to open modal with existing rating/review pre-populated
 - ✅ User's rating displayed as filled star + number (e.g., ⭐ 8) with "Click to edit" hint
