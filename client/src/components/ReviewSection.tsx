@@ -180,7 +180,8 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
       {/* Average Rating */}
       {avgRating !== null && avgRating !== undefined && reviews.length > 0 && (
         <div className="mb-6 pb-6 border-b">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
             <div>
               <div className="text-4xl font-bold" data-testid="text-average-rating">
                 {avgRating.toFixed(1)}<span className="text-lg text-muted-foreground">/10</span>
@@ -189,7 +190,6 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
                 {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
               </div>
             </div>
-            <StarRating rating={Math.round(avgRating)} readonly />
           </div>
         </div>
       )}
