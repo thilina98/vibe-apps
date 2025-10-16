@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import type { AppListing } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
+import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -108,9 +109,9 @@ export default function HomePage() {
               </Link>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {topRatedApps.map((app) => (
-                <AppCard key={app.id} app={app} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {topRatedApps.slice(0, 6).map((app) => (
+                <RecentlyAddedAppCard key={app.id} app={app} />
               ))}
             </div>
           </div>
