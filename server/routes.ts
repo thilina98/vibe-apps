@@ -304,6 +304,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get top trending apps (for landing page)
+  app.get("/api/apps/landing/trending", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      
+      const apps = await storage.getTopTrendingApps(limit);
+      const appListings = await Promise.all(apps.map(app => transformAppToListing(app)));
+      res.json(appListings);
+    } catch (error) {
+      console.error("Error fetching trending apps:", error);
+      res.status(500).json({ error: "Failed to fetch trending apps" });
+    }
+  });
+
   // Get top trending categories (for landing page)
   app.get("/api/categories/trending", async (req, res) => {
     try {

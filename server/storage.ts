@@ -51,6 +51,7 @@ export interface IStorage {
   updateAppStatus(id: string, status: "draft" | "published"): Promise<void>;
   incrementViewCount(id: string): Promise<void>;
   getTopRatedAppsFromLastMonths(months: number, limit: number): Promise<App[]>;
+  getTopTrendingApps(limit: number): Promise<App[]>;
   getTopTrendingCategories(limit: number): Promise<Array<Category & { appCount: number }>>;
   getCategoryStats(): Promise<Array<{ categoryId: string; categoryName: string; launchCount: number }>>
   
@@ -270,6 +271,19 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(apps.averageRating), desc(apps.ratingCount))
+      .limit(limit);
+  }
+
+  async getTopTrendingApps(limit: number): Promise<App[]> {
+    // Trending score: (viewCount + (rating * rating count))
+    // This approximates (Launches × 2) + (Average Rating × Number of Ratings)
+    return await db
+      .select()
+      .from(apps)
+      .where(eq(apps.status, "published"))
+      .orderBy(
+        sql`(${apps.viewCount} + (${apps.averageRating}::numeric * ${apps.ratingCount})) DESC`
+      )
       .limit(limit);
   }
 
