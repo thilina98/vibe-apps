@@ -95,7 +95,7 @@ export default function EditAppPage() {
 
       // Set tags
       if (app.tags) {
-        setTagNames(app.tags.map(t => t.name));
+        setTagNames(app.tags);
       }
 
       // Set tools
