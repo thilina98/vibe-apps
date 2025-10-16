@@ -46,6 +46,7 @@ export interface IStorage {
     userId?: string; // To filter by creator
   }): Promise<App[]>;
   createApp(app: InsertApp): Promise<App>;
+  updateApp(id: string, appData: Partial<InsertApp>): Promise<App>;
   updateAppStatus(id: string, status: "draft" | "published"): Promise<void>;
   incrementViewCount(id: string): Promise<void>;
   
@@ -191,6 +192,15 @@ export class DatabaseStorage implements IStorage {
 
   async createApp(appData: InsertApp): Promise<App> {
     const [app] = await db.insert(apps).values(appData).returning();
+    return app;
+  }
+
+  async updateApp(id: string, appData: Partial<InsertApp>): Promise<App> {
+    const [app] = await db
+      .update(apps)
+      .set({ ...appData, updatedAt: new Date() })
+      .where(eq(apps.id, id))
+      .returning();
     return app;
   }
 
