@@ -1,11 +1,11 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Link } from "wouter";
 import { AppListing } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ExternalLink, ArrowLeft, Lightbulb, Calendar, User, Tag } from "lucide-react";
+import { ExternalLink, ArrowLeft, Lightbulb, Calendar, User, Tag, Edit } from "lucide-react";
 import { getToolColor } from "../lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,15 +13,20 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { RatingDisplay } from "@/components/RatingDisplay";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { CommentsSection } from "@/components/CommentsSection";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AppDetailPage() {
   const [, params] = useRoute("/app/:id");
+  const [, setLocation] = useLocation();
   const appId = params?.id;
+  const { user } = useAuth();
 
   const { data: app, isLoading } = useQuery<AppListing>({
     queryKey: [`/api/apps/${appId}`],
     enabled: !!appId,
   });
+
+  const isCreator = user?.id === app?.creatorId;
 
   const launchMutation = useMutation({
     mutationFn: async () => {
@@ -151,15 +156,30 @@ export default function AppDetailPage() {
                   creatorId={app.creatorId}
                 />
                 
-                <Button 
-                  size="lg"
-                  onClick={handleLaunch}
-                  className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold shadow-lg w-full"
-                  data-testid="button-launch-app"
-                >
-                  Launch App
-                  <ExternalLink className="w-5 h-5 ml-2" />
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    size="lg"
+                    onClick={handleLaunch}
+                    className="bg-chart-2 hover:bg-chart-2/90 text-white font-semibold shadow-lg w-full"
+                    data-testid="button-launch-app"
+                  >
+                    Launch App
+                    <ExternalLink className="w-5 h-5 ml-2" />
+                  </Button>
+                  
+                  {isCreator && (
+                    <Button 
+                      size="lg"
+                      variant="outline"
+                      onClick={() => setLocation(`/app/${app.id}/edit`)}
+                      className="w-full"
+                      data-testid="button-edit-app"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit App
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
