@@ -6,9 +6,10 @@ import type { User, UpsertUser } from "@shared/schema";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const CALLBACK_URL = process.env.REPLIT_DEV_DOMAIN 
+const PORT = process.env.PORT || '5000';
+const CALLBACK_URL = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/callback`
-  : "http://localhost:5000/api/callback";
+  : `http://localhost:${PORT}/api/callback`;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set");
