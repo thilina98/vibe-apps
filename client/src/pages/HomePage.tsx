@@ -79,6 +79,50 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trending Apps */}
+      {trendingApps && trendingApps.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
+                Trending Apps
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+              {trendingApps.map((app) => (
+                <AppCard key={app.id} app={app} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recently Added Apps */}
+      {topRatedApps && topRatedApps.length > 0 && (
+        <section className="py-12 px-4 bg-muted/30">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
+                Recently Added Apps
+              </h2>
+              <Link href="/explore">
+                <Button variant="ghost" data-testid="button-view-all">
+                  View all
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+              {topRatedApps.slice(0, 6).map((app) => (
+                <RecentlyAddedAppCard key={app.id} app={app} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Top Rated Apps (by trending score) */}
       {topTrendingApps && topTrendingApps.length > 0 && (
         <section className="py-12 px-4">
@@ -107,50 +151,6 @@ export default function HomePage() {
               </CarouselContent>
               <CarouselNext />
             </Carousel>
-          </div>
-        </section>
-      )}
-
-      {/* Recently Added Apps */}
-      {topRatedApps && topRatedApps.length > 0 && (
-        <section className="py-12 px-4 bg-muted/30">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
-                Recently Added Apps
-              </h2>
-              <Link href="/explore">
-                <Button variant="ghost" data-testid="button-view-all">
-                  View all
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-              {topRatedApps.slice(0, 6).map((app) => (
-                <RecentlyAddedAppCard key={app.id} app={app} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Trending Apps */}
-      {trendingApps && trendingApps.length > 0 && (
-        <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
-                Trending Apps
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
-              {trendingApps.map((app) => (
-                <AppCard key={app.id} app={app} />
-              ))}
-            </div>
           </div>
         </section>
       )}
