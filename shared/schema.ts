@@ -142,7 +142,7 @@ export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   appId: varchar("app_id").notNull().references(() => apps.id, { onDelete: "cascade" }),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "set null" }),
-  rating: integer("rating").notNull(), // 1-10
+  rating: integer("rating").notNull(), // 1-5
   title: varchar("title", { length: 150 }),
   body: text("body"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -158,7 +158,7 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
-  rating: z.number().int().min(1, "Rating must be at least 1").max(10, "Rating must be at most 10"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
   title: z.string().max(150).optional(),
   body: z.string().max(2000).optional(),
 });
