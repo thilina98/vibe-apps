@@ -68,7 +68,7 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
 
       toast({
         title: "Image uploaded",
-        description: "Your image has been uploaded successfully.",
+        description: "Your screenshot has been uploaded successfully.",
       });
     } catch (error) {
       toast({

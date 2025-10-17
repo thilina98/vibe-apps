@@ -33,24 +33,16 @@ export function AppCard({ app }: AppCardProps) {
 
   return (
     <Link href={`/app/${app.id}`}>
-      <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border h-full flex flex-col" data-testid={`card-app-${app.id}`}>
+      <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border" data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-video overflow-hidden">
-          {app.previewImageUrl ? (
-            <img
-              src={app.previewImageUrl}
-              alt={app.name}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              data-testid={`img-preview-${app.id}`}
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <span className="text-6xl font-bold text-muted-foreground/40">
-                {app.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/30" />
-
+          <img 
+            src={app.screenshotUrl} 
+            alt={app.name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            data-testid={`img-preview-${app.id}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          
           <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end max-w-[70%]">
             {app.tools?.slice(0, 2).map((tool) => (
               <Badge 
@@ -83,18 +75,25 @@ export function AppCard({ app }: AppCardProps) {
             {app.shortDescription}
           </p>
 
-          <div className="flex items-center gap-1.5 mb-3">
-            <Star
-              className={`h-4 w-4 ${
-                ratingData?.averageRating && ratingData.averageRating > 0
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground"
-              }`}
-            />
-            <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
-              {(ratingData?.averageRating ?? 0).toFixed(1)}
-            </span>
-          </div>
+          {ratingData?.averageRating !== null && ratingData?.averageRating !== undefined && (
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-3.5 w-3.5 ${
+                      star <= Math.round(ratingData.averageRating!)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-muted-foreground" data-testid={`text-rating-${app.id}`}>
+                {ratingData.averageRating.toFixed(1)}
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>

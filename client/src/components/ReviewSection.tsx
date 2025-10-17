@@ -35,7 +35,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
   
   return (
     <div className="flex gap-1" onMouseLeave={() => setHoveredStar(null)}>
-      {[1, 2, 3, 4, 5].map((star) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
         <button
           key={star}
           type="button"
@@ -184,7 +184,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
             <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
             <div>
               <div className="text-4xl font-bold" data-testid="text-average-rating">
-                {avgRating.toFixed(1)}<span className="text-lg text-muted-foreground">/5</span>
+                {avgRating.toFixed(1)}<span className="text-lg text-muted-foreground">/10</span>
               </div>
               <div className="text-sm text-muted-foreground">
                 {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
@@ -211,7 +211,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
                 data-testid="button-edit-rating"
               >
                 <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                <span className="text-lg font-semibold">{userReview.rating}/5</span>
+                <span className="text-lg font-semibold">{userReview.rating}/10</span>
               </button>
               {userReview.body && (
                 <div className="flex gap-2">
@@ -277,7 +277,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
               <label className="text-sm font-medium mb-2 block">Your Rating *</label>
               <StarRating rating={rating} onRatingChange={setRating} />
               <p className="text-sm text-muted-foreground mt-2">
-                {rating === 0 ? "Click a star to rate" : `${rating}/5 stars`}
+                {rating === 0 ? "Click a star to rate" : `${rating}/10 stars`}
               </p>
             </div>
             <div>
@@ -291,7 +291,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
                 data-testid="textarea-review"
               />
               <div className="text-xs text-muted-foreground mt-1">
-                {reviewText.length}/500 characters
+                {reviewText.length}/1000 characters
               </div>
             </div>
             <div className="flex gap-2 justify-end">
@@ -375,7 +375,7 @@ export function ReviewSection({ appId, creatorId }: ReviewSectionProps) {
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{review.rating}/5</span>
+                          <span className="text-sm font-medium">{review.rating}/10</span>
                         </div>
                         <span className="text-xs text-muted-foreground">
                           {review.createdAt && formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
