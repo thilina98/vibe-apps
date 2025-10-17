@@ -1,12 +1,32 @@
 import { Link } from "wouter";
+import { useMutation } from "@tanstack/react-query";
 import type { AppListing } from "@shared/schema";
 import { Card } from "@/components/ui/card";
+import { ExternalLink } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface RecentlyAddedAppCardProps {
   app: AppListing;
 }
 
 export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
+  const launchMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", `/api/apps/${app.id}/launch`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/apps/${app.id}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/apps"] });
+    },
+  });
+
+  const handleLaunch = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(app.launchUrl, "_blank", "noopener,noreferrer");
+    launchMutation.mutate();
+  };
+
   return (
     <Link href={`/app/${app.id}`}>
       <Card
@@ -33,25 +53,31 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
           </div>
 
           {/* App Info */}
-          <div className="flex-1 min-w-0">
-            <h3 
-              className="font-semibold text-base mb-1 truncate" 
+          <div className="flex-1 min-w-0 flex flex-col">
+            <h3
+              className="font-semibold text-base mb-1 truncate"
               data-testid={`text-app-name-${app.id}`}
             >
               {app.name}
             </h3>
-            <p 
-              className="text-sm text-muted-foreground mb-1" 
-              data-testid={`text-creator-${app.id}`}
-            >
-              By {app.creatorName}
-            </p>
-            <p 
-              className="text-sm text-muted-foreground line-clamp-2" 
+            <p
+              className="text-sm text-muted-foreground line-clamp-2 mb-3"
               data-testid={`text-short-description-${app.id}`}
             >
               {app.shortDescription}
             </p>
+
+            {/* Launch Button */}
+            <div className="flex justify-end mt-auto">
+              <button
+                onClick={handleLaunch}
+                className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors"
+                data-testid={`button-launch-${app.id}`}
+              >
+                Launch
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </Card>
