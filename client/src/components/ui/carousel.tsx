@@ -2,7 +2,7 @@ import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -135,7 +135,7 @@ const Carousel = React.forwardRef<
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
-          className={cn("relative", className)}
+          className={cn("relative flex items-center -space-x-0.5", className)}
           role="region"
           aria-roledescription="carousel"
           {...props}
@@ -155,7 +155,7 @@ const CarouselContent = React.forwardRef<
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div ref={carouselRef} className="overflow-hidden flex-1 min-w-0 relative">
       <div
         ref={ref}
         className={cn(
@@ -165,6 +165,8 @@ const CarouselContent = React.forwardRef<
         )}
         {...props}
       />
+      {/* Fade out gradient on the right */}
+      <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-background via-background/60 to-transparent pointer-events-none" />
     </div>
   )
 })
@@ -204,17 +206,18 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute  h-8 w-8 rounded-full",
-        orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        "h-10 w-10 rounded-full shrink-0",
+        "border border-border bg-background hover:bg-accent",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        "transition-all duration-200",
+        orientation === "vertical" && "rotate-90",
         className
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ChevronLeft className="h-5 w-5" />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -233,17 +236,18 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-8 w-8 rounded-full",
-        orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        "h-10 w-10 rounded-full shrink-0",
+        "border border-border bg-background hover:bg-accent",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        "transition-all duration-200",
+        orientation === "vertical" && "rotate-90",
         className
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}
       {...props}
     >
-      <ArrowRight className="h-4 w-4" />
+      <ChevronRight className="h-5 w-5" />
       <span className="sr-only">Next slide</span>
     </Button>
   )

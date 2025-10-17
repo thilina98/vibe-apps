@@ -7,6 +7,13 @@ import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Search, TrendingUp, ArrowRight } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,9 +24,9 @@ export default function HomePage() {
     queryKey: ["/api/apps/landing/top-rated"],
   });
 
-  // Fetch top trending apps by trending score (6 for top section)
+  // Fetch top trending apps by trending score (8 for carousel)
   const { data: topTrendingApps } = useQuery<AppListing[]>({
-    queryKey: ["/api/apps/landing/trending?limit=6"],
+    queryKey: ["/api/apps/landing/trending?limit=8"],
   });
 
   // Fetch more trending apps (8 for trending section)
@@ -82,11 +89,24 @@ export default function HomePage() {
                 Top Rated Apps
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-              {topTrendingApps.map((app) => (
-                <AppCard key={app.id} app={app} />
-              ))}
-            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: false,
+                slidesToScroll: 1,
+              }}
+              className="w-full"
+            >
+              <CarouselPrevious />
+              <CarouselContent className="-ml-6">
+                {topTrendingApps.map((app) => (
+                  <CarouselItem key={app.id} className="pl-6 md:basis-1/2 lg:basis-[calc(100%/3.5)]">
+                    <AppCard app={app} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselNext />
+            </Carousel>
           </div>
         </section>
       )}
