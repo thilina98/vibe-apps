@@ -33,7 +33,7 @@ function StarRating({ rating, onRatingChange }: {
   
   return (
     <div className="flex gap-1" onMouseLeave={() => setHoveredStar(null)}>
-      {[1, 2, 3, 4, 5].map((star) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
         <button
           key={star}
           type="button"
@@ -196,7 +196,7 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
               <label className="text-sm font-medium mb-2 block">Your Rating</label>
               <StarRating rating={rating} onRatingChange={setRating} />
               <p className="text-sm text-muted-foreground mt-2">
-                {rating === 0 ? "Click a star to rate" : `${rating}/5`}
+                {rating === 0 ? "Click a star to rate" : `${rating}/10`}
               </p>
             </div>
             <div>
@@ -210,7 +210,7 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
                 data-testid="textarea-review"
               />
               <div className="text-xs text-muted-foreground mt-1">
-                {reviewText.length}/500 characters
+                {reviewText.length}/1000 characters
               </div>
             </div>
             <div className="flex gap-2 justify-end">
@@ -280,7 +280,7 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{review.rating}/5</span>
+                          <span className="text-sm font-medium">{review.rating}/10</span>
                         </div>
                         <span className="text-xs text-muted-foreground">
                           {review.createdAt && formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}

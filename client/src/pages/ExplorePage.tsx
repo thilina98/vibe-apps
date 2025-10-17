@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import type { AppListing, Category, Tool } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
+import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Plus, X, Filter, Search } from "lucide-react";
+import { Sparkles, Plus, X, Filter } from "lucide-react";
 
 export default function ExplorePage() {
   // Get URL params
@@ -105,17 +105,7 @@ export default function ExplorePage() {
               </Button>
             </Link>
           </div>
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search for apps..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-              className="pl-10"
-              data-testid="input-search-explore"
-            />
-          </div>
+          <SearchBar value={searchQuery} onChange={(q) => { setSearchQuery(q); setPage(1); }} />
         </div>
       </div>
 

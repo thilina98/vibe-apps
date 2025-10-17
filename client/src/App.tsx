@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import HomePage from "@/pages/HomePage";
 import ExplorePage from "@/pages/ExplorePage";
-import AboutPage from "@/pages/AboutPage";
 import SubmitAppPage from "@/pages/SubmitAppPage";
 import AppDetailPage from "@/pages/AppDetailPage";
 import EditAppPage from "@/pages/EditAppPage";
@@ -21,7 +20,6 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/explore" component={ExplorePage} />
-      <Route path="/about" component={AboutPage} />
       <Route path="/submit" component={SubmitAppPage} />
       <Route path="/app/:id/edit" component={EditAppPage} />
       <Route path="/app/:id" component={AppDetailPage} />
@@ -40,14 +38,6 @@ function Header() {
           <Link href="/" className="text-xl font-heading font-bold text-primary hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
             Vibecoded Apps
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/explore" className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors" data-testid="link-explore">
-              Explore
-            </Link>
-            <Link href="/about" className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors" data-testid="link-about">
-              About
-            </Link>
-          </nav>
         </div>
         
         <div className="flex items-center gap-3">

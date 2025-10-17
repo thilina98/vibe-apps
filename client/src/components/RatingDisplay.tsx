@@ -25,7 +25,7 @@ function StarRating({ rating, onRatingChange }: {
   
   return (
     <div className="flex gap-1" onMouseLeave={() => setHoveredStar(null)}>
-      {[1, 2, 3, 4, 5].map((star) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
         <button
           key={star}
           type="button"
@@ -181,7 +181,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
                     <span className="text-2xl font-bold leading-none" data-testid="text-average-rating">
                       {avgRating.toFixed(1)}
                     </span>
-                    <span className="text-sm text-muted-foreground">/5</span>
+                    <span className="text-sm text-muted-foreground">/10</span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {ratingCount.toLocaleString()} {ratingCount === 1 ? 'rating' : 'ratings'}
@@ -204,7 +204,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
                 {userReview ? (
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold leading-none">{userReview.rating}</span>
-                    <span className="text-sm text-muted-foreground">/5</span>
+                    <span className="text-sm text-muted-foreground">/10</span>
                   </div>
                 ) : (
                   <span className="text-sm text-muted-foreground">Rate</span>
@@ -225,7 +225,7 @@ export function RatingDisplay({ appId, appName, creatorId }: RatingDisplayProps)
             <div>
               <StarRating rating={rating} onRatingChange={handleStarClick} />
               <p className="text-sm text-muted-foreground mt-2">
-                {rating === 0 ? "Click a star to rate" : `${rating}/5`}
+                {rating === 0 ? "Click a star to rate" : `${rating}/10`}
               </p>
             </div>
             <div className="flex gap-2 justify-end pt-4">
