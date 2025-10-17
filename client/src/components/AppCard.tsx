@@ -83,25 +83,18 @@ export function AppCard({ app }: AppCardProps) {
             {app.shortDescription}
           </p>
 
-          {ratingData?.averageRating !== null && ratingData?.averageRating !== undefined && (
-            <div className="flex items-center gap-1.5 mb-3">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-3.5 w-3.5 ${
-                      star <= Math.round(ratingData.averageRating!)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted-foreground"
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-muted-foreground" data-testid={`text-rating-${app.id}`}>
-                {ratingData.averageRating.toFixed(1)}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 mb-3">
+            <Star
+              className={`h-4 w-4 ${
+                ratingData?.averageRating && ratingData.averageRating > 0
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-muted-foreground"
+              }`}
+            />
+            <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+              {(ratingData?.averageRating ?? 0).toFixed(1)}
+            </span>
+          </div>
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
