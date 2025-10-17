@@ -9,11 +9,11 @@ interface RecentlyAddedAppCardProps {
 export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
   return (
     <Link href={`/app/${app.id}`}>
-      <Card 
-        className="p-4 hover-elevate active-elevate-2 cursor-pointer transition-all"
+      <Card
+        className="p-4 hover-elevate active-elevate-2 cursor-pointer transition-all h-full"
         data-testid={`card-recently-added-${app.id}`}
       >
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-4 h-full">
           {/* App Logo */}
           <div className="flex-shrink-0">
             {app.previewImage ? (

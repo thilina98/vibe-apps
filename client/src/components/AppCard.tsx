@@ -33,16 +33,24 @@ export function AppCard({ app }: AppCardProps) {
 
   return (
     <Link href={`/app/${app.id}`}>
-      <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border" data-testid={`card-app-${app.id}`}>
+      <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border h-full flex flex-col" data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-video overflow-hidden">
-          <img 
-            src={app.screenshotUrl} 
-            alt={app.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            data-testid={`img-preview-${app.id}`}
-          />
+          {app.screenshotUrl ? (
+            <img
+              src={app.screenshotUrl}
+              alt={app.name}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              data-testid={`img-preview-${app.id}`}
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-6xl font-bold text-muted-foreground/40">
+                {app.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          
+
           <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end max-w-[70%]">
             {app.tools?.slice(0, 2).map((tool) => (
               <Badge 
