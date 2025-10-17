@@ -6,7 +6,7 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, TrendingUp, ArrowRight } from "lucide-react";
+import { Sparkles, Search, TrendingUp, ArrowRight, Plus } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -46,7 +46,15 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-primary/25 py-32 px-4">
+      <section className="bg-primary/25 py-32 px-4 relative">
+        <div className="absolute top-8 right-8">
+          <Link href="/submit">
+            <Button size="sm" data-testid="button-submit-app-hero">
+              <Plus className="w-4 h-4 mr-2" />
+              Submit Your App
+            </Button>
+          </Link>
+        </div>
         <div className="container mx-auto max-w-4xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />
