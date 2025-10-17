@@ -35,9 +35,9 @@ export function AppCard({ app }: AppCardProps) {
     <Link href={`/app/${app.id}`}>
       <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border h-full flex flex-col" data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-video overflow-hidden">
-          {app.screenshotUrl ? (
+          {app.previewImageUrl ? (
             <img
-              src={app.screenshotUrl}
+              src={app.previewImageUrl}
               alt={app.name}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               data-testid={`img-preview-${app.id}`}

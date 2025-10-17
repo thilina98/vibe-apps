@@ -61,7 +61,7 @@ export default function SubmitAppPage() {
       shortDescription: "",
       fullDescription: "",
       launchUrl: "",
-      screenshotUrl: "",
+      previewImageUrl: "",
       keyLearnings: "",
       status: "published",
       creatorId: "",
@@ -144,7 +144,7 @@ export default function SubmitAppPage() {
     shortDescription: "Short Description",
     fullDescription: "Full Description",
     launchUrl: "Launch URL",
-    screenshotUrl: "App Screenshot",
+    previewImageUrl: "App Preview Image",
     categoryId: "Category",
     keyLearnings: "Key Learnings",
   };
@@ -431,10 +431,10 @@ export default function SubmitAppPage() {
 
               <FormField
                 control={form.control}
-                name="screenshotUrl"
+                name="previewImageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>App Screenshot *</FormLabel>
+                    <FormLabel>App Preview Image *</FormLabel>
                     <FormControl>
                       <ImageUpload
                         value={field.value}

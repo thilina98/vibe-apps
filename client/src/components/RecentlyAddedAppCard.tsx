@@ -16,9 +16,9 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
         <div className="flex items-start gap-4 h-full">
           {/* App Logo */}
           <div className="flex-shrink-0">
-            {app.previewImage ? (
+            {app.previewImageUrl ? (
               <img
-                src={app.previewImage}
+                src={app.previewImageUrl}
                 alt={app.name}
                 className="w-16 h-16 rounded-md object-cover"
                 data-testid={`img-app-logo-${app.id}`}

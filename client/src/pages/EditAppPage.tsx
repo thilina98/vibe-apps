@@ -58,7 +58,7 @@ export default function EditAppPage() {
       shortDescription: "",
       fullDescription: "",
       launchUrl: "",
-      screenshotUrl: "",
+      previewImageUrl: "",
       keyLearnings: "",
       status: "published",
       creatorId: "",
@@ -86,7 +86,7 @@ export default function EditAppPage() {
         shortDescription: app.shortDescription,
         fullDescription: app.fullDescription,
         launchUrl: app.launchUrl,
-        screenshotUrl: app.previewImage,
+        previewImageUrl: app.previewImageUrl,
         keyLearnings: app.keyLearnings || "",
         status: "published",
         creatorId: app.creatorId || "",
@@ -438,10 +438,10 @@ export default function EditAppPage() {
             </Card>
 
             <Card className="p-6 space-y-6">
-              <h2 className="text-2xl font-display font-semibold">App Screenshot</h2>
+              <h2 className="text-2xl font-display font-semibold">App Preview Image</h2>
               <FormField
                 control={form.control}
-                name="screenshotUrl"
+                name="previewImageUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Preview Image *</FormLabel>

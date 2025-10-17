@@ -78,8 +78,8 @@ export default function AppDetailPage() {
   return (
     <div className="min-h-screen bg-background pb-16">
       <div className="relative h-96 overflow-hidden">
-        <img 
-          src={app.previewImage} 
+        <img
+          src={app.previewImageUrl}
           alt={app.name}
           className="w-full h-full object-cover"
           data-testid="img-detail-preview"
