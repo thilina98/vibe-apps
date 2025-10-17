@@ -81,7 +81,7 @@ async function migrate() {
     
     await db.execute(sql`
       ALTER TABLE apps
-      ADD COLUMN IF NOT EXISTS screenshot_url VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS preview_image_url VARCHAR(255),
       ADD COLUMN IF NOT EXISTS creator_id VARCHAR REFERENCES users(id) ON DELETE SET NULL,
       ADD COLUMN IF NOT EXISTS category_id VARCHAR,
       ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0,
@@ -89,18 +89,18 @@ async function migrate() {
       ADD COLUMN IF NOT EXISTS rating_count INTEGER DEFAULT 0,
       ALTER COLUMN status SET DEFAULT 'draft'
     `);
-    
-    // Migrate preview_image to screenshot_url
+
+    // Migrate preview_image or screenshot_url to preview_image_url
     await db.execute(sql`
-      UPDATE apps 
-      SET screenshot_url = preview_image 
-      WHERE screenshot_url IS NULL
+      UPDATE apps
+      SET preview_image_url = COALESCE(preview_image_url, preview_image, screenshot_url)
+      WHERE preview_image_url IS NULL
     `);
-    
-    // Set screenshot_url as NOT NULL
+
+    // Set preview_image_url as NOT NULL
     await db.execute(sql`
-      ALTER TABLE apps 
-      ALTER COLUMN screenshot_url SET NOT NULL
+      ALTER TABLE apps
+      ALTER COLUMN preview_image_url SET NOT NULL
     `);
     
     console.log("✅ Renamed and updated apps table");
