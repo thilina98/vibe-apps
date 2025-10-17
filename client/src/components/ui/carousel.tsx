@@ -165,8 +165,8 @@ const CarouselContent = React.forwardRef<
         )}
         {...props}
       />
-      {/* Fade out gradient on the right */}
-      <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-background via-background/60 to-transparent pointer-events-none" />
+      {/* Fade out on the right */}
+      <div className="absolute top-0 right-0 bottom-0 w-32 bg-background/80 pointer-events-none" />
     </div>
   )
 })

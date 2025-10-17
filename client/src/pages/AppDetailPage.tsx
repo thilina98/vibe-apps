@@ -84,7 +84,7 @@ export default function AppDetailPage() {
           className="w-full h-full object-cover"
           data-testid="img-detail-preview"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-black/50" />
         
         <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
           <Link href="/">

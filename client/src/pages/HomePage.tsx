@@ -46,18 +46,18 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-20 px-4">
+      <section className="bg-primary/25 py-32 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />
             <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-hero-title">
               Vibecoded Apps
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground mb-8" data-testid="text-hero-subtitle">
+          <p className="text-xl text-muted-foreground mb-20" data-testid="text-hero-subtitle">
             Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
-          
+
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
             <div className="flex gap-2">
               <div className="relative flex-1">

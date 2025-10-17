@@ -18,7 +18,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-20 px-4">
+      <section className="bg-primary/5 py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-primary" />

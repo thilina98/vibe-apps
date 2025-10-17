@@ -49,7 +49,7 @@ export function AppCard({ app }: AppCardProps) {
               </span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-black/30" />
 
           <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end max-w-[70%]">
             {app.tools?.slice(0, 2).map((tool) => (
