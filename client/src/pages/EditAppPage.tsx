@@ -10,9 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload, Check, AlertCircle, X } from "lucide-react";
@@ -33,9 +31,9 @@ export default function EditAppPage() {
   
   const [tagNames, setTagNames] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
+  const [selectedToolId, setSelectedToolId] = useState<string>("");
   const [otherToolName, setOtherToolName] = useState("");
-  const [isOtherToolSelected, setIsOtherToolSelected] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Fetch the app data
   const { data: app, isLoading: appLoading } = useQuery<AppListing>({
@@ -58,7 +56,7 @@ export default function EditAppPage() {
       shortDescription: "",
       fullDescription: "",
       launchUrl: "",
-      screenshotUrl: "",
+      previewImageUrl: "",
       keyLearnings: "",
       status: "published",
       creatorId: "",
@@ -86,7 +84,7 @@ export default function EditAppPage() {
         shortDescription: app.shortDescription,
         fullDescription: app.fullDescription,
         launchUrl: app.launchUrl,
-        screenshotUrl: app.previewImage,
+        previewImageUrl: app.previewImageUrl,
         keyLearnings: app.keyLearnings || "",
         status: "published",
         creatorId: app.creatorId || "",
@@ -98,16 +96,12 @@ export default function EditAppPage() {
         setTagNames(app.tags);
       }
 
-      // Set tools
-      if (app.vibecodingTools) {
-        const toolIds: string[] = [];
-        app.vibecodingTools.forEach((toolName: string) => {
-          const tool = tools?.find(t => t.name === toolName);
-          if (tool) {
-            toolIds.push(tool.id);
-          }
-        });
-        setSelectedToolIds(toolIds);
+      // Set tool (only the first one)
+      if (app.vibecodingTools && app.vibecodingTools.length > 0) {
+        const tool = tools?.find(t => t.name === app.vibecodingTools[0]);
+        if (tool) {
+          setSelectedToolId(tool.id);
+        }
       }
     }
   }, [app, form, tools]);
@@ -169,16 +163,47 @@ export default function EditAppPage() {
       return;
     }
 
-    const finalToolIds = isOtherToolSelected 
-      ? [...selectedToolIds.filter(id => id !== "other")] 
-      : selectedToolIds;
+    // Clear validation errors on submit
+    setValidationErrors([]);
 
-    updateMutation.mutate({
+    // Prepare submission data
+    const submissionData = {
       ...data,
-      toolIds: finalToolIds,
+      toolIds: selectedToolId && selectedToolId !== "other" ? [selectedToolId] : [],
       tagNames: tagNames,
-      otherToolName: isOtherToolSelected ? otherToolName : undefined,
-    });
+      otherToolName: selectedToolId === "other" ? otherToolName : undefined,
+    };
+
+    updateMutation.mutate(submissionData);
+  };
+
+  // Field name mapping for user-friendly error messages
+  const fieldLabels: Record<string, string> = {
+    name: "App Name",
+    shortDescription: "Short Description",
+    fullDescription: "Full Description",
+    launchUrl: "Launch URL",
+    previewImageUrl: "App Preview Image",
+    categoryId: "Category",
+    keyLearnings: "Key Learnings",
+  };
+
+  // Show validation errors when form submission fails
+  const onInvalid = () => {
+    const errors = form.formState.errors;
+    const errorFields = Object.keys(errors).filter(field => field !== "creatorId");
+
+    if (errorFields.length > 0) {
+      // Map field names to user-friendly labels
+      const friendlyErrorFields = errorFields.map(field => fieldLabels[field] || field);
+      setValidationErrors(friendlyErrorFields);
+
+      // Scroll to first error
+      const firstErrorElement = document.querySelector(`[name="${errorFields[0]}"]`);
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
   };
 
   if (appLoading || categoriesLoading || toolsLoading || isLoading) {
@@ -223,7 +248,7 @@ export default function EditAppPage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
             <Card className="p-6 space-y-6">
               <h2 className="text-2xl font-display font-semibold">Basic Information</h2>
               
@@ -332,36 +357,53 @@ export default function EditAppPage() {
 
             <Card className="p-6 space-y-6">
               <h2 className="text-2xl font-display font-semibold">Categorization</h2>
-              
+
               <div>
-                <Label className="text-base font-medium mb-3 block">Vibecoding Tools Used *</Label>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Select all AI-powered coding tools you used to build this app
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {tools?.map((tool) => (
-                    <div key={tool.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`tool-${tool.id}`}
-                        checked={selectedToolIds.includes(tool.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedToolIds([...selectedToolIds, tool.id]);
-                          } else {
-                            setSelectedToolIds(selectedToolIds.filter(id => id !== tool.id));
-                          }
-                        }}
-                        data-testid={`checkbox-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
-                      />
-                      <label
-                        htmlFor={`tool-${tool.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        {tool.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                <FormLabel>Vibecoding Tool Used *</FormLabel>
+                {toolsLoading ? (
+                  <div className="h-10 bg-muted rounded animate-pulse mt-3" />
+                ) : (
+                  <div className="mt-3">
+                    <Select value={selectedToolId} onValueChange={setSelectedToolId}>
+                      <SelectTrigger data-testid="select-tool">
+                        <SelectValue placeholder="Select a tool" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tools?.map((tool) => (
+                          <SelectItem
+                            key={tool.id}
+                            value={tool.id}
+                            data-testid={`select-item-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {tool.logoUrl && (
+                                <img
+                                  src={tool.logoUrl}
+                                  alt={`${tool.name} logo`}
+                                  className="w-5 h-5 rounded object-cover"
+                                />
+                              )}
+                              <span>{tool.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="other" data-testid="select-item-tool-other">
+                          <span>Other</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {selectedToolId === "other" && (
+                  <div className="mt-3">
+                    <Input
+                      placeholder="Enter tool name"
+                      value={otherToolName}
+                      onChange={(e) => setOtherToolName(e.target.value)}
+                      data-testid="input-other-tool"
+                    />
+                  </div>
+                )}
               </div>
 
               <FormField
@@ -370,78 +412,85 @@ export default function EditAppPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category *</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                      >
-                        {categories?.map((category) => (
-                          <div key={category.id} className="flex items-center space-x-2">
-                            <RadioGroupItem value={category.id} id={`category-${category.id}`} data-testid={`radio-category-${category.name.toLowerCase()}`} />
-                            <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
-                              {category.name}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
+                    {categoriesLoading ? (
+                      <div className="h-10 bg-muted rounded animate-pulse" />
+                    ) : (
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger data-testid="select-category">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.id}
+                                data-testid={`select-item-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               <div>
-                <Label className="text-base font-medium mb-2 block">Tags (Optional)</Label>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Add up to 5 tags to help people discover your app
-                </p>
-                <div className="flex gap-2 mb-3">
+                <FormLabel>Tags (Optional)</FormLabel>
+                <div className="flex gap-2 mt-2">
                   <Input
-                    placeholder="Enter a tag"
+                    placeholder="Add a tag"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         addTag();
                       }
                     }}
-                    disabled={tagNames.length >= 5}
                     data-testid="input-tag"
                   />
                   <Button
                     type="button"
                     onClick={addTag}
-                    disabled={!tagInput.trim() || tagNames.length >= 5}
+                    disabled={tagNames.length >= 5}
                     data-testid="button-add-tag"
                   >
                     Add
                   </Button>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {tagNames.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="pl-3 pr-1 py-1" data-testid={`badge-tag-${tag}`}>
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
-                        data-testid={`button-remove-tag-${tag}`}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
+                {tagNames.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {tagNames.map((tag) => (
+                      <div key={tag} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md text-sm">
+                        <span data-testid={`badge-tag-${tag}`}>{tag}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                          data-testid={`button-remove-tag-${tag}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground mt-2">
+                  Max 5 tags
+                </p>
               </div>
             </Card>
 
             <Card className="p-6 space-y-6">
-              <h2 className="text-2xl font-display font-semibold">App Screenshot</h2>
+              <h2 className="text-2xl font-display font-semibold">App Preview Image</h2>
               <FormField
                 control={form.control}
-                name="screenshotUrl"
+                name="previewImageUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Preview Image *</FormLabel>
@@ -500,26 +549,30 @@ export default function EditAppPage() {
               />
             </Card>
 
-            <div className="flex gap-4">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={updateMutation.isPending}
-                className="flex-1"
-                data-testid="button-update-app"
-              >
-                {updateMutation.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Update App
-                  </>
-                )}
-              </Button>
+            {validationErrors.length > 0 && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4" data-testid="validation-error-container">
+                <div className="flex items-start gap-3">
+                  <div className="text-destructive mt-0.5">
+                    <AlertCircle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-destructive mb-2" data-testid="validation-error-title">
+                      Missing Required Fields
+                    </h3>
+                    <p className="text-sm text-destructive/90 mb-2">
+                      Please fill in the following required fields:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-destructive/90 space-y-1">
+                      {validationErrors.map((field, index) => (
+                        <li key={index} data-testid={`validation-error-field-${index}`}>{field}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-4 pt-6">
               <Button
                 type="button"
                 variant="outline"
@@ -528,6 +581,15 @@ export default function EditAppPage() {
                 data-testid="button-cancel-edit"
               >
                 Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={updateMutation.isPending}
+                className="px-8"
+                data-testid="button-update-app"
+              >
+                {updateMutation.isPending ? "Updating..." : "Update App"}
               </Button>
             </div>
           </form>

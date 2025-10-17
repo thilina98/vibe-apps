@@ -10,9 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload, Check, AlertCircle } from "lucide-react";
@@ -44,9 +42,8 @@ export default function SubmitAppPage() {
   
   const [tagNames, setTagNames] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
+  const [selectedToolId, setSelectedToolId] = useState<string>("");
   const [otherToolName, setOtherToolName] = useState("");
-  const [isOtherToolSelected, setIsOtherToolSelected] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
@@ -64,7 +61,7 @@ export default function SubmitAppPage() {
       shortDescription: "",
       fullDescription: "",
       launchUrl: "",
-      screenshotUrl: "",
+      previewImageUrl: "",
       keyLearnings: "",
       status: "published",
       creatorId: "",
@@ -133,9 +130,9 @@ export default function SubmitAppPage() {
     const submissionData = {
       ...data,
       creatorId: user.id,
-      toolIds: selectedToolIds,
+      toolIds: selectedToolId && selectedToolId !== "other" ? [selectedToolId] : [],
       tagNames: tagNames,
-      otherToolName: isOtherToolSelected ? otherToolName : undefined,
+      otherToolName: selectedToolId === "other" ? otherToolName : undefined,
     };
 
     submitMutation.mutate(submissionData);
@@ -147,7 +144,7 @@ export default function SubmitAppPage() {
     shortDescription: "Short Description",
     fullDescription: "Full Description",
     launchUrl: "Launch URL",
-    screenshotUrl: "App Screenshot",
+    previewImageUrl: "App Preview Image",
     categoryId: "Category",
     keyLearnings: "Key Learnings",
   };
@@ -170,13 +167,6 @@ export default function SubmitAppPage() {
     }
   };
 
-  const toggleTool = (toolId: string) => {
-    if (selectedToolIds.includes(toolId)) {
-      setSelectedToolIds(selectedToolIds.filter(id => id !== toolId));
-    } else {
-      setSelectedToolIds([...selectedToolIds, toolId]);
-    }
-  };
 
   const fullDescription = form.watch("fullDescription");
   const keyLearnings = form.watch("keyLearnings");
@@ -309,42 +299,42 @@ export default function SubmitAppPage() {
               <h2 className="text-2xl font-display font-semibold">Categorization</h2>
 
               <div>
-                <FormLabel>Vibecoding Tools Used *</FormLabel>
+                <FormLabel>Vibecoding Tool Used *</FormLabel>
                 {toolsLoading ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-8 bg-muted rounded animate-pulse" />
-                    ))}
-                  </div>
+                  <div className="h-10 bg-muted rounded animate-pulse mt-3" />
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                    {tools?.map((tool) => (
-                      <div key={tool.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`tool-${tool.id}`}
-                          checked={selectedToolIds.includes(tool.id)}
-                          onCheckedChange={() => toggleTool(tool.id)}
-                          data-testid={`checkbox-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
-                        />
-                        <Label htmlFor={`tool-${tool.id}`} className="cursor-pointer text-sm">
-                          {tool.name}
-                        </Label>
-                      </div>
-                    ))}
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="tool-other"
-                        checked={isOtherToolSelected}
-                        onCheckedChange={(checked) => setIsOtherToolSelected(!!checked)}
-                        data-testid="checkbox-tool-other"
-                      />
-                      <Label htmlFor="tool-other" className="cursor-pointer text-sm">
-                        Other
-                      </Label>
-                    </div>
+                  <div className="mt-3">
+                    <Select value={selectedToolId} onValueChange={setSelectedToolId}>
+                      <SelectTrigger data-testid="select-tool">
+                        <SelectValue placeholder="Select a tool" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tools?.map((tool) => (
+                          <SelectItem
+                            key={tool.id}
+                            value={tool.id}
+                            data-testid={`select-item-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {tool.logoUrl && (
+                                <img
+                                  src={tool.logoUrl}
+                                  alt={`${tool.name} logo`}
+                                  className="w-5 h-5 rounded object-cover"
+                                />
+                              )}
+                              <span>{tool.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="other" data-testid="select-item-tool-other">
+                          <span>Other</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
-                {isOtherToolSelected && (
+                {selectedToolId === "other" && (
                   <div className="mt-3">
                     <Input
                       placeholder="Enter tool name"
@@ -363,29 +353,25 @@ export default function SubmitAppPage() {
                   <FormItem>
                     <FormLabel>Category *</FormLabel>
                     {categoriesLoading ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {[...Array(6)].map((_, i) => (
-                          <div key={i} className="h-8 bg-muted rounded animate-pulse" />
-                        ))}
-                      </div>
+                      <div className="h-10 bg-muted rounded animate-pulse" />
                     ) : (
                       <FormControl>
-                        <RadioGroup value={field.value} onValueChange={field.onChange}>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger data-testid="select-category">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
                             {categories?.map((category) => (
-                              <div key={category.id} className="flex items-center space-x-2">
-                                <RadioGroupItem 
-                                  value={category.id} 
-                                  id={`category-${category.id}`}
-                                  data-testid={`radio-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                                <Label htmlFor={`category-${category.id}`} className="cursor-pointer text-sm">
-                                  {category.name}
-                                </Label>
-                              </div>
+                              <SelectItem
+                                key={category.id}
+                                value={category.id}
+                                data-testid={`select-item-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                              >
+                                {category.name}
+                              </SelectItem>
                             ))}
-                          </div>
-                        </RadioGroup>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                     )}
                     <FormMessage />
@@ -445,10 +431,10 @@ export default function SubmitAppPage() {
 
               <FormField
                 control={form.control}
-                name="screenshotUrl"
+                name="previewImageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>App Screenshot *</FormLabel>
+                    <FormLabel>App Preview Image *</FormLabel>
                     <FormControl>
                       <ImageUpload
                         value={field.value}

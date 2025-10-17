@@ -45,7 +45,7 @@ export const apps = pgTable("apps", {
   shortDescription: varchar("short_description", { length: 200 }).notNull(),
   fullDescription: text("full_description").notNull(),
   launchUrl: varchar("launch_url", { length: 255 }).notNull(),
-  screenshotUrl: varchar("screenshot_url", { length: 255 }).notNull(),
+  previewImageUrl: varchar("preview_image_url", { length: 255 }).notNull(),
   keyLearnings: text("key_learnings"),
   status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft' or 'published'
   viewCount: integer("view_count").notNull().default(0),
@@ -71,7 +71,7 @@ export const insertAppSchema = createInsertSchema(apps).omit({
   shortDescription: z.string().min(1, "Short description is required").max(200),
   fullDescription: z.string().min(1, "Full description is required").max(2000),
   launchUrl: z.string().url("Must be a valid URL"),
-  screenshotUrl: z.string().min(1, "Screenshot is required"),
+  previewImageUrl: z.string().min(1, "Preview image is required"),
   keyLearnings: z.string().max(1500).optional(),
   status: z.enum(["draft", "published"]).default("draft"),
   creatorId: z.string().optional(),
@@ -142,7 +142,7 @@ export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   appId: varchar("app_id").notNull().references(() => apps.id, { onDelete: "cascade" }),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "set null" }),
-  rating: integer("rating").notNull(), // 1-10
+  rating: integer("rating").notNull(), // 1-5
   title: varchar("title", { length: 150 }),
   body: text("body"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -158,7 +158,7 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
-  rating: z.number().int().min(1, "Rating must be at least 1").max(10, "Rating must be at most 10"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
   title: z.string().max(150).optional(),
   body: z.string().max(2000).optional(),
 });
@@ -251,14 +251,13 @@ export interface AppListing {
   category: string;
   creatorName: string;
   creatorContact?: string | null;
-  previewImage: string;
+  previewImageUrl: string;
   tags?: string[] | null;
   keyLearnings?: string | null;
   launchCount: number;
   createdDate: Date | string;
   submissionDate: Date | string;
   status: string;
-  screenshotUrl: string;
   creatorId?: string | null;
   categoryId?: string | null;
 }
