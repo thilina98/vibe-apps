@@ -33,8 +33,8 @@ export function AppCard({ app }: AppCardProps) {
 
   return (
     <Link href={`/app/${app.id}`}>
-      <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border h-full flex flex-col" data-testid={`card-app-${app.id}`}>
-        <div className="relative aspect-video overflow-hidden">
+      <Card className="group overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border-0 bg-muted/75 h-full flex flex-col p-4" data-testid={`card-app-${app.id}`}>
+        <div className="relative aspect-[5/4] overflow-hidden rounded-2xl mb-3">
           {app.previewImageUrl ? (
             <img
               src={app.previewImageUrl}
@@ -43,17 +43,16 @@ export function AppCard({ app }: AppCardProps) {
               data-testid={`img-preview-${app.id}`}
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
+            <div className="w-full h-full bg-background flex items-center justify-center">
               <span className="text-6xl font-bold text-muted-foreground/40">
                 {app.name.charAt(0).toUpperCase()}
               </span>
             </div>
           )}
-          <div className="absolute inset-0 bg-black/30" />
 
           <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end max-w-[70%]">
             {app.tools?.slice(0, 2).map((tool) => (
-              <Badge 
+              <Badge
                 key={tool.id}
                 className={`${getToolColor(tool.name)} text-xs font-medium px-2 py-0.5 no-default-hover-elevate`}
                 data-testid={`badge-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
@@ -62,7 +61,7 @@ export function AppCard({ app }: AppCardProps) {
               </Badge>
             ))}
             {(app.tools?.length || 0) > 2 && (
-              <Badge 
+              <Badge
                 className="bg-background/80 text-foreground text-xs font-medium px-2 py-0.5 no-default-hover-elevate"
                 data-testid="badge-more-tools"
               >
@@ -70,20 +69,14 @@ export function AppCard({ app }: AppCardProps) {
               </Badge>
             )}
           </div>
-          
-          <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-display font-semibold text-xl mb-1 line-clamp-1" data-testid={`text-app-name-${app.id}`}>
-              {app.name}
-            </h3>
-          </div>
         </div>
 
-        <div className="p-5">
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3" data-testid={`text-description-${app.id}`}>
-            {app.shortDescription}
-          </p>
+        <div className="flex flex-col flex-1">
+          <h3 className="font-display font-semibold text-lg mb-1 line-clamp-1" data-testid={`text-app-name-${app.id}`}>
+            {app.name}
+          </h3>
 
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center gap-1.5 mb-2">
             <Star
               className={`h-4 w-4 ${
                 ratingData?.averageRating && ratingData.averageRating > 0
@@ -91,19 +84,23 @@ export function AppCard({ app }: AppCardProps) {
                   : "text-muted-foreground"
               }`}
             />
-            <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+            <span className="text-sm font-semibold" data-testid={`text-rating-${app.id}`}>
               {(ratingData?.averageRating ?? 0).toFixed(1)}
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1" data-testid={`text-description-${app.id}`}>
+            {app.shortDescription}
+          </p>
+
+          <div className="flex items-center justify-between gap-3 mt-auto">
             <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
-            
+
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors whitespace-nowrap"
               data-testid={`button-launch-${app.id}`}
             >
               Launch

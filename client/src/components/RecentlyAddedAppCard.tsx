@@ -47,11 +47,11 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
                 <img
                   src={app.previewImageUrl}
                   alt={app.name}
-                  className="w-16 h-16 rounded-md object-cover"
+                  className="w-20 h-16 rounded-md object-cover"
                   data-testid={`img-app-logo-${app.id}`}
                 />
               ) : (
-                <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center">
+                <div className="w-20 h-16 rounded-md bg-muted flex items-center justify-center">
                   <span className="text-2xl font-bold text-muted-foreground">
                     {app.name.charAt(0).toUpperCase()}
                   </span>
