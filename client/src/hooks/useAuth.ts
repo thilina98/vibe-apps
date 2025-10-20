@@ -44,7 +44,8 @@ export function useAuth() {
   });
 
   const signInWithGoogle = () => {
-    window.location.href = '/api/login';
+    const origin = window.location.origin;
+    window.location.href = `/api/login?origin=${encodeURIComponent(origin)}`;
   };
 
   const signOut = () => {

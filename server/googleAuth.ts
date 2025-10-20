@@ -6,23 +6,20 @@ import type { User, UpsertUser } from "@shared/schema";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const PORT = process.env.PORT || '5000';
-const CALLBACK_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/callback`
-  : `http://localhost:${PORT}/api/callback`;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set");
 }
 
-// Configure Google OAuth strategy
+// Configure Google OAuth strategy with dynamic callback URL
 passport.use(
   new GoogleStrategy(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: CALLBACK_URL,
+      callbackURL: "/api/callback", // Relative URL - will use request's origin
       scope: ["profile", "email"],
+      passReqToCallback: false,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
