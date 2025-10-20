@@ -116,7 +116,7 @@ export default function EditAppPage() {
         title: "Success!",
         description: "Your app has been updated successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/apps/${appId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/apps"] });
       setLocation(`/app/${appId}`);
     },
     onError: (error: any) => {
