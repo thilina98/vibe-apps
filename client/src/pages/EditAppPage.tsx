@@ -111,12 +111,25 @@ export default function EditAppPage() {
       const response = await apiRequest("PATCH", `/api/apps/${appId}`, data);
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast({
         title: "Success!",
         description: "Your app has been updated successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/apps"] });
+
+      // Refetch the specific app query and wait for it
+      await queryClient.refetchQueries({
+        queryKey: [`/api/apps/${appId}`],
+        exact: true
+      });
+
+      // Invalidate list queries in background (for cards)
+      queryClient.invalidateQueries({
+        queryKey: ["/api/apps"],
+        exact: false,
+        refetchType: "none"
+      });
+
       setLocation(`/app/${appId}`);
     },
     onError: (error: any) => {
