@@ -11,6 +11,10 @@ import { pool } from "./db";
 const PgSession = connectPgSimple(session);
 
 const app = express();
+
+// Trust proxy - required for HTTPS detection behind reverse proxies (like Replit)
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
