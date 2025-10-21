@@ -44,7 +44,8 @@ export interface IStorage {
     status?: "draft" | "published";
     sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
     dateRange?: "week" | "month" | "3months" | "6months" | "all";
-    userId?: string; // To filter by creator
+    userId?: string; // To show user's drafts along with published apps
+    creatorId?: string; // To filter by creator
   }): Promise<App[]>;
   createApp(app: InsertApp): Promise<App>;
   updateApp(id: string, appData: Partial<InsertApp>): Promise<App>;
@@ -129,8 +130,14 @@ export class DatabaseStorage implements IStorage {
     sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
     dateRange?: "week" | "month" | "3months" | "6months" | "all";
     userId?: string;
+    creatorId?: string;
   }): Promise<App[]> {
     const conditions = [];
+
+    // Filter by creator
+    if (filters?.creatorId) {
+      conditions.push(eq(apps.creatorId, filters.creatorId));
+    }
 
     // Filter by status (default to published only)
     if (filters?.userId) {
