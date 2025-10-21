@@ -160,12 +160,12 @@ export default function MyAppsPage() {
                     </div>
 
                     {/* Show rejection reason for rejected apps */}
-                    {app.status === 'rejected' && (app as any).rejectionReason && (
+                    {app.status === 'rejected' && app.rejectionReason && (
                       <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                         <AlertCircle className="w-4 h-4 text-destructive mt-0.5" />
                         <div className="flex-1 text-sm">
                           <p className="font-medium text-destructive">Rejection Reason:</p>
-                          <p className="text-muted-foreground mt-1">{(app as any).rejectionReason}</p>
+                          <p className="text-muted-foreground mt-1">{app.rejectionReason}</p>
                         </div>
                       </div>
                     )}

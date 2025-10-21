@@ -53,6 +53,9 @@ async function transformAppToListing(app: App, includeRelated: boolean = true): 
     status: app.status,
     creatorId: app.creatorId || null,
     categoryId: app.categoryId || null,
+    rejectionReason: app.rejectionReason || null,
+    rejectedAt: app.rejectedAt || null,
+    rejectedBy: app.rejectedBy || null,
   };
 }
 
@@ -346,8 +349,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Forbidden: You don't have permission to update this app" });
       }
 
-      if (status !== 'draft' && status !== 'published') {
-        return res.status(400).json({ error: "Invalid status. Must be 'draft' or 'published'" });
+      const validStatuses = ['draft', 'pending_approval', 'published', 'rejected'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status. Must be 'draft', 'pending_approval', 'published', or 'rejected'" });
       }
 
       await storage.updateAppStatus(req.params.id, status);
