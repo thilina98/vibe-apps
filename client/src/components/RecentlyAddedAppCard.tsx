@@ -37,6 +37,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
     <Link href={`/app/${app.id}`}>
       <Card
         className="p-4 hover-elevate active-elevate-2 cursor-pointer transition-all h-full"
+        style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }}
         data-testid={`card-recently-added-${app.id}`}
       >
         <div className="flex flex-col gap-3 h-full">
@@ -83,7 +84,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
               <Star
                 className={`h-4 w-4 ${
                   displayRating > 0
-                    ? "fill-yellow-400 text-yellow-400"
+                    ? "fill-black text-black"
                     : "text-muted-foreground"
                 }`}
               />
@@ -95,7 +96,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
             {/* Launch Button */}
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               data-testid={`button-launch-${app.id}`}
             >
               Launch

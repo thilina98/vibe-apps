@@ -33,7 +33,7 @@ export function AppCard({ app }: AppCardProps) {
 
   return (
     <Link href={`/app/${app.id}`}>
-      <Card className="group overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border-0 bg-muted/75 h-full flex flex-col p-4" data-testid={`card-app-${app.id}`}>
+      <Card className="group overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border-0 h-full flex flex-col p-4" style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }} data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-[5/4] overflow-hidden rounded-2xl mb-3">
           {app.previewImageUrl ? (
             <img
@@ -80,7 +80,7 @@ export function AppCard({ app }: AppCardProps) {
             <Star
               className={`h-4 w-4 ${
                 ratingData?.averageRating && ratingData.averageRating > 0
-                  ? "fill-yellow-400 text-yellow-400"
+                  ? "fill-black text-black"
                   : "text-muted-foreground"
               }`}
             />
@@ -100,7 +100,7 @@ export function AppCard({ app }: AppCardProps) {
 
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
               data-testid={`button-launch-${app.id}`}
             >
               Launch
