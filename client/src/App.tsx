@@ -11,6 +11,7 @@ import AppDetailPage from "@/pages/AppDetailPage";
 import EditAppPage from "@/pages/EditAppPage";
 import MyAppsPage from "@/pages/MyAppsPage";
 import ProfilePage from "@/pages/ProfilePage";
+import AdminPortalPage from "@/pages/AdminPortalPage";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, LogOut, User as UserIcon, LayoutGrid } from "lucide-react";
-import type { User } from "@shared/schema";
+import { LogIn, LogOut, User as UserIcon, LayoutGrid, Shield } from "lucide-react";
 
 function Router() {
   return (
@@ -34,6 +34,7 @@ function Router() {
       <Route path="/submit" component={SubmitAppPage} />
       <Route path="/my-apps" component={MyAppsPage} />
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/admin" component={AdminPortalPage} />
       <Route path="/app/:id/edit" component={EditAppPage} />
       <Route path="/app/:id" component={AppDetailPage} />
       <Route component={NotFound} />
@@ -42,11 +43,11 @@ function Router() {
 }
 
 function Header() {
-  const { user, isLoading, isAuthenticated, signInWithGoogle, signOut } = useAuth();
+  const { user, isLoading, isAuthenticated, isAdmin, signInWithGoogle, signOut } = useAuth();
 
   const getDisplayName = () => {
-    const name = user?.firstName || user?.email?.split('@')[0] || "User";
-    return name.charAt(0).toUpperCase() + name.slice(1);
+    const name = user?.name || user?.email?.split('@')[0] || "User";
+    return name.split(' ')[0].charAt(0).toUpperCase() + name.split(' ')[0].slice(1);
   };
 
   return (
@@ -74,7 +75,7 @@ function Header() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer" data-testid="button-user-menu">
                   <Avatar className="h-8 w-8" data-testid="avatar-user">
-                    <AvatarImage src={user?.profileImageUrl || undefined} />
+                    <AvatarImage src={user?.profilePictureUrl || undefined} />
                     <AvatarFallback>
                       <UserIcon className="h-4 w-4" />
                     </AvatarFallback>
@@ -97,6 +98,17 @@ function Header() {
                     My Apps
                   </Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center cursor-pointer text-primary">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Admin Portal
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer" data-testid="menuitem-logout">
                   <LogOut className="h-4 w-4 mr-2" />

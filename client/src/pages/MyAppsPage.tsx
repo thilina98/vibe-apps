@@ -1,21 +1,61 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import type { AppListing } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutGrid, Plus, Edit, Eye, ArrowLeft } from "lucide-react";
+import { LayoutGrid, Plus, Edit, Eye, ArrowLeft, AlertCircle, Send } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function MyAppsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: apps, isLoading } = useQuery<AppListing[]>({
     queryKey: [`/api/apps?creatorId=${user?.id}`],
     enabled: !!user?.id,
   });
+
+  // Mutation to resubmit app for approval
+  const resubmitMutation = useMutation({
+    mutationFn: async (appId: string) => {
+      const response = await apiRequest("PATCH", `/api/apps/${appId}/status`, { status: "pending_approval" });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/apps?creatorId=${user?.id}`] });
+      toast({
+        title: "Success",
+        description: "App resubmitted for approval",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to resubmit app",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'published':
+        return <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>;
+      case 'pending_approval':
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Pending Approval</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">Rejected</Badge>;
+      case 'draft':
+      default:
+        return <Badge variant="secondary">Draft</Badge>;
+    }
+  };
 
   if (authLoading) {
     return (
@@ -105,9 +145,7 @@ export default function MyAppsPage() {
                       </div>
                     )}
                     <div className="absolute top-3 right-3">
-                      <Badge variant={app.status === 'published' ? 'default' : 'secondary'}>
-                        {app.status === 'published' ? 'Published' : 'Draft'}
-                      </Badge>
+                      {getStatusBadge(app.status)}
                     </div>
                   </div>
 
@@ -121,24 +159,52 @@ export default function MyAppsPage() {
                       </p>
                     </div>
 
+                    {/* Show rejection reason for rejected apps */}
+                    {app.status === 'rejected' && (app as any).rejectionReason && (
+                      <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <AlertCircle className="w-4 h-4 text-destructive mt-0.5" />
+                        <div className="flex-1 text-sm">
+                          <p className="font-medium text-destructive">Rejection Reason:</p>
+                          <p className="text-muted-foreground mt-1">{(app as any).rejectionReason}</p>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Eye className="w-4 h-4" />
                       <span>{app.launchCount || 0} {app.launchCount === 1 ? 'launch' : 'launches'}</span>
                     </div>
 
-                    <div className="flex gap-2 pt-2">
-                      <Link href={`/app/${app.id}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View
+                    <div className="space-y-2 pt-2">
+                      <div className="flex gap-2">
+                        <Link href={`/app/${app.id}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Button>
+                        </Link>
+                        <Link href={`/app/${app.id}/edit`} className="flex-1">
+                          <Button size="sm" className="w-full" data-testid={`button-edit-${app.id}`}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit
+                          </Button>
+                        </Link>
+                      </div>
+
+                      {/* Show resubmit button for draft and rejected apps */}
+                      {(app.status === 'draft' || app.status === 'rejected') && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          variant="default"
+                          onClick={() => resubmitMutation.mutate(app.id)}
+                          disabled={resubmitMutation.isPending}
+                          data-testid={`button-resubmit-${app.id}`}
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          {resubmitMutation.isPending ? 'Submitting...' : 'Resubmit for Approval'}
                         </Button>
-                      </Link>
-                      <Link href={`/app/${app.id}/edit`} className="flex-1">
-                        <Button size="sm" className="w-full" data-testid={`button-edit-${app.id}`}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </Button>
-                      </Link>
+                      )}
                     </div>
                   </div>
                 </Card>

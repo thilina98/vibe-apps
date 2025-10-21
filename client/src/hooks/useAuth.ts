@@ -4,10 +4,15 @@ import { apiRequest } from "@/lib/queryClient";
 
 export interface User {
   id: string;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  profileImageUrl: string | null;
+  profilePictureUrl: string | null;
+  bio: string | null;
+  socialLink1: string | null;
+  socialLink2: string | null;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function useAuth() {
@@ -55,6 +60,7 @@ export function useAuth() {
   return {
     user: user || null,
     isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin',
     isLoading,
     signInWithGoogle,
     signOut,

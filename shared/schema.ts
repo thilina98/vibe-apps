@@ -47,12 +47,15 @@ export const apps = pgTable("apps", {
   launchUrl: varchar("launch_url", { length: 255 }).notNull(),
   previewImageUrl: varchar("preview_image_url", { length: 255 }).notNull(),
   keyLearnings: text("key_learnings"),
-  status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft' or 'published'
+  status: varchar("status", { length: 30 }).notNull().default("draft"), // 'draft', 'pending_approval', 'published', 'rejected'
   viewCount: integer("view_count").notNull().default(0),
   averageRating: decimal("average_rating", { precision: 4, scale: 2 }).notNull().default("0.00"),
   ratingCount: integer("rating_count").notNull().default(0),
   creatorId: varchar("creator_id").references(() => users.id, { onDelete: "set null" }),
   categoryId: varchar("category_id").references(() => categories.id, { onDelete: "set null" }),
+  rejectionReason: text("rejection_reason"),
+  rejectedAt: timestamp("rejected_at"),
+  rejectedBy: varchar("rejected_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_date").notNull().defaultNow(), // using created_date to match DB
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -64,6 +67,9 @@ export const insertAppSchema = createInsertSchema(apps).omit({
   viewCount: true,
   averageRating: true,
   ratingCount: true,
+  rejectionReason: true,
+  rejectedAt: true,
+  rejectedBy: true,
   createdAt: true,
   updatedAt: true,
 }).extend({
@@ -73,7 +79,7 @@ export const insertAppSchema = createInsertSchema(apps).omit({
   launchUrl: z.string().url("Must be a valid URL"),
   previewImageUrl: z.string().min(1, "Preview image is required"),
   keyLearnings: z.string().max(1500).optional(),
-  status: z.enum(["draft", "published"]).default("draft"),
+  status: z.enum(["draft", "pending_approval", "published", "rejected"]).default("draft"),
   creatorId: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
 });
@@ -145,6 +151,8 @@ export const reviews = pgTable("reviews", {
   rating: integer("rating").notNull(), // 1-5
   title: varchar("title", { length: 150 }),
   body: text("body"),
+  deletedAt: timestamp("deleted_at"),
+  deletedBy: varchar("deleted_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => ({
@@ -171,6 +179,8 @@ export const comments = pgTable("comments", {
   appId: varchar("app_id").notNull().references(() => apps.id, { onDelete: "cascade" }),
   userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
   parentCommentId: varchar("parent_comment_id"),
+  deletedAt: timestamp("deleted_at"),
+  deletedBy: varchar("deleted_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -234,7 +244,7 @@ export const sessions = pgTable(
 // ============================================================================
 
 export const USER_ROLES = ["user", "admin"] as const;
-export const APP_STATUS = ["draft", "published"] as const;
+export const APP_STATUS = ["draft", "pending_approval", "published", "rejected"] as const;
 export const SUGGESTION_STATUS = ["pending", "approved", "rejected"] as const;
 
 // ============================================================================

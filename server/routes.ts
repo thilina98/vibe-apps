@@ -660,6 +660,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ============================================================================
+  // ADMIN APP APPROVAL ROUTES
+  // ============================================================================
+
+  // Get apps for admin review (pending_approval or rejected)
+  app.get("/api/admin/apps", isAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as "pending_approval" | "rejected" | undefined;
+      const apps = await storage.getAppsForAdmin(status);
+
+      // Transform apps to listing format with related data
+      const listings = await Promise.all(
+        apps.map(app => transformAppToListing(app, true))
+      );
+
+      res.json(listings);
+    } catch (error) {
+      console.error("Error fetching apps for admin:", error);
+      res.status(500).json({ error: "Failed to fetch apps" });
+    }
+  });
+
+  // Approve app (admin only)
+  app.post("/api/admin/apps/:id/approve", isAdmin, async (req, res) => {
+    try {
+      const user = req.user as any;
+      await storage.approveApp(req.params.id, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error approving app:", error);
+      res.status(500).json({ error: "Failed to approve app" });
+    }
+  });
+
+  // Reject app (admin only)
+  app.post("/api/admin/apps/:id/reject", isAdmin, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { reason } = req.body;
+      await storage.rejectApp(req.params.id, user.id, reason);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error rejecting app:", error);
+      res.status(500).json({ error: "Failed to reject app" });
+    }
+  });
+
+  // ============================================================================
+  // ADMIN COMMENT MODERATION ROUTES
+  // ============================================================================
+
+  // Soft delete comment (admin only)
+  app.delete("/api/admin/comments/:id", isAdmin, async (req, res) => {
+    try {
+      const user = req.user as any;
+      await storage.softDeleteComment(req.params.id, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({ error: "Failed to delete comment" });
+    }
+  });
+
+  // Restore soft-deleted comment (admin only)
+  app.post("/api/admin/comments/:id/restore", isAdmin, async (req, res) => {
+    try {
+      await storage.restoreComment(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error restoring comment:", error);
+      res.status(500).json({ error: "Failed to restore comment" });
+    }
+  });
+
+  // Get all deleted comments (admin only)
+  app.get("/api/admin/deleted-comments", isAdmin, async (req, res) => {
+    try {
+      const deletedComments = await storage.getDeletedComments();
+      res.json(deletedComments);
+    } catch (error) {
+      console.error("Error fetching deleted comments:", error);
+      res.status(500).json({ error: "Failed to fetch deleted comments" });
+    }
+  });
+
+  // ============================================================================
+  // ADMIN REVIEW MODERATION ROUTES
+  // ============================================================================
+
+  // Soft delete review (admin only)
+  app.delete("/api/admin/reviews/:id", isAdmin, async (req, res) => {
+    try {
+      const user = req.user as any;
+      await storage.softDeleteReview(req.params.id, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // Restore soft-deleted review (admin only)
+  app.post("/api/admin/reviews/:id/restore", isAdmin, async (req, res) => {
+    try {
+      await storage.restoreReview(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error restoring review:", error);
+      res.status(500).json({ error: "Failed to restore review" });
+    }
+  });
+
+  // Get all deleted reviews (admin only)
+  app.get("/api/admin/deleted-reviews", isAdmin, async (req, res) => {
+    try {
+      const deletedReviews = await storage.getDeletedReviews();
+      res.json(deletedReviews);
+    } catch (error) {
+      console.error("Error fetching deleted reviews:", error);
+      res.status(500).json({ error: "Failed to fetch deleted reviews" });
+    }
+  });
+
+  // ============================================================================
   // OBJECT STORAGE ROUTES
   // ============================================================================
   

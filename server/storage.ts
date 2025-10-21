@@ -41,15 +41,20 @@ export interface IStorage {
     search?: string;
     toolIds?: string[];
     categoryId?: string;
-    status?: "draft" | "published";
+    status?: "draft" | "pending_approval" | "published" | "rejected";
     sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
     dateRange?: "week" | "month" | "3months" | "6months" | "all";
     userId?: string; // To show user's drafts along with published apps
     creatorId?: string; // To filter by creator
   }): Promise<App[]>;
+
+  // Admin app operations
+  getAppsForAdmin(status?: "pending_approval" | "rejected"): Promise<App[]>;
+  approveApp(appId: string, adminId: string): Promise<void>;
+  rejectApp(appId: string, adminId: string, reason?: string): Promise<void>;
   createApp(app: InsertApp): Promise<App>;
   updateApp(id: string, appData: Partial<InsertApp>): Promise<App>;
-  updateAppStatus(id: string, status: "draft" | "published"): Promise<void>;
+  updateAppStatus(id: string, status: "draft" | "pending_approval" | "published" | "rejected"): Promise<void>;
   incrementViewCount(id: string): Promise<void>;
   getTopRatedAppsFromLastMonths(months: number, limit: number): Promise<App[]>;
   getTopTrendingApps(limit: number): Promise<App[]>;
@@ -84,14 +89,20 @@ export interface IStorage {
   // Review operations
   createReview(review: InsertReview): Promise<Review>;
   updateReview(appId: string, userId: string, rating: number, body?: string): Promise<Review>;
-  getReviewsByApp(appId: string): Promise<Array<Review & { user: User | null }>>;
+  getReviewsByApp(appId: string, includeDeleted?: boolean): Promise<Array<Review & { user: User | null }>>;
   getUserReviewForApp(appId: string, userId: string): Promise<Review | undefined>;
   updateAppRatingStats(appId: string): Promise<void>;
+  softDeleteReview(reviewId: string, adminId: string): Promise<void>;
+  restoreReview(reviewId: string): Promise<void>;
+  getDeletedReviews(): Promise<Array<Review & { user: User | null; app: App | null }>>;
   
   // Comment operations
   createComment(comment: InsertComment): Promise<Comment>;
-  getCommentsByApp(appId: string, parentCommentId?: string | null): Promise<Array<Comment & { user: User | null }>>;
+  getCommentsByApp(appId: string, parentCommentId?: string | null, includeDeleted?: boolean): Promise<Array<Comment & { user: User | null }>>;
   getCommentById(id: string): Promise<Comment | undefined>;
+  softDeleteComment(commentId: string, adminId: string): Promise<void>;
+  restoreComment(commentId: string): Promise<void>;
+  getDeletedComments(): Promise<Array<Comment & { user: User | null; app: App | null }>>;
   
   // Tool suggestion operations
   createToolSuggestion(suggestion: InsertToolSuggestion): Promise<ToolSuggestion>;
@@ -111,14 +122,15 @@ export class DatabaseStorage implements IStorage {
   
   async getApp(id: string, userId?: string): Promise<App | undefined> {
     const [app] = await db.select().from(apps).where(eq(apps.id, id));
-    
+
     if (!app) return undefined;
-    
-    // Only show draft apps to their creators
-    if (app.status === "draft" && app.creatorId !== userId) {
+
+    // Only show draft, pending_approval, and rejected apps to their creators
+    if ((app.status === "draft" || app.status === "pending_approval" || app.status === "rejected")
+        && app.creatorId !== userId) {
       return undefined;
     }
-    
+
     return app;
   }
 
@@ -126,7 +138,7 @@ export class DatabaseStorage implements IStorage {
     search?: string;
     toolIds?: string[];
     categoryId?: string;
-    status?: "draft" | "published";
+    status?: "draft" | "pending_approval" | "published" | "rejected";
     sortBy?: "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending";
     dateRange?: "week" | "month" | "3months" | "6months" | "all";
     userId?: string;
@@ -141,11 +153,18 @@ export class DatabaseStorage implements IStorage {
 
     // Filter by status (default to published only)
     if (filters?.userId) {
-      // If userId is provided, show their drafts + all published
+      // If userId is provided, show their drafts/pending/rejected + all published
       conditions.push(
         or(
           eq(apps.status, "published"),
-          and(eq(apps.status, "draft"), eq(apps.creatorId, filters.userId))
+          and(
+            or(
+              eq(apps.status, "draft"),
+              eq(apps.status, "pending_approval"),
+              eq(apps.status, "rejected")
+            ),
+            eq(apps.creatorId, filters.userId)
+          )
         )
       );
     } else if (filters?.status) {
@@ -250,7 +269,7 @@ export class DatabaseStorage implements IStorage {
     return app;
   }
 
-  async updateAppStatus(id: string, status: "draft" | "published"): Promise<void> {
+  async updateAppStatus(id: string, status: "draft" | "pending_approval" | "published" | "rejected"): Promise<void> {
     await db
       .update(apps)
       .set({ status, updatedAt: new Date() })
@@ -504,7 +523,14 @@ export class DatabaseStorage implements IStorage {
     return review;
   }
 
-  async getReviewsByApp(appId: string): Promise<Array<Review & { user: User | null }>> {
+  async getReviewsByApp(appId: string, includeDeleted: boolean = false): Promise<Array<Review & { user: User | null }>> {
+    const conditions = [eq(reviews.appId, appId)];
+
+    // Filter out soft-deleted reviews unless explicitly requested
+    if (!includeDeleted) {
+      conditions.push(isNull(reviews.deletedAt));
+    }
+
     const results = await db
       .select({
         id: reviews.id,
@@ -513,15 +539,17 @@ export class DatabaseStorage implements IStorage {
         rating: reviews.rating,
         title: reviews.title,
         body: reviews.body,
+        deletedAt: reviews.deletedAt,
+        deletedBy: reviews.deletedBy,
         createdAt: reviews.createdAt,
         updatedAt: reviews.updatedAt,
         user: users,
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.userId, users.id))
-      .where(eq(reviews.appId, appId))
+      .where(and(...conditions))
       .orderBy(desc(reviews.createdAt));
-    
+
     return results.map(r => ({
       id: r.id,
       appId: r.appId,
@@ -529,6 +557,8 @@ export class DatabaseStorage implements IStorage {
       rating: r.rating,
       title: r.title,
       body: r.body,
+      deletedAt: r.deletedAt,
+      deletedBy: r.deletedBy,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       user: r.user,
@@ -594,18 +624,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCommentsByApp(
-    appId: string, 
-    parentCommentId?: string | null
+    appId: string,
+    parentCommentId?: string | null,
+    includeDeleted: boolean = false
   ): Promise<Array<Comment & { user: User | null }>> {
     const conditions = [eq(comments.appId, appId)];
-    
+
     // Filter by parent comment ID (null for top-level, specific ID for replies)
     if (parentCommentId === null || parentCommentId === undefined) {
       conditions.push(isNull(comments.parentCommentId));
     } else {
       conditions.push(eq(comments.parentCommentId, parentCommentId));
     }
-    
+
+    // Filter out soft-deleted comments unless explicitly requested
+    if (!includeDeleted) {
+      conditions.push(isNull(comments.deletedAt));
+    }
+
     const results = await db
       .select({
         id: comments.id,
@@ -613,6 +649,8 @@ export class DatabaseStorage implements IStorage {
         appId: comments.appId,
         userId: comments.userId,
         parentCommentId: comments.parentCommentId,
+        deletedAt: comments.deletedAt,
+        deletedBy: comments.deletedBy,
         createdAt: comments.createdAt,
         user: users,
       })
@@ -620,13 +658,15 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(users, eq(comments.userId, users.id))
       .where(and(...conditions))
       .orderBy(desc(comments.createdAt));
-    
+
     return results.map(r => ({
       id: r.id,
       content: r.content,
       appId: r.appId,
       userId: r.userId,
       parentCommentId: r.parentCommentId,
+      deletedAt: r.deletedAt,
+      deletedBy: r.deletedBy,
       createdAt: r.createdAt,
       user: r.user,
     }));
@@ -731,8 +771,193 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .returning();
-    
+
     return user;
+  }
+
+  // ============================================================================
+  // ADMIN APP OPERATIONS
+  // ============================================================================
+
+  async getAppsForAdmin(status?: "pending_approval" | "rejected"): Promise<App[]> {
+    let query = db.select().from(apps);
+
+    if (status) {
+      query = query.where(eq(apps.status, status)) as typeof query;
+    } else {
+      // Default: get pending approval apps
+      query = query.where(eq(apps.status, "pending_approval")) as typeof query;
+    }
+
+    return await query.orderBy(desc(apps.createdAt));
+  }
+
+  async approveApp(appId: string, adminId: string): Promise<void> {
+    await db
+      .update(apps)
+      .set({
+        status: "published",
+        rejectionReason: null,
+        rejectedAt: null,
+        rejectedBy: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(apps.id, appId));
+  }
+
+  async rejectApp(appId: string, adminId: string, reason?: string): Promise<void> {
+    await db
+      .update(apps)
+      .set({
+        status: "rejected",
+        rejectionReason: reason || null,
+        rejectedAt: new Date(),
+        rejectedBy: adminId,
+        updatedAt: new Date(),
+      })
+      .where(eq(apps.id, appId));
+  }
+
+  // ============================================================================
+  // SOFT DELETE OPERATIONS FOR COMMENTS
+  // ============================================================================
+
+  async softDeleteComment(commentId: string, adminId: string): Promise<void> {
+    const now = new Date();
+
+    // Soft delete the parent comment
+    await db
+      .update(comments)
+      .set({
+        deletedAt: now,
+        deletedBy: adminId,
+      })
+      .where(eq(comments.id, commentId));
+
+    // Soft delete all replies (cascade)
+    await db
+      .update(comments)
+      .set({
+        deletedAt: now,
+        deletedBy: adminId,
+      })
+      .where(eq(comments.parentCommentId, commentId));
+  }
+
+  async restoreComment(commentId: string): Promise<void> {
+    // Restore the parent comment
+    await db
+      .update(comments)
+      .set({
+        deletedAt: null,
+        deletedBy: null,
+      })
+      .where(eq(comments.id, commentId));
+
+    // Restore all replies (cascade)
+    await db
+      .update(comments)
+      .set({
+        deletedAt: null,
+        deletedBy: null,
+      })
+      .where(eq(comments.parentCommentId, commentId));
+  }
+
+  async getDeletedComments(): Promise<Array<Comment & { user: User | null; app: App | null }>> {
+    const results = await db
+      .select({
+        id: comments.id,
+        content: comments.content,
+        appId: comments.appId,
+        userId: comments.userId,
+        parentCommentId: comments.parentCommentId,
+        deletedAt: comments.deletedAt,
+        deletedBy: comments.deletedBy,
+        createdAt: comments.createdAt,
+        user: users,
+        app: apps,
+      })
+      .from(comments)
+      .leftJoin(users, eq(comments.userId, users.id))
+      .leftJoin(apps, eq(comments.appId, apps.id))
+      .where(sql`${comments.deletedAt} IS NOT NULL`)
+      .orderBy(desc(comments.deletedAt));
+
+    return results.map(r => ({
+      id: r.id,
+      content: r.content,
+      appId: r.appId,
+      userId: r.userId,
+      parentCommentId: r.parentCommentId,
+      deletedAt: r.deletedAt,
+      deletedBy: r.deletedBy,
+      createdAt: r.createdAt,
+      user: r.user,
+      app: r.app,
+    }));
+  }
+
+  // ============================================================================
+  // SOFT DELETE OPERATIONS FOR REVIEWS
+  // ============================================================================
+
+  async softDeleteReview(reviewId: string, adminId: string): Promise<void> {
+    await db
+      .update(reviews)
+      .set({
+        deletedAt: new Date(),
+        deletedBy: adminId,
+      })
+      .where(eq(reviews.id, reviewId));
+  }
+
+  async restoreReview(reviewId: string): Promise<void> {
+    await db
+      .update(reviews)
+      .set({
+        deletedAt: null,
+        deletedBy: null,
+      })
+      .where(eq(reviews.id, reviewId));
+  }
+
+  async getDeletedReviews(): Promise<Array<Review & { user: User | null; app: App | null }>> {
+    const results = await db
+      .select({
+        id: reviews.id,
+        appId: reviews.appId,
+        userId: reviews.userId,
+        rating: reviews.rating,
+        title: reviews.title,
+        body: reviews.body,
+        deletedAt: reviews.deletedAt,
+        deletedBy: reviews.deletedBy,
+        createdAt: reviews.createdAt,
+        updatedAt: reviews.updatedAt,
+        user: users,
+        app: apps,
+      })
+      .from(reviews)
+      .leftJoin(users, eq(reviews.userId, users.id))
+      .leftJoin(apps, eq(reviews.appId, apps.id))
+      .where(sql`${reviews.deletedAt} IS NOT NULL`)
+      .orderBy(desc(reviews.deletedAt));
+
+    return results.map(r => ({
+      id: r.id,
+      appId: r.appId,
+      userId: r.userId,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      deletedAt: r.deletedAt,
+      deletedBy: r.deletedBy,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      user: r.user,
+      app: r.app,
+    }));
   }
 }
 
