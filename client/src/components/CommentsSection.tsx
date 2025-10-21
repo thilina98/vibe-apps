@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Reply, User as UserIcon, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Comment, User as UserType } from "@shared/schema";
@@ -19,6 +20,7 @@ interface CommentWithUser extends Comment {
 
 interface CommentsSectionProps {
   appId: string;
+  creatorId?: string | null;
 }
 
 function CommentItem({
@@ -26,17 +28,21 @@ function CommentItem({
   onReply,
   onDelete,
   isAdmin,
+  creatorId,
   isReply = false
 }: {
   comment: CommentWithUser;
   onReply: (commentId: string) => void;
   onDelete: (commentId: string) => void;
   isAdmin: boolean;
+  creatorId?: string | null;
   isReply?: boolean;
 }) {
   const userName = comment.user
     ? comment.user.name || comment.user.email
     : "Deleted User";
+
+  const isOwner = creatorId && comment.userId === creatorId;
 
   return (
     <div className={`${isReply ? 'ml-12' : ''}`} data-testid={`comment-${comment.id}`}>
@@ -52,6 +58,11 @@ function CommentItem({
             <p className="font-medium text-sm" data-testid={`comment-author-${comment.id}`}>
               {userName}
             </p>
+            {isOwner && (
+              <Badge variant="secondary" className="text-xs px-2 py-0 h-5">
+                Owner
+              </Badge>
+            )}
             <span className="text-xs text-muted-foreground">
               {comment.createdAt && formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
             </span>
@@ -92,7 +103,7 @@ function CommentItem({
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-3 space-y-3">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} isAdmin={isAdmin} isReply />
+            <CommentItem key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} isAdmin={isAdmin} creatorId={creatorId} isReply />
           ))}
         </div>
       )}
@@ -100,7 +111,7 @@ function CommentItem({
   );
 }
 
-export function CommentsSection({ appId }: CommentsSectionProps) {
+export function CommentsSection({ appId, creatorId }: CommentsSectionProps) {
   const { user, isAuthenticated, isAdmin, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [commentText, setCommentText] = useState("");
@@ -124,8 +135,9 @@ export function CommentsSection({ appId }: CommentsSectionProps) {
 
   const addCommentMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/apps/${appId}/comments`, {
+      const response = await apiRequest("POST", `/api/comments`, {
         content: commentText.trim(),
+        appId: appId,
       });
       return response.json();
     },
@@ -160,8 +172,9 @@ export function CommentsSection({ appId }: CommentsSectionProps) {
   const addReplyMutation = useMutation({
     mutationFn: async () => {
       if (!replyingToId) return;
-      const response = await apiRequest("POST", `/api/apps/${appId}/comments`, {
+      const response = await apiRequest("POST", `/api/comments`, {
         content: replyText.trim(),
+        appId: appId,
         parentCommentId: replyingToId,
       });
       return response.json();
@@ -324,7 +337,7 @@ export function CommentsSection({ appId }: CommentsSectionProps) {
         ) : (
           organizedComments.map((comment) => (
             <div key={comment.id} className="border-b last:border-0 pb-4 last:pb-0">
-              <CommentItem comment={comment} onReply={handleReply} onDelete={handleDeleteComment} isAdmin={isAdmin} />
+              <CommentItem comment={comment} onReply={handleReply} onDelete={handleDeleteComment} isAdmin={isAdmin} creatorId={creatorId} />
               
               {/* Reply Form */}
               {replyingToId === comment.id && (
