@@ -87,16 +87,15 @@ export default function AppDetailPage() {
         <div className="absolute inset-0 bg-black/50" />
         
         <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
-          <Link href="/">
-            <Button 
-              variant="outline" 
-              className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
-              data-testid="button-back"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            onClick={() => window.history.back()}
+            className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
           
           <div className="flex items-center gap-4 text-sm text-white/90 font-medium">
             <button 
