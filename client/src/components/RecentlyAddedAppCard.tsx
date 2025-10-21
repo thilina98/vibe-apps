@@ -64,14 +64,15 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
             {/* App Info */}
             <div className="flex-1 min-w-0">
               <h3
-                className="font-semibold text-base mb-1 truncate"
+                className="font-semibold text-base truncate"
+                style={{ marginBottom: '4px' }}
                 data-testid={`text-app-name-${app.id}`}
               >
                 {app.name}
               </h3>
 
               {/* Rating Display */}
-              <div className="flex items-center gap-1 mb-1">
+              <div className="flex items-center gap-1" style={{ marginBottom: '8px' }}>
                 <Star
                   className={`h-4 w-4 ${
                     displayRating > 0
