@@ -277,7 +277,7 @@ export default function AppDetailPage() {
 
         {/* Comments Section */}
         <div id="comments-section" className="mt-8">
-          <CommentsSection appId={app.id} />
+          <CommentsSection appId={app.id} creatorId={app.creatorId} />
         </div>
       </div>
     </div>
