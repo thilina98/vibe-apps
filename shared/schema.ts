@@ -270,4 +270,7 @@ export interface AppListing {
   status: string;
   creatorId?: string | null;
   categoryId?: string | null;
+  rejectionReason?: string | null;
+  rejectedAt?: Date | string | null;
+  rejectedBy?: string | null;
 }
