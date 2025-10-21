@@ -47,13 +47,15 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-primary/25 py-32 px-4 relative">
-        <div className="absolute top-8 right-8">
-          <Link href="/submit">
-            <Button size="sm" data-testid="button-submit-app-hero">
-              <Plus className="w-4 h-4 mr-2" />
-              Submit Your App
-            </Button>
-          </Link>
+        <div className="absolute top-0 left-0 right-0 pt-8">
+          <div className="container mx-auto px-4 flex justify-end">
+            <Link href="/submit">
+              <Button size="sm" data-testid="button-submit-app-hero">
+                <Plus className="w-4 h-4 mr-2" />
+                Submit Your App
+              </Button>
+            </Link>
+          </div>
         </div>
         <div className="container mx-auto max-w-4xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
