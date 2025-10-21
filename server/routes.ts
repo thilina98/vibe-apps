@@ -114,9 +114,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all apps with optional filters
   app.get("/api/apps", async (req, res) => {
     try {
-      const { search, tools, category, sortBy, status, dateRange } = req.query;
+      const { search, tools, category, sortBy, status, dateRange, creatorId } = req.query;
       const user = req.user as any;
-      
+
       const filters = {
         search: search as string | undefined,
         toolIds: tools ? (Array.isArray(tools) ? tools : [tools]) as string[] : undefined,
@@ -125,6 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sortBy: (sortBy as "newest" | "oldest" | "popular" | "rating" | "most_launched" | "highest_rated" | "trending") || "newest",
         dateRange: (dateRange as "week" | "month" | "3months" | "6months" | "all") || "all",
         userId: user?.id, // Pass userId to show user's drafts
+        creatorId: creatorId as string | undefined, // Filter by creator
       };
 
       const apps = await storage.getAllApps(filters);
