@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Reply, User as UserIcon } from "lucide-react";
+import { MessageCircle, Reply, User as UserIcon, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Comment, User as UserType } from "@shared/schema";
 
@@ -21,19 +21,23 @@ interface CommentsSectionProps {
   appId: string;
 }
 
-function CommentItem({ 
-  comment, 
+function CommentItem({
+  comment,
   onReply,
-  isReply = false 
-}: { 
-  comment: CommentWithUser; 
+  onDelete,
+  isAdmin,
+  isReply = false
+}: {
+  comment: CommentWithUser;
   onReply: (commentId: string) => void;
+  onDelete: (commentId: string) => void;
+  isAdmin: boolean;
   isReply?: boolean;
 }) {
-  const userName = comment.user 
-    ? comment.user.name || comment.user.email 
+  const userName = comment.user
+    ? comment.user.name || comment.user.email
     : "Deleted User";
-    
+
   return (
     <div className={`${isReply ? 'ml-12' : ''}`} data-testid={`comment-${comment.id}`}>
       <div className="flex items-start gap-3">
@@ -55,18 +59,32 @@ function CommentItem({
           <p className="text-sm text-foreground mb-2" data-testid={`comment-text-${comment.id}`}>
             {comment.content}
           </p>
-          {!isReply && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => onReply(comment.id)}
-              data-testid={`button-reply-${comment.id}`}
-            >
-              <Reply className="h-3 w-3 mr-1" />
-              Reply
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {!isReply && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onReply(comment.id)}
+                data-testid={`button-reply-${comment.id}`}
+              >
+                <Reply className="h-3 w-3 mr-1" />
+                Reply
+              </Button>
+            )}
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                onClick={() => onDelete(comment.id)}
+                data-testid={`button-delete-${comment.id}`}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Delete
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -74,7 +92,7 @@ function CommentItem({
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-3 space-y-3">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} onReply={onReply} isReply />
+            <CommentItem key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} isAdmin={isAdmin} isReply />
           ))}
         </div>
       )}
@@ -83,11 +101,12 @@ function CommentItem({
 }
 
 export function CommentsSection({ appId }: CommentsSectionProps) {
-  const { user, isAuthenticated, signInWithGoogle } = useAuth();
+  const { user, isAuthenticated, isAdmin, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [commentText, setCommentText] = useState("");
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const lastDeletedCommentId = useRef<string | null>(null);
 
   const { data: comments = [] } = useQuery<CommentWithUser[]>({
     queryKey: ["/api/apps", appId, "comments"],
@@ -191,6 +210,67 @@ export function CommentsSection({ appId }: CommentsSectionProps) {
     setReplyingToId(commentId);
   };
 
+  // Admin delete comment mutation
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      const response = await apiRequest("DELETE", `/api/admin/comments/${commentId}`, {});
+      return response.json();
+    },
+    onSuccess: (_, commentId) => {
+      lastDeletedCommentId.current = commentId;
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "comments"] });
+
+      // Show toast with undo button
+      toast({
+        title: "Comment Deleted",
+        description: "Comment and all replies have been hidden.",
+        action: (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => restoreCommentMutation.mutate(commentId)}
+          >
+            Undo
+          </Button>
+        ),
+        duration: 30000, // 30 seconds
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete comment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Admin restore comment mutation
+  const restoreCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      const response = await apiRequest("POST", `/api/admin/comments/${commentId}/restore`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "comments"] });
+      toast({
+        title: "Comment Restored",
+        description: "Comment and all replies have been restored.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to restore comment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteCommentMutation.mutate(commentId);
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
@@ -244,7 +324,7 @@ export function CommentsSection({ appId }: CommentsSectionProps) {
         ) : (
           organizedComments.map((comment) => (
             <div key={comment.id} className="border-b last:border-0 pb-4 last:pb-0">
-              <CommentItem comment={comment} onReply={handleReply} />
+              <CommentItem comment={comment} onReply={handleReply} onDelete={handleDeleteComment} isAdmin={isAdmin} />
               
               {/* Reply Form */}
               {replyingToId === comment.id && (

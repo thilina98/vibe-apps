@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -56,13 +56,14 @@ function StarRating({ rating, onRatingChange }: {
 }
 
 export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
-  const { user, isAuthenticated, signInWithGoogle } = useAuth();
+  const { user, isAuthenticated, isAdmin, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const lastDeletedReviewId = useRef<string | null>(null);
 
   const { data: reviews = [] } = useQuery<ReviewWithUser[]>({
     queryKey: ["/api/apps", appId, "reviews"],
@@ -164,6 +165,67 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
       setEditingReviewId(null);
     }
     setIsReviewDialogOpen(true);
+  };
+
+  // Admin delete review mutation
+  const adminDeleteReviewMutation = useMutation({
+    mutationFn: async (reviewId: string) => {
+      const response = await apiRequest("DELETE", `/api/admin/reviews/${reviewId}`, {});
+      return response.json();
+    },
+    onSuccess: (_, reviewId) => {
+      lastDeletedReviewId.current = reviewId;
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "reviews"] });
+
+      // Show toast with undo button
+      toast({
+        title: "Review Deleted",
+        description: "Review has been hidden.",
+        action: (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => adminRestoreReviewMutation.mutate(reviewId)}
+          >
+            Undo
+          </Button>
+        ),
+        duration: 30000, // 30 seconds
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete review",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Admin restore review mutation
+  const adminRestoreReviewMutation = useMutation({
+    mutationFn: async (reviewId: string) => {
+      const response = await apiRequest("POST", `/api/admin/reviews/${reviewId}/restore`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/apps", appId, "reviews"] });
+      toast({
+        title: "Review Restored",
+        description: "Review has been restored.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to restore review",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAdminDeleteReview = (reviewId: string) => {
+    adminDeleteReviewMutation.mutate(reviewId);
   };
 
   return (
@@ -287,26 +349,42 @@ export function ReviewsSection({ appId, creatorId }: ReviewsSectionProps) {
                         </span>
                       </div>
                     </div>
-                    {review.userId === user?.id && (
+                    {(review.userId === user?.id || isAdmin) && (
                       <div className="flex gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenReviewDialog(true)}
-                          data-testid="button-edit-review"
-                        >
-                          <Pencil className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                          data-testid="button-delete-review"
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Delete
-                        </Button>
+                        {review.userId === user?.id && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenReviewDialog(true)}
+                              data-testid="button-edit-review"
+                            >
+                              <Pencil className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setIsDeleteDialogOpen(true)}
+                              data-testid="button-delete-review"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
+                          </>
+                        )}
+                        {isAdmin && review.userId !== user?.id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleAdminDeleteReview(review.id)}
+                            data-testid="button-admin-delete-review"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
