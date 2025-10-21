@@ -87,7 +87,16 @@ async function migrate() {
       ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0,
       ADD COLUMN IF NOT EXISTS average_rating DECIMAL(3,2) DEFAULT 0.00,
       ADD COLUMN IF NOT EXISTS rating_count INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS rejection_reason TEXT,
+      ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS rejected_by VARCHAR REFERENCES users(id) ON DELETE SET NULL,
       ALTER COLUMN status SET DEFAULT 'draft'
+    `);
+
+    // Update status column type to support new statuses
+    await db.execute(sql`
+      ALTER TABLE apps
+      ALTER COLUMN status TYPE VARCHAR(30)
     `);
 
     // Migrate preview_image or screenshot_url to preview_image_url
@@ -187,7 +196,9 @@ async function migrate() {
       ALTER TABLE reviews
       ADD COLUMN IF NOT EXISTS title VARCHAR(150),
       ADD COLUMN IF NOT EXISTS body TEXT,
-      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW(),
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS deleted_by VARCHAR REFERENCES users(id) ON DELETE SET NULL
     `);
     
     // Rename review_text to body if needed
@@ -227,6 +238,14 @@ async function migrate() {
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       )
     `);
+
+    // Add soft delete columns to comments table
+    await db.execute(sql`
+      ALTER TABLE comments
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS deleted_by VARCHAR REFERENCES users(id) ON DELETE SET NULL
+    `);
+
     console.log("✅ Created comments table");
 
     // Create tool_suggestions table

@@ -63,7 +63,7 @@ export default function SubmitAppPage() {
       launchUrl: "",
       previewImageUrl: "",
       keyLearnings: "",
-      status: "published",
+      status: "draft",
       creatorId: "",
       categoryId: "",
     },
@@ -113,7 +113,7 @@ export default function SubmitAppPage() {
     setTagNames(tagNames.filter(tag => tag !== tagToRemove));
   };
 
-  const onSubmit = async (data: InsertApp) => {
+  const onSubmit = async (data: InsertApp, status: "draft" | "pending_approval" | "published") => {
     if (!isAuthenticated || !user) {
       toast({
         title: "Authentication Required",
@@ -129,6 +129,7 @@ export default function SubmitAppPage() {
     // Prepare submission data
     const submissionData = {
       ...data,
+      status,
       creatorId: user.id,
       toolIds: selectedToolId && selectedToolId !== "other" ? [selectedToolId] : [],
       tagNames: tagNames,
@@ -527,14 +528,26 @@ export default function SubmitAppPage() {
                   Cancel
                 </Button>
               </Link>
-              <Button 
-                type="submit" 
+              <Button
+                type="button"
+                variant="outline"
                 size="lg"
                 disabled={submitMutation.isPending}
                 className="px-8"
-                data-testid="button-submit"
+                onClick={form.handleSubmit((data) => onSubmit(data, "draft"))}
+                data-testid="button-save-draft"
               >
-                {submitMutation.isPending ? "Submitting..." : "Submit App"}
+                {submitMutation.isPending ? "Saving..." : "Save as Draft"}
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                disabled={submitMutation.isPending}
+                className="px-8"
+                onClick={form.handleSubmit((data) => onSubmit(data, "pending_approval"))}
+                data-testid="button-submit-approval"
+              >
+                {submitMutation.isPending ? "Submitting..." : "Submit for Approval"}
               </Button>
             </div>
           </form>
