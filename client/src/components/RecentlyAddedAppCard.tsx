@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AppListing } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Star } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -68,6 +69,21 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
               >
                 {app.name}
               </h3>
+
+              {/* Rating Display */}
+              <div className="flex items-center gap-1 mb-1">
+                <Star
+                  className={`h-4 w-4 ${
+                    displayRating > 0
+                      ? "fill-black text-black"
+                      : "text-muted-foreground"
+                  }`}
+                />
+                <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+                  {displayRating.toFixed(1)}
+                </span>
+              </div>
+
               <p
                 className="text-sm text-muted-foreground line-clamp-2"
                 data-testid={`text-short-description-${app.id}`}
@@ -77,21 +93,12 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
             </div>
           </div>
 
-          {/* Bottom Row: Rating and Launch Button */}
+          {/* Bottom Row: Category and Launch Button */}
           <div className="flex items-center justify-between mt-auto">
-            {/* Rating Display */}
-            <div className="flex items-center gap-1">
-              <Star
-                className={`h-4 w-4 ${
-                  displayRating > 0
-                    ? "fill-black text-black"
-                    : "text-muted-foreground"
-                }`}
-              />
-              <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
-                {displayRating.toFixed(1)}
-              </span>
-            </div>
+            {/* Category Badge */}
+            <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
+              {app.category || 'Uncategorized'}
+            </Badge>
 
             {/* Launch Button */}
             <button
