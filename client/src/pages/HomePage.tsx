@@ -7,13 +7,9 @@ import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Search, TrendingUp, ArrowRight, Plus } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,13 +43,15 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-primary/25 py-32 px-4 relative">
-        <div className="absolute top-8 right-8">
-          <Link href="/submit">
-            <Button size="sm" data-testid="button-submit-app-hero">
-              <Plus className="w-4 h-4 mr-2" />
-              Submit Your App
-            </Button>
-          </Link>
+        <div className="absolute top-0 left-0 right-0 pt-8">
+          <div className="container mx-auto px-4 flex justify-end">
+            <Link href="/submit">
+              <Button size="sm" data-testid="button-submit-app-hero">
+                <Plus className="w-4 h-4 mr-2" />
+                Submit Your App
+              </Button>
+            </Link>
+          </div>
         </div>
         <div className="container mx-auto max-w-4xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
@@ -141,24 +139,36 @@ export default function HomePage() {
                 Top Rated Apps
               </h2>
             </div>
-            <Carousel
-              opts={{
-                align: "start",
-                loop: false,
-                slidesToScroll: 1,
-              }}
-              className="w-full"
+            <Slider
+              dots={true}
+              infinite={false}
+              speed={500}
+              slidesToShow={3.5}
+              slidesToScroll={1}
+              arrows={true}
+              responsive={[
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                  }
+                },
+                {
+                  breakpoint: 768,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                  }
+                }
+              ]}
             >
-              <CarouselPrevious />
-              <CarouselContent className="-ml-6">
-                {topTrendingApps.map((app) => (
-                  <CarouselItem key={app.id} className="pl-6 md:basis-1/2 lg:basis-[calc(100%/3.5)]">
-                    <AppCard app={app} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselNext />
-            </Carousel>
+              {topTrendingApps.map((app) => (
+                <div key={app.id} className="px-3">
+                  <AppCard app={app} />
+                </div>
+              ))}
+            </Slider>
           </div>
         </section>
       )}

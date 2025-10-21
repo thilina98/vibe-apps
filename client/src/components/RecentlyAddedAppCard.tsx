@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AppListing } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Star } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -37,6 +38,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
     <Link href={`/app/${app.id}`}>
       <Card
         className="p-4 hover-elevate active-elevate-2 cursor-pointer transition-all h-full"
+        style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }}
         data-testid={`card-recently-added-${app.id}`}
       >
         <div className="flex flex-col gap-3 h-full">
@@ -62,11 +64,27 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
             {/* App Info */}
             <div className="flex-1 min-w-0">
               <h3
-                className="font-semibold text-base mb-1 truncate"
+                className="font-semibold text-base truncate"
+                style={{ marginBottom: '4px' }}
                 data-testid={`text-app-name-${app.id}`}
               >
                 {app.name}
               </h3>
+
+              {/* Rating Display */}
+              <div className="flex items-center gap-1" style={{ marginBottom: '8px' }}>
+                <Star
+                  className={`h-4 w-4 ${
+                    displayRating > 0
+                      ? "fill-black text-black"
+                      : "text-muted-foreground"
+                  }`}
+                />
+                <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+                  {displayRating.toFixed(1)}
+                </span>
+              </div>
+
               <p
                 className="text-sm text-muted-foreground line-clamp-2"
                 data-testid={`text-short-description-${app.id}`}
@@ -76,26 +94,17 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
             </div>
           </div>
 
-          {/* Bottom Row: Rating and Launch Button */}
+          {/* Bottom Row: Category and Launch Button */}
           <div className="flex items-center justify-between mt-auto">
-            {/* Rating Display */}
-            <div className="flex items-center gap-1">
-              <Star
-                className={`h-4 w-4 ${
-                  displayRating > 0
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-muted-foreground"
-                }`}
-              />
-              <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
-                {displayRating.toFixed(1)}
-              </span>
-            </div>
+            {/* Category Badge */}
+            <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
+              {app.category || 'Uncategorized'}
+            </Badge>
 
             {/* Launch Button */}
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-chart-2 hover:text-chart-2/80 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               data-testid={`button-launch-${app.id}`}
             >
               Launch
