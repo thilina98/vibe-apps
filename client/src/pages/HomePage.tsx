@@ -83,11 +83,36 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+            <Slider
+              dots={true}
+              infinite={false}
+              speed={500}
+              slidesToShow={3.5}
+              slidesToScroll={1}
+              arrows={true}
+              responsive={[
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                  }
+                },
+                {
+                  breakpoint: 768,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                  }
+                }
+              ]}
+            >
               {trendingApps.map((app) => (
-                <AppCard key={app.id} app={app} />
+                <div key={app.id} className="px-3">
+                  <AppCard app={app} />
+                </div>
               ))}
-            </div>
+            </Slider>
           </div>
         </section>
       )}
@@ -127,36 +152,11 @@ export default function HomePage() {
                 Top Rated Apps
               </h2>
             </div>
-            <Slider
-              dots={true}
-              infinite={false}
-              speed={500}
-              slidesToShow={3.5}
-              slidesToScroll={1}
-              arrows={true}
-              responsive={[
-                {
-                  breakpoint: 1024,
-                  settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 1,
-                  }
-                },
-                {
-                  breakpoint: 768,
-                  settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                  }
-                }
-              ]}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
               {topTrendingApps.map((app) => (
-                <div key={app.id} className="px-3">
-                  <AppCard app={app} />
-                </div>
+                <AppCard key={app.id} app={app} />
               ))}
-            </Slider>
+            </div>
           </div>
         </section>
       )}
