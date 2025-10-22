@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AppListing } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ExternalLink, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { getToolColor } from "../lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -100,11 +100,30 @@ export function AppCard({ app }: AppCardProps) {
 
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
+              className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
               data-testid={`button-launch-${app.id}`}
             >
-              Launch
-              <ExternalLink className="w-4 h-4" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 transition-colors duration-300"
+              >
+                {/* Arrow corner (top-right L shape) - always visible */}
+                <polyline points="15 3 21 3 21 9" />
+                {/* Arrow line (diagonal) - always visible */}
+                <line x1="10" y1="14" x2="21" y2="3" />
+                {/* Box (square container) - animates in on hover */}
+                <path
+                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </svg>
             </button>
           </div>
         </div>
