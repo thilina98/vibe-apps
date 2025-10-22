@@ -13,11 +13,15 @@ import "slick-carousel/slick/slick-theme.css";
 
 // Custom arrow components for the carousel
 function NextArrow(props: any) {
-  const { onClick } = props;
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
   return (
     <button
       onClick={onClick}
-      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
       aria-label="Next slide"
     >
       <ChevronRight className="w-5 h-5 text-foreground" />
@@ -26,11 +30,15 @@ function NextArrow(props: any) {
 }
 
 function PrevArrow(props: any) {
-  const { onClick } = props;
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
   return (
     <button
       onClick={onClick}
-      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
       aria-label="Previous slide"
     >
       <ChevronLeft className="w-5 h-5 text-foreground" />
@@ -110,7 +118,7 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative px-12">
+            <div className="relative">
               <Slider
               dots={true}
               infinite={false}
