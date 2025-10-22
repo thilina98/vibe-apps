@@ -42,30 +42,23 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
         data-testid={`card-recently-added-${app.id}`}
       >
         <div className="flex gap-4 h-full">
-          {/* Left Column: Image and Category */}
-          <div className="flex flex-col gap-2 flex-shrink-0">
+          {/* Left Column: Image */}
+          <div className="flex-shrink-0">
             {/* App Logo */}
-            <div>
-              {app.previewImageUrl ? (
-                <img
-                  src={app.previewImageUrl}
-                  alt={app.name}
-                  className="w-32 h-24 rounded-md object-cover"
-                  data-testid={`img-app-logo-${app.id}`}
-                />
-              ) : (
-                <div className="w-32 h-24 rounded-md bg-muted flex items-center justify-center">
-                  <span className="text-3xl font-bold text-muted-foreground">
-                    {app.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Category Badge */}
-            <Badge variant="outline" className="text-[10px] bg-white text-foreground border-white w-fit" data-testid={`badge-category-${app.id}`}>
-              {app.category || 'Uncategorized'}
-            </Badge>
+            {app.previewImageUrl ? (
+              <img
+                src={app.previewImageUrl}
+                alt={app.name}
+                className="w-32 h-24 rounded-md object-cover"
+                data-testid={`img-app-logo-${app.id}`}
+              />
+            ) : (
+              <div className="w-32 h-24 rounded-md bg-muted flex items-center justify-center">
+                <span className="text-3xl font-bold text-muted-foreground">
+                  {app.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right Column: App Info */}
@@ -99,8 +92,14 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
               {app.shortDescription}
             </p>
 
-            {/* Launch Button */}
-            <div className="flex justify-end">
+            {/* Bottom Row: Category and Launch Button */}
+            <div className="flex items-center justify-between">
+              {/* Category Badge */}
+              <Badge variant="outline" className="text-[11px] bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
+                {app.category || 'Uncategorized'}
+              </Badge>
+
+              {/* Launch Button */}
               <button
                 onClick={handleLaunch}
                 className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
