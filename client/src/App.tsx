@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, LogOut, User as UserIcon, LayoutGrid, Shield } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, LayoutGrid, Shield, Plus } from "lucide-react";
 
 function Router() {
   return (
@@ -52,7 +52,7 @@ function Header() {
 
   return (
     <header className="border-b bg-card/50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto max-w-[1760px] px-[15px] py-3 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="text-xl font-heading font-bold text-primary hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
             Vibecoded Apps
@@ -68,6 +68,14 @@ function Header() {
         </div>
         
         <div className="flex items-center gap-3">
+          {isAuthenticated && user && (
+            <Link href="/submit">
+              <Button size="sm" data-testid="button-submit-app-header">
+                <Plus className="w-4 h-4 mr-2" />
+                Submit Your App
+              </Button>
+            </Link>
+          )}
           {isLoading ? (
             <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
           ) : isAuthenticated && user ? (
@@ -80,9 +88,6 @@ function Header() {
                       <UserIcon className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-secondary-foreground hidden sm:inline" data-testid="text-username">
-                    {getDisplayName()}
-                  </span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">

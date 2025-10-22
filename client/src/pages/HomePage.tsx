@@ -6,7 +6,7 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, TrendingUp, ArrowRight, Plus } from "lucide-react";
+import { Sparkles, Search, TrendingUp, ArrowRight } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -43,17 +43,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-primary/25 py-32 px-4 relative">
-        <div className="absolute top-0 left-0 right-0 pt-8">
-          <div className="container mx-auto px-4 flex justify-end">
-            <Link href="/submit">
-              <Button size="sm" data-testid="button-submit-app-hero">
-                <Plus className="w-4 h-4 mr-2" />
-                Submit Your App
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <div className="container mx-auto max-w-4xl text-center">
+        <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />
             <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-hero-title">
@@ -88,7 +78,7 @@ export default function HomePage() {
       {/* Trending Apps */}
       {trendingApps && trendingApps.length > 0 && (
         <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
+          <div className="container mx-auto max-w-screen-2xl">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="w-5 h-5 text-primary" />
               <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
@@ -107,7 +97,7 @@ export default function HomePage() {
       {/* Recently Added Apps */}
       {topRatedApps && topRatedApps.length > 0 && (
         <section className="py-12 px-4 bg-muted/30">
-          <div className="container mx-auto max-w-6xl">
+          <div className="container mx-auto max-w-screen-2xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
                 Recently Added Apps
@@ -132,7 +122,7 @@ export default function HomePage() {
       {/* Top Rated Apps (by trending score) */}
       {topTrendingApps && topTrendingApps.length > 0 && (
         <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
+          <div className="container mx-auto max-w-screen-2xl">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="w-5 h-5 text-primary" />
               <h2 className="text-2xl font-heading font-bold" data-testid="text-top-rated-apps-title">
