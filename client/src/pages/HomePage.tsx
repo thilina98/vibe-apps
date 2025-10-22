@@ -6,7 +6,7 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, TrendingUp, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -80,12 +80,12 @@ export default function HomePage() {
       <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
         <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-hero-title">
+            <Sparkles className="w-8 h-8 text-white drop-shadow-2xl [filter:_drop-shadow(0_10px_20px_rgb(0_0_0_/_50%))]" />
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-white drop-shadow-2xl [text-shadow:_0_4px_8px_rgb(0_0_0_/_70%),_0_8px_16px_rgb(0_0_0_/_50%)]" data-testid="text-hero-title">
               Vibecoded Apps
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground mb-20" data-testid="text-hero-subtitle">
+          <p className="text-xl text-gray-300 mb-20 drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]" data-testid="text-hero-subtitle">
             Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
 
