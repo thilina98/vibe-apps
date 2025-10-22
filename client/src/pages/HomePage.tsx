@@ -6,10 +6,37 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, TrendingUp, ArrowRight } from "lucide-react";
+import { Sparkles, Search, TrendingUp, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+
+// Custom arrow components for the carousel
+function NextArrow(props: any) {
+  const { onClick } = props;
+  return (
+    <button
+      onClick={onClick}
+      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      aria-label="Next slide"
+    >
+      <ChevronRight className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}
+
+function PrevArrow(props: any) {
+  const { onClick } = props;
+  return (
+    <button
+      onClick={onClick}
+      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      aria-label="Previous slide"
+    >
+      <ChevronLeft className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,13 +110,16 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <Slider
+            <div className="relative px-12">
+              <Slider
               dots={true}
               infinite={false}
               speed={500}
               slidesToShow={3.5}
               slidesToScroll={1}
               arrows={true}
+              nextArrow={<NextArrow />}
+              prevArrow={<PrevArrow />}
               responsive={[
                 {
                   breakpoint: 1024,
@@ -112,7 +142,8 @@ export default function HomePage() {
                   <AppCard app={app} />
                 </div>
               ))}
-            </Slider>
+              </Slider>
+            </div>
           </div>
         </section>
       )}
