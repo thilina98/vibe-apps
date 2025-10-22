@@ -54,21 +54,19 @@ export default function HomePage() {
             Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
 
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search for apps..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-search-hero"
-                />
-              </div>
-              <Button type="submit" data-testid="button-search-hero">
-                Search
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-3 bg-card rounded-xl shadow-lg pl-6 pr-3 py-3 border border-border/50">
+              <Search className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <Input
+                type="text"
+                placeholder="What app are you looking for?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
+                data-testid="input-search-hero"
+              />
+              <Button type="submit" size="lg" className="rounded-lg px-6" data-testid="button-search-hero">
+                Search Apps
               </Button>
             </div>
           </form>
