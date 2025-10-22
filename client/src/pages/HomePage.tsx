@@ -118,7 +118,7 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative">
+            <div className="relative [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full">
               <Slider
               dots={true}
               infinite={false}
@@ -146,7 +146,7 @@ export default function HomePage() {
               ]}
             >
               {trendingApps.map((app) => (
-                <div key={app.id} className="px-3">
+                <div key={app.id} className="px-3 h-full">
                   <AppCard app={app} />
                 </div>
               ))}
