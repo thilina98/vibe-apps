@@ -76,7 +76,7 @@ export function AppCard({ app }: AppCardProps) {
             {app.name}
           </h3>
 
-          <div className="flex items-center gap-1.5" style={{ marginBottom: '16px' }}>
+          <div className="flex items-center gap-1.5" style={{ marginBottom: '8px' }}>
             <Star
               className={`h-3.5 w-3.5 ${
                 ratingData?.averageRating && ratingData.averageRating > 0
@@ -89,7 +89,7 @@ export function AppCard({ app }: AppCardProps) {
             </span>
           </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1" data-testid={`text-description-${app.id}`}>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-1.5 flex-1" data-testid={`text-description-${app.id}`}>
             {app.shortDescription}
           </p>
 

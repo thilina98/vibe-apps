@@ -110,7 +110,7 @@ export default function HomePage() {
 
       {/* Trending Apps */}
       {trendingApps && trendingApps.length > 0 && (
-        <section className="py-12 px-4">
+        <section className="py-12 px-4 mt-5">
           <div className="container mx-auto max-w-screen-2xl">
             <div className="mb-6">
               <h2 className="text-3xl font-heading font-bold" data-testid="text-trending-apps-title">
@@ -151,6 +151,13 @@ export default function HomePage() {
               ))}
               </Slider>
             </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
+            </div>
           </div>
         </section>
       )}
@@ -159,22 +166,23 @@ export default function HomePage() {
       {topRatedApps && topRatedApps.length > 0 && (
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-screen-2xl">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6">
               <h2 className="text-3xl font-heading font-bold" data-testid="text-featured-apps-title">
                 Recently Added Apps
               </h2>
-              <Link href="/explore">
-                <Button variant="ghost" data-testid="button-view-all">
-                  View all
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
               {topRatedApps.slice(0, 6).map((app) => (
                 <RecentlyAddedAppCard key={app.id} app={app} />
               ))}
+            </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
             </div>
           </div>
         </section>
@@ -193,6 +201,13 @@ export default function HomePage() {
               {topTrendingApps.map((app) => (
                 <AppCard key={app.id} app={app} />
               ))}
+            </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
             </div>
           </div>
         </section>
