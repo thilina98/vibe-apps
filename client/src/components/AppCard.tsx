@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AppListing } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ExternalLink, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { getToolColor } from "../lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -54,7 +54,7 @@ export function AppCard({ app }: AppCardProps) {
             {app.tools?.slice(0, 2).map((tool) => (
               <Badge
                 key={tool.id}
-                className={`${getToolColor(tool.name)} text-xs font-medium px-2 py-0.5 no-default-hover-elevate`}
+                className={`${getToolColor(tool.name)} text-xs font-medium px-1.5 py-0.5 no-default-hover-elevate`}
                 data-testid={`badge-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 {tool.name}
@@ -62,7 +62,7 @@ export function AppCard({ app }: AppCardProps) {
             ))}
             {(app.tools?.length || 0) > 2 && (
               <Badge
-                className="bg-background/80 text-foreground text-xs font-medium px-2 py-0.5 no-default-hover-elevate"
+                className="bg-background/80 text-foreground text-xs font-medium px-1.5 py-0.5 no-default-hover-elevate"
                 data-testid="badge-more-tools"
               >
                 +{(app.tools?.length || 0) - 2}
@@ -78,7 +78,7 @@ export function AppCard({ app }: AppCardProps) {
 
           <div className="flex items-center gap-1.5" style={{ marginBottom: '8px' }}>
             <Star
-              className={`h-4 w-4 ${
+              className={`h-3.5 w-3.5 ${
                 ratingData?.averageRating && ratingData.averageRating > 0
                   ? "fill-black text-black"
                   : "text-muted-foreground"
@@ -89,22 +89,41 @@ export function AppCard({ app }: AppCardProps) {
             </span>
           </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1" data-testid={`text-description-${app.id}`}>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-1.5 flex-1" data-testid={`text-description-${app.id}`}>
             {app.shortDescription}
           </p>
 
           <div className="flex items-center justify-between gap-3 mt-auto">
-            <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
+            <Badge variant="outline" className="text-[11px] bg-white text-foreground border-white px-1.5" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
 
             <button
               onClick={handleLaunch}
-              className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
+              className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
               data-testid={`button-launch-${app.id}`}
             >
-              Launch
-              <ExternalLink className="w-4 h-4" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 transition-colors duration-300"
+              >
+                {/* Arrow corner (top-right L shape) - always visible */}
+                <polyline points="15 3 21 3 21 9" />
+                {/* Arrow line (diagonal) - always visible */}
+                <line x1="10" y1="14" x2="21" y2="3" />
+                {/* Box (square container) - animates in on hover */}
+                <path
+                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </svg>
             </button>
           </div>
         </div>

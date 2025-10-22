@@ -14,6 +14,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import AdminPortalPage from "@/pages/AdminPortalPage";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -23,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, LogOut, User as UserIcon, LayoutGrid, Shield } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, LayoutGrid, Shield, Plus } from "lucide-react";
 
 function Router() {
   return (
@@ -52,9 +53,10 @@ function Header() {
 
   return (
     <header className="border-b bg-card/50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto max-w-[1760px] px-[15px] py-3 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-heading font-bold text-primary hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
+          <Link href="/" className="flex items-center gap-2 text-xl font-heading font-bold text-primary hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
+            <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
             Vibecoded Apps
           </Link>
           <nav className="flex items-center gap-6">
@@ -71,51 +73,56 @@ function Header() {
           {isLoading ? (
             <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
           ) : isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer" data-testid="button-user-menu">
-                  <Avatar className="h-8 w-8" data-testid="avatar-user">
-                    <AvatarImage src={user?.profilePictureUrl || undefined} />
-                    <AvatarFallback>
-                      <UserIcon className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-secondary-foreground hidden sm:inline" data-testid="text-username">
-                    {getDisplayName()}
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center cursor-pointer">
-                    <UserIcon className="h-4 w-4 mr-2" />
-                    My Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/my-apps" className="flex items-center cursor-pointer">
-                    <LayoutGrid className="h-4 w-4 mr-2" />
-                    My Apps
-                  </Link>
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center cursor-pointer text-primary">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Admin Portal
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer" data-testid="menuitem-logout">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer" data-testid="button-user-menu">
+                    <Avatar className="h-8 w-8" data-testid="avatar-user">
+                      <AvatarImage src={user?.profilePictureUrl || undefined} />
+                      <AvatarFallback>
+                        <UserIcon className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center cursor-pointer">
+                      <UserIcon className="h-4 w-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-apps" className="flex items-center cursor-pointer">
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      My Apps
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex items-center cursor-pointer text-primary">
+                          <Shield className="h-4 w-4 mr-2" />
+                          Admin Portal
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer" data-testid="menuitem-logout">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Link href="/submit">
+                <Button size="sm" data-testid="button-submit-app-header">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Submit Your App
+                </Button>
+              </Link>
+            </>
           ) : (
             <Button variant="default" size="sm" data-testid="button-login" onClick={signInWithGoogle}>
               <LogIn className="h-4 w-4 mr-2" />
@@ -137,6 +144,7 @@ function App() {
           <main className="flex-1">
             <Router />
           </main>
+          <Footer />
         </div>
         <Toaster />
       </TooltipProvider>

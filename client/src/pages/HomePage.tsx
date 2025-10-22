@@ -6,10 +6,45 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, TrendingUp, ArrowRight, Plus } from "lucide-react";
+import { Sparkles, Search, TrendingUp, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+
+// Custom arrow components for the carousel
+function NextArrow(props: any) {
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
+  return (
+    <button
+      onClick={onClick}
+      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      aria-label="Next slide"
+    >
+      <ChevronRight className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}
+
+function PrevArrow(props: any) {
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
+  return (
+    <button
+      onClick={onClick}
+      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      aria-label="Previous slide"
+    >
+      <ChevronLeft className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,45 +75,33 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mx-5">
       {/* Hero Section */}
-      <section className="bg-primary/25 py-32 px-4 relative">
-        <div className="absolute top-0 left-0 right-0 pt-8">
-          <div className="container mx-auto px-4 flex justify-end">
-            <Link href="/submit">
-              <Button size="sm" data-testid="button-submit-app-hero">
-                <Plus className="w-4 h-4 mr-2" />
-                Submit Your App
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <div className="container mx-auto max-w-4xl text-center">
+      <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
+        <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-hero-title">
+            <Sparkles className="w-8 h-8 text-black" />
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-black" data-testid="text-hero-title">
               Vibecoded Apps
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground mb-20" data-testid="text-hero-subtitle">
+          <p className="text-xl text-white mb-20" data-testid="text-hero-subtitle">
             Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
 
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search for apps..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-search-hero"
-                />
-              </div>
-              <Button type="submit" data-testid="button-search-hero">
-                Search
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-3 bg-card rounded-xl shadow-lg pl-6 pr-3 py-3 border border-border/50">
+              <Search className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <Input
+                type="text"
+                placeholder="What app are you looking for?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
+                data-testid="input-search-hero"
+              />
+              <Button type="submit" size="lg" className="rounded-lg px-6" data-testid="button-search-hero">
+                Search Apps
               </Button>
             </div>
           </form>
@@ -87,65 +110,23 @@ export default function HomePage() {
 
       {/* Trending Apps */}
       {trendingApps && trendingApps.length > 0 && (
-        <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
+        <section className="py-12 px-4 mt-5">
+          <div className="container mx-auto max-w-screen-2xl">
+            <div className="mb-6">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-trending-apps-title">
                 Trending Apps
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
-              {trendingApps.map((app) => (
-                <AppCard key={app.id} app={app} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Recently Added Apps */}
-      {topRatedApps && topRatedApps.length > 0 && (
-        <section className="py-12 px-4 bg-muted/30">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
-                Recently Added Apps
-              </h2>
-              <Link href="/explore">
-                <Button variant="ghost" data-testid="button-view-all">
-                  View all
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-              {topRatedApps.slice(0, 6).map((app) => (
-                <RecentlyAddedAppCard key={app.id} app={app} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Top Rated Apps (by trending score) */}
-      {topTrendingApps && topTrendingApps.length > 0 && (
-        <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-top-rated-apps-title">
-                Top Rated Apps
-              </h2>
-            </div>
-            <Slider
+            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:!overflow-visible">
+              <Slider
               dots={true}
               infinite={false}
               speed={500}
               slidesToShow={3.5}
               slidesToScroll={1}
               arrows={true}
+              nextArrow={<NextArrow />}
+              prevArrow={<PrevArrow />}
               responsive={[
                 {
                   breakpoint: 1024,
@@ -163,12 +144,71 @@ export default function HomePage() {
                 }
               ]}
             >
-              {topTrendingApps.map((app) => (
-                <div key={app.id} className="px-3">
+              {trendingApps.map((app, index) => (
+                <div key={app.id} className={`h-full ${index === 0 ? 'pr-3' : index === trendingApps.length - 1 ? 'pl-3' : 'px-3'}`}>
                   <AppCard app={app} />
                 </div>
               ))}
-            </Slider>
+              </Slider>
+            </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recently Added Apps */}
+      {topRatedApps && topRatedApps.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-screen-2xl">
+            <div className="mb-6">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-featured-apps-title">
+                Recently Added Apps
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+              {topRatedApps.slice(0, 6).map((app) => (
+                <RecentlyAddedAppCard key={app.id} app={app} />
+              ))}
+            </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Top Rated Apps (by trending score) */}
+      {topTrendingApps && topTrendingApps.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-screen-2xl">
+            <div className="mb-6">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-top-rated-apps-title">
+                Top Rated Apps
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+              {topTrendingApps.map((app) => (
+                <AppCard key={app.id} app={app} />
+              ))}
+            </div>
+            <div className="text-center mt-2.5">
+              <Link href="/explore">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  check all the apps →
+                </span>
+              </Link>
+            </div>
           </div>
         </section>
       )}
