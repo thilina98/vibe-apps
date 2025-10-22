@@ -14,6 +14,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import AdminPortalPage from "@/pages/AdminPortalPage";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -142,6 +143,7 @@ function App() {
           <main className="flex-1">
             <Router />
           </main>
+          <Footer />
         </div>
         <Toaster />
       </TooltipProvider>

@@ -112,9 +112,8 @@ export default function HomePage() {
       {trendingApps && trendingApps.length > 0 && (
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-screen-2xl">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-trending-apps-title">
+            <div className="mb-6">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-trending-apps-title">
                 Trending Apps
               </h2>
             </div>
@@ -158,10 +157,10 @@ export default function HomePage() {
 
       {/* Recently Added Apps */}
       {topRatedApps && topRatedApps.length > 0 && (
-        <section className="py-12 px-4 bg-muted/30">
+        <section className="py-12 px-4">
           <div className="container mx-auto max-w-screen-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-featured-apps-title">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-featured-apps-title">
                 Recently Added Apps
               </h2>
               <Link href="/explore">
@@ -185,9 +184,8 @@ export default function HomePage() {
       {topTrendingApps && topTrendingApps.length > 0 && (
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-screen-2xl">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-heading font-bold" data-testid="text-top-rated-apps-title">
+            <div className="mb-6">
+              <h2 className="text-3xl font-heading font-bold" data-testid="text-top-rated-apps-title">
                 Top Rated Apps
               </h2>
             </div>
