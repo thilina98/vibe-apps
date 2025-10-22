@@ -41,94 +41,94 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
         style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }}
         data-testid={`card-recently-added-${app.id}`}
       >
-        <div className="flex flex-col gap-3 h-full">
-          <div className="flex items-start gap-4">
+        <div className="flex gap-4 h-full">
+          {/* Left Column: Image and Category */}
+          <div className="flex flex-col gap-2 flex-shrink-0">
             {/* App Logo */}
-            <div className="flex-shrink-0">
+            <div>
               {app.previewImageUrl ? (
                 <img
                   src={app.previewImageUrl}
                   alt={app.name}
-                  className="w-20 h-16 rounded-md object-cover"
+                  className="w-32 h-24 rounded-md object-cover"
                   data-testid={`img-app-logo-${app.id}`}
                 />
               ) : (
-                <div className="w-20 h-16 rounded-md bg-muted flex items-center justify-center">
-                  <span className="text-2xl font-bold text-muted-foreground">
+                <div className="w-32 h-24 rounded-md bg-muted flex items-center justify-center">
+                  <span className="text-3xl font-bold text-muted-foreground">
                     {app.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
 
-            {/* App Info */}
-            <div className="flex-1 min-w-0">
-              <h3
-                className="font-semibold text-base truncate"
-                style={{ marginBottom: '4px' }}
-                data-testid={`text-app-name-${app.id}`}
-              >
-                {app.name}
-              </h3>
-
-              {/* Rating Display */}
-              <div className="flex items-center gap-1" style={{ marginBottom: '8px' }}>
-                <Star
-                  className={`h-4 w-4 ${
-                    displayRating > 0
-                      ? "fill-black text-black"
-                      : "text-muted-foreground"
-                  }`}
-                />
-                <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
-                  {displayRating.toFixed(1)}
-                </span>
-              </div>
-
-              <p
-                className="text-sm text-muted-foreground line-clamp-2"
-                data-testid={`text-short-description-${app.id}`}
-              >
-                {app.shortDescription}
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Row: Category and Launch Button */}
-          <div className="flex items-center justify-between mt-auto">
             {/* Category Badge */}
-            <Badge variant="outline" className="text-xs bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
+            <Badge variant="outline" className="text-[10px] bg-white text-foreground border-white w-fit" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
+          </div>
+
+          {/* Right Column: App Info */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            <h3
+              className="font-semibold text-base truncate"
+              style={{ marginBottom: '4px' }}
+              data-testid={`text-app-name-${app.id}`}
+            >
+              {app.name}
+            </h3>
+
+            {/* Rating Display */}
+            <div className="flex items-center gap-1" style={{ marginBottom: '8px' }}>
+              <Star
+                className={`h-4 w-4 ${
+                  displayRating > 0
+                    ? "fill-black text-black"
+                    : "text-muted-foreground"
+                }`}
+              />
+              <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+                {displayRating.toFixed(1)}
+              </span>
+            </div>
+
+            <p
+              className="text-sm text-muted-foreground line-clamp-2 mb-3 flex-1"
+              data-testid={`text-short-description-${app.id}`}
+            >
+              {app.shortDescription}
+            </p>
 
             {/* Launch Button */}
-            <button
-              onClick={handleLaunch}
-              className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
-              data-testid={`button-launch-${app.id}`}
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5 transition-colors duration-300"
+            <div className="flex justify-end">
+              <button
+                onClick={handleLaunch}
+                className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
+                data-testid={`button-launch-${app.id}`}
               >
-                {/* Arrow corner (top-right L shape) - always visible */}
-                <polyline points="15 3 21 3 21 9" />
-                {/* Arrow line (diagonal) - always visible */}
-                <line x1="10" y1="14" x2="21" y2="3" />
-                {/* Box (square container) - animates in on hover */}
-                <path
-                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                />
-              </svg>
-            </button>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5 transition-colors duration-300"
+                >
+                  {/* Arrow corner (top-right L shape) - always visible */}
+                  <polyline points="15 3 21 3 21 9" />
+                  {/* Arrow line (diagonal) - always visible */}
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                  {/* Box (square container) - animates in on hover */}
+                  <path
+                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </Card>
