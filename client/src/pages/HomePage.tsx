@@ -42,7 +42,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-primary/25 py-32 px-4 relative">
+      <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
         <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-primary" />

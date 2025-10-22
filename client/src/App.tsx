@@ -68,59 +68,59 @@ function Header() {
         </div>
         
         <div className="flex items-center gap-3">
-          {isAuthenticated && user && (
-            <Link href="/submit">
-              <Button size="sm" data-testid="button-submit-app-header">
-                <Plus className="w-4 h-4 mr-2" />
-                Submit Your App
-              </Button>
-            </Link>
-          )}
           {isLoading ? (
             <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
           ) : isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer" data-testid="button-user-menu">
-                  <Avatar className="h-8 w-8" data-testid="avatar-user">
-                    <AvatarImage src={user?.profilePictureUrl || undefined} />
-                    <AvatarFallback>
-                      <UserIcon className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center cursor-pointer">
-                    <UserIcon className="h-4 w-4 mr-2" />
-                    My Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/my-apps" className="flex items-center cursor-pointer">
-                    <LayoutGrid className="h-4 w-4 mr-2" />
-                    My Apps
-                  </Link>
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center cursor-pointer text-primary">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Admin Portal
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer" data-testid="menuitem-logout">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer" data-testid="button-user-menu">
+                    <Avatar className="h-8 w-8" data-testid="avatar-user">
+                      <AvatarImage src={user?.profilePictureUrl || undefined} />
+                      <AvatarFallback>
+                        <UserIcon className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center cursor-pointer">
+                      <UserIcon className="h-4 w-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-apps" className="flex items-center cursor-pointer">
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      My Apps
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex items-center cursor-pointer text-primary">
+                          <Shield className="h-4 w-4 mr-2" />
+                          Admin Portal
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer" data-testid="menuitem-logout">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Link href="/submit">
+                <Button size="sm" data-testid="button-submit-app-header">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Submit Your App
+                </Button>
+              </Link>
+            </>
           ) : (
             <Button variant="default" size="sm" data-testid="button-login" onClick={signInWithGoogle}>
               <LogIn className="h-4 w-4 mr-2" />
