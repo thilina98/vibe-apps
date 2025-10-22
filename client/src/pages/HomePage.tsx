@@ -75,7 +75,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mx-5">
       {/* Hero Section */}
       <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
         <div className="container mx-auto max-w-screen-2xl text-center">
@@ -118,7 +118,7 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:!overflow-visible">
+            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:overflow-hidden">
               <Slider
               dots={true}
               infinite={false}
