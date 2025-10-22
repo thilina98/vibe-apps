@@ -94,7 +94,7 @@ export function AppCard({ app }: AppCardProps) {
           </p>
 
           <div className="flex items-center justify-between gap-3 mt-auto">
-            <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
+            <Badge variant="outline" className="text-xs bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
 

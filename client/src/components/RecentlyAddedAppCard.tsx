@@ -97,7 +97,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
           {/* Bottom Row: Category and Launch Button */}
           <div className="flex items-center justify-between mt-auto">
             {/* Category Badge */}
-            <Badge variant="outline" className="text-xs" data-testid={`badge-category-${app.id}`}>
+            <Badge variant="outline" className="text-xs bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
 
