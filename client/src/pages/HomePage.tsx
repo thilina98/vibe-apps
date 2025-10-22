@@ -80,12 +80,12 @@ export default function HomePage() {
       <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
         <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-hero-title">
+            <Sparkles className="w-8 h-8 text-black" />
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-black" data-testid="text-hero-title">
               Vibecoded Apps
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground mb-20" data-testid="text-hero-subtitle">
+          <p className="text-xl text-white mb-20" data-testid="text-hero-subtitle">
             Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
 
