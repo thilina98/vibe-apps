@@ -37,7 +37,7 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
   return (
     <Link href={`/app/${app.id}`}>
       <Card
-        className="group p-4 hover-elevate active-elevate-2 cursor-pointer transition-all h-full"
+        className="group p-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full"
         style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }}
         data-testid={`card-recently-added-${app.id}`}
       >
