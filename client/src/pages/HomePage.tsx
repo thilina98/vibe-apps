@@ -118,7 +118,7 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0">
+            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:!overflow-visible">
               <Slider
               dots={true}
               infinite={false}
