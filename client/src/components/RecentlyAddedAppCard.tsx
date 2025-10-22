@@ -63,71 +63,76 @@ export function RecentlyAddedAppCard({ app }: RecentlyAddedAppCardProps) {
 
           {/* Right Column: App Info */}
           <div className="flex-1 min-w-0 flex flex-col">
-            <h3
-              className="font-semibold text-base truncate"
-              style={{ marginBottom: '4px' }}
-              data-testid={`text-app-name-${app.id}`}
-            >
-              {app.name}
-            </h3>
+            {/* Top Row: Name and Rating/Launch */}
+            <div className="flex items-start justify-between gap-2" style={{ marginBottom: '4px' }}>
+              <h3
+                className="font-semibold text-base truncate flex-1"
+                data-testid={`text-app-name-${app.id}`}
+              >
+                {app.name}
+              </h3>
 
-            {/* Rating Display */}
-            <div className="flex items-center gap-1" style={{ marginBottom: '8px' }}>
-              <Star
-                className={`h-4 w-4 ${
-                  displayRating > 0
-                    ? "fill-black text-black"
-                    : "text-muted-foreground"
-                }`}
-              />
-              <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
-                {displayRating.toFixed(1)}
-              </span>
+              {/* Rating and Launch Button */}
+              <div className="flex items-center gap-4 flex-shrink-0">
+                {/* Rating Display */}
+                <div className="flex items-center gap-1">
+                  <Star
+                    className={`h-3.5 w-3.5 ${
+                      displayRating > 0
+                        ? "fill-black text-black"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                  <span className="text-sm font-medium" data-testid={`text-rating-${app.id}`}>
+                    {displayRating.toFixed(1)}
+                  </span>
+                </div>
+
+                {/* Launch Button */}
+                <button
+                  onClick={handleLaunch}
+                  className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
+                  data-testid={`button-launch-${app.id}`}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 transition-colors duration-300"
+                  >
+                    {/* Arrow corner (top-right L shape) - always visible */}
+                    <polyline points="15 3 21 3 21 9" />
+                    {/* Arrow line (diagonal) - always visible */}
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                    {/* Box (square container) - animates in on hover */}
+                    <path
+                      d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
+            {/* Category Badge */}
+            <div style={{ marginBottom: '8px' }}>
+              <Badge variant="outline" className="text-[11px] bg-white text-foreground border-white px-1.5" data-testid={`badge-category-${app.id}`}>
+                {app.category || 'Uncategorized'}
+              </Badge>
+            </div>
+
+            {/* Description */}
             <p
-              className="text-sm text-muted-foreground line-clamp-2 mb-3 flex-1"
+              className="text-sm text-muted-foreground line-clamp-2"
               data-testid={`text-short-description-${app.id}`}
             >
               {app.shortDescription}
             </p>
-
-            {/* Bottom Row: Category and Launch Button */}
-            <div className="flex items-center justify-between">
-              {/* Category Badge */}
-              <Badge variant="outline" className="text-[11px] bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
-                {app.category || 'Uncategorized'}
-              </Badge>
-
-              {/* Launch Button */}
-              <button
-                onClick={handleLaunch}
-                className="relative p-0 text-primary hover:text-primary/70 transition-all duration-300"
-                data-testid={`button-launch-${app.id}`}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-5 h-5 transition-colors duration-300"
-                >
-                  {/* Arrow corner (top-right L shape) - always visible */}
-                  <polyline points="15 3 21 3 21 9" />
-                  {/* Arrow line (diagonal) - always visible */}
-                  <line x1="10" y1="14" x2="21" y2="3" />
-                  {/* Box (square container) - animates in on hover */}
-                  <path
-                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
       </Card>

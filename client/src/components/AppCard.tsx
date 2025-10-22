@@ -54,7 +54,7 @@ export function AppCard({ app }: AppCardProps) {
             {app.tools?.slice(0, 2).map((tool) => (
               <Badge
                 key={tool.id}
-                className={`${getToolColor(tool.name)} text-xs font-medium px-2 py-0.5 no-default-hover-elevate`}
+                className={`${getToolColor(tool.name)} text-xs font-medium px-1.5 py-0.5 no-default-hover-elevate`}
                 data-testid={`badge-tool-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 {tool.name}
@@ -62,7 +62,7 @@ export function AppCard({ app }: AppCardProps) {
             ))}
             {(app.tools?.length || 0) > 2 && (
               <Badge
-                className="bg-background/80 text-foreground text-xs font-medium px-2 py-0.5 no-default-hover-elevate"
+                className="bg-background/80 text-foreground text-xs font-medium px-1.5 py-0.5 no-default-hover-elevate"
                 data-testid="badge-more-tools"
               >
                 +{(app.tools?.length || 0) - 2}
@@ -76,9 +76,9 @@ export function AppCard({ app }: AppCardProps) {
             {app.name}
           </h3>
 
-          <div className="flex items-center gap-1.5" style={{ marginBottom: '8px' }}>
+          <div className="flex items-center gap-1.5" style={{ marginBottom: '16px' }}>
             <Star
-              className={`h-4 w-4 ${
+              className={`h-3.5 w-3.5 ${
                 ratingData?.averageRating && ratingData.averageRating > 0
                   ? "fill-black text-black"
                   : "text-muted-foreground"
@@ -94,7 +94,7 @@ export function AppCard({ app }: AppCardProps) {
           </p>
 
           <div className="flex items-center justify-between gap-3 mt-auto">
-            <Badge variant="outline" className="text-xs bg-white text-foreground border-white" data-testid={`badge-category-${app.id}`}>
+            <Badge variant="outline" className="text-[11px] bg-white text-foreground border-white px-1.5" data-testid={`badge-category-${app.id}`}>
               {app.category || 'Uncategorized'}
             </Badge>
 
