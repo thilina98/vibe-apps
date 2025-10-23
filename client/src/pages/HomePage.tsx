@@ -117,7 +117,7 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:overflow-hidden">
+            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:overflow-hidden [&_.slick-list]:!py-8">
               <Slider
               dots={true}
               infinite={false}
@@ -145,7 +145,7 @@ export default function HomePage() {
               ]}
             >
               {trendingApps.map((app, index) => (
-                <div key={app.id} className={`h-full ${index === 0 ? 'pr-3' : index === trendingApps.length - 1 ? 'pl-3' : 'px-3'}`}>
+                <div key={app.id} className={`h-full py-8 ${index === 0 ? 'pr-3' : index === trendingApps.length - 1 ? 'pl-3' : 'px-3'}`}>
                   <AppCard app={app} />
                 </div>
               ))}
