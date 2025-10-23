@@ -6,45 +6,7 @@ import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
-// Custom arrow components for the carousel
-function NextArrow(props: any) {
-  const { onClick, className } = props;
-  // Hide arrow when it's disabled (can't scroll further)
-  if (className?.includes('slick-disabled')) {
-    return null;
-  }
-  return (
-    <button
-      onClick={onClick}
-      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
-      aria-label="Next slide"
-    >
-      <ChevronRight className="w-5 h-5 text-foreground" />
-    </button>
-  );
-}
-
-function PrevArrow(props: any) {
-  const { onClick, className } = props;
-  // Hide arrow when it's disabled (can't scroll further)
-  if (className?.includes('slick-disabled')) {
-    return null;
-  }
-  return (
-    <button
-      onClick={onClick}
-      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
-      aria-label="Previous slide"
-    >
-      <ChevronLeft className="w-5 h-5 text-foreground" />
-    </button>
-  );
-}
+import { Sparkles, Search } from "lucide-react";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -117,39 +79,10 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:overflow-hidden [&_.slick-list]:!py-8">
-              <Slider
-              dots={true}
-              infinite={false}
-              speed={500}
-              slidesToShow={3.5}
-              slidesToScroll={1}
-              arrows={true}
-              nextArrow={<NextArrow />}
-              prevArrow={<PrevArrow />}
-              responsive={[
-                {
-                  breakpoint: 1024,
-                  settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 1,
-                  }
-                },
-                {
-                  breakpoint: 768,
-                  settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                  }
-                }
-              ]}
-            >
-              {trendingApps.map((app, index) => (
-                <div key={app.id} className={`h-full py-8 ${index === 0 ? 'pr-3' : index === trendingApps.length - 1 ? 'pl-3' : 'px-3'}`}>
-                  <AppCard app={app} />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+              {trendingApps.map((app) => (
+                <AppCard key={app.id} app={app} />
               ))}
-              </Slider>
             </div>
             <div className="text-center mt-5">
               <Link href="/explore">
