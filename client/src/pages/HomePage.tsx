@@ -4,7 +4,6 @@ import { Link, useLocation } from "wouter";
 import type { AppListing } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
-import { TrendingAppCard } from "../components/TrendingAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,44 +11,40 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Custom Arrow Components for Carousel
-interface ArrowProps {
-  onClick?: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-const PrevArrow = ({ onClick, className }: ArrowProps) => {
-  // Hide arrow if slick-disabled class is present
-  if (className?.includes("slick-disabled")) return null;
-
+// Custom arrow components for the carousel
+function NextArrow(props: any) {
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
   return (
     <button
       onClick={onClick}
-      className="absolute left-2 top-1/2 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-      style={{ transform: 'translateY(-50%)' }}
-      aria-label="Previous slide"
-    >
-      <ChevronLeft className="w-6 h-6 text-gray-800" strokeWidth={2.5} />
-    </button>
-  );
-};
-
-const NextArrow = ({ onClick, className }: ArrowProps) => {
-  // Hide arrow if slick-disabled class is present
-  if (className?.includes("slick-disabled")) return null;
-
-  return (
-    <button
-      onClick={onClick}
-      className="absolute right-2 top-1/2 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-      style={{ transform: 'translateY(-50%)' }}
+      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
       aria-label="Next slide"
     >
-      <ChevronRight className="w-6 h-6 text-gray-800" strokeWidth={2.5} />
+      <ChevronRight className="w-5 h-5 text-foreground" />
     </button>
   );
-};
+}
+
+function PrevArrow(props: any) {
+  const { onClick, className } = props;
+  // Hide arrow when it's disabled (can't scroll further)
+  if (className?.includes('slick-disabled')) {
+    return null;
+  }
+  return (
+    <button
+      onClick={onClick}
+      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-card border border-border hover:bg-accent rounded-full p-3 shadow-lg transition-all hover:scale-110"
+      aria-label="Previous slide"
+    >
+      <ChevronLeft className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,14 +55,14 @@ export default function HomePage() {
     queryKey: ["/api/apps/landing/top-rated"],
   });
 
-  // Fetch top trending apps by trending score (10 for carousel)
+  // Fetch top trending apps by trending score (8 for carousel)
   const { data: topTrendingApps } = useQuery<AppListing[]>({
-    queryKey: ["/api/apps/landing/trending?limit=10"],
+    queryKey: ["/api/apps/landing/trending?limit=8"],
   });
 
-  // Fetch more trending apps (6 for trending section - 3 columns x 2 rows)
+  // Fetch more trending apps (8 for trending section)
   const { data: trendingApps } = useQuery<AppListing[]>({
-    queryKey: ["/api/apps/landing/trending?limit=6"],
+    queryKey: ["/api/apps/landing/trending?limit=8"],
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -87,11 +82,11 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-white drop-shadow-2xl [filter:_drop-shadow(0_10px_20px_rgb(0_0_0_/_50%))]" />
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white drop-shadow-2xl [text-shadow:_0_4px_8px_rgb(0_0_0_/_70%),_0_8px_16px_rgb(0_0_0_/_50%)]" data-testid="text-hero-title">
-              Find Your Frequency.
+              Vibecoded Apps
             </h1>
           </div>
           <p className="text-xl text-gray-300 mb-20 drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]" data-testid="text-hero-subtitle">
-            A showcase for intuitive creations. Built by the community.
+            Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
           </p>
 
           <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
@@ -154,8 +149,9 @@ export default function HomePage() {
                   <AppCard app={app} />
                 </div>
               ))}
+              </Slider>
             </div>
-            <div className="text-center mt-5">
+            <div className="text-center mt-2.5">
               <Link href="/explore">
                 <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   check all the apps →
@@ -181,7 +177,7 @@ export default function HomePage() {
                 <RecentlyAddedAppCard key={app.id} app={app} />
               ))}
             </div>
-            <div className="text-center mt-10">
+            <div className="text-center mt-2.5">
               <Link href="/explore">
                 <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   check all the apps →
@@ -201,45 +197,12 @@ export default function HomePage() {
                 Top Rated Apps
               </h2>
             </div>
-            <div className="carousel-container" style={{ margin: '0 -12px' }}>
-              <Slider
-                {...{
-                  dots: true,
-                  infinite: false,
-                  speed: 500,
-                  slidesToShow: 4.5,
-                  slidesToScroll: 1,
-                  prevArrow: <PrevArrow />,
-                  nextArrow: <NextArrow />,
-                  dotsClass: "slick-dots custom-dots",
-                  responsive: [
-                    {
-                      breakpoint: 1024,
-                      settings: {
-                        slidesToShow: 3.5,
-                        slidesToScroll: 1,
-                        dots: true,
-                      }
-                    },
-                    {
-                      breakpoint: 768,
-                      settings: {
-                        slidesToShow: 2.5,
-                        slidesToScroll: 1,
-                        dots: true,
-                      }
-                    }
-                  ]
-                }}
-              >
-                {topTrendingApps.map((app) => (
-                  <div key={app.id} className="px-3 h-full">
-                    <AppCard app={app} />
-                  </div>
-                ))}
-              </Slider>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+              {topTrendingApps.map((app) => (
+                <AppCard key={app.id} app={app} />
+              ))}
             </div>
-            <div className="text-center mt-10">
+            <div className="text-center mt-2.5">
               <Link href="/explore">
                 <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   check all the apps →

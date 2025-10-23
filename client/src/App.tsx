@@ -55,9 +55,9 @@ function Header() {
     <header className="border-b bg-card/50">
       <div className="container mx-auto max-w-[1760px] px-[15px] py-3 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-3 text-3xl font-heading font-bold text-black hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
+          <Link href="/" className="flex items-center gap-2 text-xl font-heading font-bold text-primary hover-elevate active-elevate-2 px-3 py-1 rounded-md" data-testid="link-home">
             <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
-            Resonance
+            Vibecoded Apps
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/explore" className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors" data-testid="link-explore">
