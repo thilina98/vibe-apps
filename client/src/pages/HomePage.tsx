@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import type { AppListing } from "@shared/schema";
 import { AppCard } from "../components/AppCard";
 import { RecentlyAddedAppCard } from "../components/RecentlyAddedAppCard";
+import { TrendingAppCard } from "../components/TrendingAppCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -64,9 +65,9 @@ export default function HomePage() {
     queryKey: ["/api/apps/landing/trending?limit=10"],
   });
 
-  // Fetch more trending apps (8 for trending section)
+  // Fetch more trending apps (6 for trending section - 3 columns x 2 rows)
   const { data: trendingApps } = useQuery<AppListing[]>({
-    queryKey: ["/api/apps/landing/trending?limit=8"],
+    queryKey: ["/api/apps/landing/trending?limit=6"],
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -121,9 +122,9 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
               {trendingApps.map((app) => (
-                <AppCard key={app.id} app={app} />
+                <TrendingAppCard key={app.id} app={app} />
               ))}
             </div>
             <div className="text-center mt-5">
