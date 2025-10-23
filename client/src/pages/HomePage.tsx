@@ -173,7 +173,7 @@ export default function HomePage() {
                 Top Rated Apps
               </h2>
             </div>
-            <div className="carousel-container">
+            <div className="carousel-container" style={{ margin: '0 -12px' }}>
               <Slider
                 {...{
                   dots: true,
