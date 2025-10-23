@@ -127,7 +127,7 @@ export default function HomePage() {
                 <TrendingAppCard key={app.id} app={app} />
               ))}
             </div>
-            <div className="text-center mt-5">
+            <div className="text-center mt-10">
               <Link href="/explore">
                 <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   check all the apps →
@@ -211,7 +211,7 @@ export default function HomePage() {
                 ))}
               </Slider>
             </div>
-            <div className="text-center mt-10">
+            <div className="text-center mt-5">
               <Link href="/explore">
                 <span className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   check all the apps →
