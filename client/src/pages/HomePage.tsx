@@ -82,11 +82,11 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-2 mb-6">
             <Sparkles className="w-8 h-8 text-white drop-shadow-2xl [filter:_drop-shadow(0_10px_20px_rgb(0_0_0_/_50%))]" />
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white drop-shadow-2xl [text-shadow:_0_4px_8px_rgb(0_0_0_/_70%),_0_8px_16px_rgb(0_0_0_/_50%)]" data-testid="text-hero-title">
-              Vibecoded Apps
+              Find Your Frequency.
             </h1>
           </div>
           <p className="text-xl text-gray-300 mb-20 drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]" data-testid="text-hero-subtitle">
-            Discover amazing apps built with AI. Search, explore, and find your next favorite tool.
+            A showcase for intuitive creations. Built by the community.
           </p>
 
           <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
