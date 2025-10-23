@@ -122,9 +122,37 @@ export default function HomePage() {
                 Trending Apps
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-              {trendingApps.map((app) => (
-                <TrendingAppCard key={app.id} app={app} />
+            <div className="relative py-6 [&_.slick-track]:flex [&_.slick-slide]:h-auto [&_.slick-slide>div]:h-full [&_.slick-track]:!ml-0 [&_.slick-list]:!pl-0 [&_.slick-list]:!overflow-visible">
+              <Slider
+              dots={true}
+              infinite={false}
+              speed={500}
+              slidesToShow={3.5}
+              slidesToScroll={1}
+              arrows={true}
+              nextArrow={<NextArrow />}
+              prevArrow={<PrevArrow />}
+              responsive={[
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                  }
+                },
+                {
+                  breakpoint: 768,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                  }
+                }
+              ]}
+            >
+              {trendingApps.map((app, index) => (
+                <div key={app.id} className={`h-full ${index === 0 ? 'pr-3' : index === trendingApps.length - 1 ? 'pl-3' : 'px-3'}`}>
+                  <AppCard app={app} />
+                </div>
               ))}
             </div>
             <div className="text-center mt-5">
