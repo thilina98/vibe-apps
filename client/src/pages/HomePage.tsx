@@ -85,12 +85,12 @@ export default function HomePage() {
       <section className="bg-primary/25 py-32 px-4 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/landing-page-background.png)' }}>
         <div className="container mx-auto max-w-screen-2xl text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-8 h-8 text-white drop-shadow-2xl [filter:_drop-shadow(0_10px_20px_rgb(0_0_0_/_50%))]" />
-            <h1 className="text-4xl md:text-5xl font-heading font-bold text-white drop-shadow-2xl [text-shadow:_0_4px_8px_rgb(0_0_0_/_70%),_0_8px_16px_rgb(0_0_0_/_50%)]" data-testid="text-hero-title">
+            <Sparkles className="w-8 h-8 text-black" />
+            <h1 className="text-4xl md:text-5xl font-heading font-bold text-black" data-testid="text-hero-title">
               Find Your Frequency.
             </h1>
           </div>
-          <p className="text-xl text-gray-300 mb-20 drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]" data-testid="text-hero-subtitle">
+          <p className="text-xl text-primary mb-20" data-testid="text-hero-subtitle">
             A showcase for intuitive creations. Built by the community.
           </p>
 
