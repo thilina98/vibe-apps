@@ -63,7 +63,7 @@ function Header() {
             <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
             Resonance
           </Link>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-6 ml-5 mt-2">
             <Link href="/explore" className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors" data-testid="link-explore">
               Explore
             </Link>
