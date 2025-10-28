@@ -433,3 +433,24 @@
   width: 20px !important;
   border-radius: 3px !important;
 }
+
+/* Gradient overlays for carousel edges */
+.carousel-gradient-left,
+.carousel-gradient-right {
+  position: absolute;
+  top: 0;
+  bottom: 40px; /* Account for dots space */
+  width: 120px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.carousel-gradient-left {
+  left: 0;
+  background: linear-gradient(to right, hsl(var(--background)) 0%, transparent 100%);
+}
+
+.carousel-gradient-right {
+  right: 0;
+  background: linear-gradient(to left, hsl(var(--background)) 0%, transparent 100%);
+}
