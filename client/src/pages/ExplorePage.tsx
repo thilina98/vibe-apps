@@ -97,24 +97,24 @@ export default function ExplorePage() {
       {/* Header */}
       <div className="border-b bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-display font-bold">Explore Apps</h1>
+          <div className="flex items-center justify-between gap-6">
+            <h1 className="text-3xl font-display font-bold whitespace-nowrap">Explore Apps</h1>
+            <div className="relative flex-1 max-w-lg">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for apps..."
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                className="pl-10"
+                data-testid="input-search-explore"
+              />
+            </div>
             <Link href="/">
-              <Button variant="outline" data-testid="button-back-home">
+              <Button variant="outline" data-testid="button-back-home" className="px-3 py-0">
                 Back to Home
               </Button>
             </Link>
-          </div>
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search for apps..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-              className="pl-10"
-              data-testid="input-search-explore"
-            />
           </div>
         </div>
       </div>
