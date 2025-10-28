@@ -61,12 +61,12 @@ export function ExploreModal({ isOpen, onClose }: ExploreModalProps) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-40"
+        className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[900px] h-[300px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[900px] h-[300px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-top-left animate-in fade-in zoom-in-90 duration-200">
         {/* Full Width Search Bar at Top */}
         <div className="w-full px-6 py-4 bg-white">
           <div className="relative">
