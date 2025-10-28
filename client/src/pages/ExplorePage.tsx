@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Plus, X, Filter, Search } from "lucide-react";
+import { Sparkles, Plus, X, Filter, Search, PackageOpen } from "lucide-react";
 
 export default function ExplorePage() {
   // Get URL params
@@ -263,7 +263,7 @@ export default function ExplorePage() {
             ) : paginatedApps.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-                  <Sparkles className="w-12 h-12 text-muted-foreground" />
+                  <PackageOpen className="w-12 h-12 text-muted-foreground" />
                 </div>
                 <h3 className="text-2xl font-display font-semibold mb-3">No apps found</h3>
                 <p className="text-muted-foreground mb-6">
