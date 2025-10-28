@@ -66,7 +66,7 @@ export function ExploreModal({ isOpen, onClose }: ExploreModalProps) {
       />
 
       {/* Modal */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[900px] h-[300px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-top-left animate-in fade-in zoom-in-90 duration-200">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[950px] h-[300px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-top-left animate-in fade-in zoom-in-90 duration-200">
         {/* Full Width Search Bar at Top */}
         <div className="w-full px-6 py-4 bg-white">
           <div className="relative">
@@ -112,26 +112,33 @@ export function ExploreModal({ isOpen, onClose }: ExploreModalProps) {
           </div>
 
           {/* Right Content Area */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {loading ? (
-              <div className="text-sm text-gray-500">Loading...</div>
-            ) : (
-              <div className="grid grid-cols-2 gap-x-12 gap-y-1">
-                {displayItems.map((item) => (
-                  <Link
-                    key={item}
-                    href={`/explore?${activeSection === "category" ? "category" : "tool"}=${encodeURIComponent(item)}`}
-                    onClick={onClose}
-                  >
-                    <div className="py-2 hover:opacity-60 transition-opacity cursor-pointer">
-                      <span className="text-sm text-gray-900">
-                        {item}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+          <div className="flex-1 relative">
+            <div className="overflow-y-auto p-6 absolute inset-0">
+              {loading ? (
+                <div className="text-sm text-gray-500">Loading...</div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-12 gap-y-1">
+                  {displayItems.map((item) => (
+                    <Link
+                      key={item}
+                      href={`/explore?${activeSection === "category" ? "category" : "tool"}=${encodeURIComponent(item)}`}
+                      onClick={onClose}
+                    >
+                      <div className="py-2 hover:opacity-60 transition-opacity cursor-pointer">
+                        <span className="text-sm text-gray-900">
+                          {item}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link href="/explore" onClick={onClose}>
+              <div className="absolute bottom-6 right-6 text-sm text-gray-600 hover:text-gray-900 cursor-pointer transition-colors">
+                Explore all Apps →
               </div>
-            )}
+            </Link>
           </div>
         </div>
       </div>
