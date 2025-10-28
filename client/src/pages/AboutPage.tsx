@@ -23,7 +23,7 @@ export default function AboutPage() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-primary" />
             <h1 className="text-4xl md:text-5xl font-heading font-bold" data-testid="text-about-hero-title">
-              About Vibecoded Apps
+              About Resonance
             </h1>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default function AboutPage() {
           </h2>
           <div className="text-lg text-muted-foreground text-center space-y-4">
             <p data-testid="text-about-us-description">
-              Welcome to Vibecoded Apps, your premier destination for discovering and sharing AI-built applications.
+              Welcome to Resonance, your premier destination for discovering and sharing AI-built applications.
               We're building a community where developers can showcase their AI-powered creations and users can
               discover innovative tools that make their lives easier.
             </p>

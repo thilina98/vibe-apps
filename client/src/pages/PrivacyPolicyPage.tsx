@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
               We collect information that you provide directly to us, including when you:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground mb-8 space-y-2">
-              <li>Create an account on Vibecoded Apps</li>
+              <li>Create an account on Resonance</li>
               <li>Submit an application to our platform</li>
               <li>Rate or review applications</li>
               <li>Communicate with us through support channels</li>
