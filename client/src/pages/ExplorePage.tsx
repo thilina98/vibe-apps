@@ -147,28 +147,18 @@ export default function ExplorePage() {
                   {/* Sort By */}
                   <div>
                     <h4 className="font-semibold text-sm mb-3">Sort By</h4>
-                    <RadioGroup value={sortBy} onValueChange={(v: any) => { setSortBy(v); setPage(1); }}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="newest" id="newest" data-testid="radio-newest" />
-                        <Label htmlFor="newest" className="cursor-pointer">Newest First</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="oldest" id="oldest" data-testid="radio-oldest" />
-                        <Label htmlFor="oldest" className="cursor-pointer">Oldest First</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="most_launched" id="most_launched" data-testid="radio-most-launched" />
-                        <Label htmlFor="most_launched" className="cursor-pointer">Most Launched</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="highest_rated" id="highest_rated" data-testid="radio-highest-rated" />
-                        <Label htmlFor="highest_rated" className="cursor-pointer">Highest Rated</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="trending" id="trending" data-testid="radio-trending" />
-                        <Label htmlFor="trending" className="cursor-pointer">Trending This Week</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select value={sortBy} onValueChange={(v: any) => { setSortBy(v); setPage(1); }}>
+                      <SelectTrigger data-testid="select-sort-by">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                        <SelectItem value="oldest">Oldest First</SelectItem>
+                        <SelectItem value="most_launched">Most Launched</SelectItem>
+                        <SelectItem value="highest_rated">Highest Rated</SelectItem>
+                        <SelectItem value="trending">Trending This Week</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Date Range */}

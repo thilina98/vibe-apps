@@ -230,7 +230,7 @@ export default function HomePage() {
                 }}
               >
                 {topTrendingApps.map((app) => (
-                  <div key={app.id} className="px-3 h-full">
+                  <div key={app.id} className="px-2 h-full">
                     <AppCard app={app} />
                   </div>
                 ))}
