@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Plus, X, Filter, Search } from "lucide-react";
+import { Sparkles, Plus, X, Filter, Search, PackageOpen } from "lucide-react";
 
 export default function ExplorePage() {
   // Get URL params
@@ -97,24 +97,24 @@ export default function ExplorePage() {
       {/* Header */}
       <div className="border-b bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-display font-bold">Explore Apps</h1>
+          <div className="flex items-center justify-between gap-6">
+            <h1 className="text-3xl font-display font-bold whitespace-nowrap">Explore Apps</h1>
+            <div className="relative flex-1 max-w-lg">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for apps..."
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                className="pl-10"
+                data-testid="input-search-explore"
+              />
+            </div>
             <Link href="/">
-              <Button variant="outline" data-testid="button-back-home">
+              <Button variant="outline" data-testid="button-back-home" className="px-3 py-0">
                 Back to Home
               </Button>
             </Link>
-          </div>
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search for apps..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-              className="pl-10"
-              data-testid="input-search-explore"
-            />
           </div>
         </div>
       </div>
@@ -147,28 +147,18 @@ export default function ExplorePage() {
                   {/* Sort By */}
                   <div>
                     <h4 className="font-semibold text-sm mb-3">Sort By</h4>
-                    <RadioGroup value={sortBy} onValueChange={(v: any) => { setSortBy(v); setPage(1); }}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="newest" id="newest" data-testid="radio-newest" />
-                        <Label htmlFor="newest" className="cursor-pointer">Newest First</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="oldest" id="oldest" data-testid="radio-oldest" />
-                        <Label htmlFor="oldest" className="cursor-pointer">Oldest First</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="most_launched" id="most_launched" data-testid="radio-most-launched" />
-                        <Label htmlFor="most_launched" className="cursor-pointer">Most Launched</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="highest_rated" id="highest_rated" data-testid="radio-highest-rated" />
-                        <Label htmlFor="highest_rated" className="cursor-pointer">Highest Rated</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="trending" id="trending" data-testid="radio-trending" />
-                        <Label htmlFor="trending" className="cursor-pointer">Trending This Week</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select value={sortBy} onValueChange={(v: any) => { setSortBy(v); setPage(1); }}>
+                      <SelectTrigger data-testid="select-sort-by">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                        <SelectItem value="oldest">Oldest First</SelectItem>
+                        <SelectItem value="most_launched">Most Launched</SelectItem>
+                        <SelectItem value="highest_rated">Highest Rated</SelectItem>
+                        <SelectItem value="trending">Trending This Week</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Date Range */}
@@ -263,7 +253,7 @@ export default function ExplorePage() {
             ) : paginatedApps.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-                  <Sparkles className="w-12 h-12 text-muted-foreground" />
+                  <PackageOpen className="w-12 h-12 text-muted-foreground" />
                 </div>
                 <h3 className="text-2xl font-display font-semibold mb-3">No apps found</h3>
                 <p className="text-muted-foreground mb-6">

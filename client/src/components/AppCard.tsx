@@ -33,7 +33,7 @@ export function AppCard({ app }: AppCardProps) {
 
   return (
     <Link href={`/app/${app.id}`}>
-      <Card className="group overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border-0 h-full flex flex-col p-4" style={{ backgroundColor: 'hsl(240 100% 97% / 0.75)' }} data-testid={`card-app-${app.id}`}>
+      <Card className="group overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer border-0 h-full flex flex-col p-4" style={{ backgroundColor: 'rgb(238 238 245 / 60%)' }} data-testid={`card-app-${app.id}`}>
         <div className="relative aspect-[5/4] overflow-hidden rounded-2xl mb-3">
           {app.previewImageUrl ? (
             <img
